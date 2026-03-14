@@ -336,7 +336,28 @@ export default function BillsPage() {
   };
 
   if (loading) {
-    return <div className="animate-pulse h-96 bg-muted rounded-xl" />;
+    return (
+      <div className="space-y-6 pt-12 md:pt-0 animate-pulse">
+        <div className="flex items-center justify-between">
+          <div><div className="h-8 w-28 bg-muted rounded-lg" /><div className="h-4 w-52 bg-muted rounded mt-2" /></div>
+          <div className="flex gap-2"><div className="h-10 w-28 bg-muted rounded-lg" /><div className="h-10 w-28 bg-muted rounded-lg" /></div>
+        </div>
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <div className="p-4 border-b border-border flex gap-4">
+            {["w-28","w-24","w-28","w-20","w-24","w-16","w-20"].map((w, i) => (
+              <div key={i} className={`h-4 ${w} bg-muted rounded`} />
+            ))}
+          </div>
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="p-4 border-b border-border/50 flex gap-4">
+              {["w-28","w-24","w-28","w-20","w-24","w-16","w-20"].map((w, j) => (
+                <div key={j} className={`h-4 ${w} bg-muted rounded`} />
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (
