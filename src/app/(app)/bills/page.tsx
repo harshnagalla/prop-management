@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Receipt, Plus, Upload, Pencil, Trash2 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
+import { toast } from "@/lib/utils/toast";
 import { Modal } from "@/components/ui/modal";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { Property } from "@/lib/db/schema";
@@ -217,43 +218,69 @@ export default function BillsPage() {
 
   const load = () => {
     Promise.all([
-      fetch("/api/bills").then((r) => r.json()),
-      fetch("/api/properties").then((r) => r.json()),
-    ]).then(([b, p]) => {
-      setBills(b);
-      setProperties(p);
-      setLoading(false);
-    });
+      fetch("/api/bills").then((r) => {
+        if (!r.ok) throw new Error();
+        return r.json();
+      }),
+      fetch("/api/properties").then((r) => {
+        if (!r.ok) throw new Error();
+        return r.json();
+      }),
+    ])
+      .then(([b, p]) => {
+        setBills(b);
+        setProperties(p);
+      })
+      .catch(() => toast.error("Failed to load bills"))
+      .finally(() => setLoading(false));
   };
 
   useEffect(load, []);
 
   const handleAdd = async (data: Record<string, unknown>) => {
-    await fetch("/api/bills", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    setShowAdd(false);
-    setAddFormData({});
-    load();
+    try {
+      const res = await fetch("/api/bills", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error();
+      toast.success("Bill added");
+      setShowAdd(false);
+      setAddFormData({});
+      load();
+    } catch {
+      toast.error("Failed to save bill");
+    }
   };
 
   const handleEdit = async (data: Record<string, unknown>) => {
     if (!editing) return;
-    await fetch(`/api/bills/${editing.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    setEditing(null);
-    load();
+    try {
+      const res = await fetch(`/api/bills/${editing.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error();
+      toast.success("Bill updated");
+      setEditing(null);
+      load();
+    } catch {
+      toast.error("Failed to update bill");
+    }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this bill? This action cannot be undone.")) return;
-    await fetch(`/api/bills/${id}`, { method: "DELETE" });
-    load();
+    try {
+      const res = await fetch(`/api/bills/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      toast.success("Bill deleted");
+      load();
+    } catch {
+      toast.error("Failed to delete bill");
+    }
   };
 
   const handleScan = async (file: File) => {
@@ -300,7 +327,7 @@ export default function BillsPage() {
         setShowScan(false);
         setShowAdd(true);
       } catch {
-        alert("Failed to scan bill. Please enter manually.");
+        toast.error("Failed to scan bill. Please enter manually.");
       } finally {
         setScanning(false);
       }

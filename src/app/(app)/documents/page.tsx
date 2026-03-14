@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { FileText, Upload, Download, Trash2 } from "lucide-react";
 import { formatDate } from "@/lib/utils/format";
+import { toast } from "@/lib/utils/toast";
 import { Modal } from "@/components/ui/modal";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { Property } from "@/lib/db/schema";
@@ -53,13 +54,21 @@ export default function DocumentsPage() {
 
   const load = () => {
     Promise.all([
-      fetch("/api/documents").then((r) => r.json()),
-      fetch("/api/properties").then((r) => r.json()),
-    ]).then(([d, p]) => {
-      setDocs(d);
-      setProperties(p);
-      setLoading(false);
-    });
+      fetch("/api/documents").then((r) => {
+        if (!r.ok) throw new Error();
+        return r.json();
+      }),
+      fetch("/api/properties").then((r) => {
+        if (!r.ok) throw new Error();
+        return r.json();
+      }),
+    ])
+      .then(([d, p]) => {
+        setDocs(d);
+        setProperties(p);
+      })
+      .catch(() => toast.error("Failed to load documents"))
+      .finally(() => setLoading(false));
   };
 
   useEffect(load, []);
@@ -71,6 +80,7 @@ export default function DocumentsPage() {
 
     if (file.size > MAX_FILE_SIZE) {
       setFileError("File size exceeds 10MB limit. Please choose a smaller file.");
+      toast.error("File too large. Maximum 10MB.");
       e.target.value = "";
       return;
     }
@@ -97,30 +107,43 @@ export default function DocumentsPage() {
 
     const reader = new FileReader();
     reader.onload = async () => {
-      const base64 = reader.result as string;
-      await fetch("/api/documents", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          file: base64,
-          fileSize: file.size,
-          mimeType: file.type,
-        }),
-      });
-      setShowUpload(false);
-      setUploading(false);
-      setForm({ propertyId: "", name: "", type: "other" });
-      setFileError("");
-      load();
+      try {
+        const base64 = reader.result as string;
+        const res = await fetch("/api/documents", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...form,
+            file: base64,
+            fileSize: file.size,
+            mimeType: file.type,
+          }),
+        });
+        if (!res.ok) throw new Error();
+        toast.success("Document uploaded");
+        setShowUpload(false);
+        setForm({ propertyId: "", name: "", type: "other" });
+        setFileError("");
+        load();
+      } catch {
+        toast.error("Upload failed");
+      } finally {
+        setUploading(false);
+      }
     };
     reader.readAsDataURL(file);
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this document?")) return;
-    await fetch(`/api/documents/${id}`, { method: "DELETE" });
-    load();
+    try {
+      const res = await fetch(`/api/documents/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      toast.success("Document deleted");
+      load();
+    } catch {
+      toast.error("Failed to delete document");
+    }
   };
 
   const filtered = filterProperty

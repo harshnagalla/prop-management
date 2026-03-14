@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { IndianRupee, Plus, Pencil, Trash2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/format";
+import { toast } from "@/lib/utils/toast";
 import { Modal } from "@/components/ui/modal";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { Property } from "@/lib/db/schema";
@@ -198,13 +199,21 @@ export default function IncomePage() {
 
   const load = () => {
     Promise.all([
-      fetch("/api/rental-income").then((r) => r.json()),
-      fetch("/api/properties").then((r) => r.json()),
-    ]).then(([i, p]) => {
-      setIncome(i);
-      setProperties(p);
-      setLoading(false);
-    });
+      fetch("/api/rental-income").then((r) => {
+        if (!r.ok) throw new Error();
+        return r.json();
+      }),
+      fetch("/api/properties").then((r) => {
+        if (!r.ok) throw new Error();
+        return r.json();
+      }),
+    ])
+      .then(([i, p]) => {
+        setIncome(i);
+        setProperties(p);
+      })
+      .catch(() => toast.error("Failed to load income records"))
+      .finally(() => setLoading(false));
   };
 
   useEffect(load, []);
@@ -224,30 +233,48 @@ export default function IncomePage() {
   };
 
   const handleAdd = async (data: Record<string, unknown>) => {
-    await fetch("/api/rental-income", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    setShowAdd(false);
-    load();
+    try {
+      const res = await fetch("/api/rental-income", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error();
+      toast.success("Payment recorded");
+      setShowAdd(false);
+      load();
+    } catch {
+      toast.error("Failed to record payment");
+    }
   };
 
   const handleEdit = async (data: Record<string, unknown>) => {
     if (!editing) return;
-    await fetch(`/api/rental-income/${editing.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    setEditing(null);
-    load();
+    try {
+      const res = await fetch(`/api/rental-income/${editing.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error();
+      toast.success("Income record updated");
+      setEditing(null);
+      load();
+    } catch {
+      toast.error("Failed to update income record");
+    }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this income record? This action cannot be undone.")) return;
-    await fetch(`/api/rental-income/${id}`, { method: "DELETE" });
-    load();
+    try {
+      const res = await fetch(`/api/rental-income/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      toast.success("Income record deleted");
+      load();
+    } catch {
+      toast.error("Failed to delete income record");
+    }
   };
 
   if (loading) return <div className="animate-pulse h-96 bg-muted rounded-xl" />;

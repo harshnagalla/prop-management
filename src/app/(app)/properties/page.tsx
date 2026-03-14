@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Building2, Plus, Pencil, Trash2 } from "lucide-react";
 import { formatCurrency, formatPercent, calcRentalYield } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
+import { toast } from "@/lib/utils/toast";
 import { Modal } from "@/components/ui/modal";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { Property } from "@/lib/db/schema";
@@ -214,38 +215,60 @@ export default function PropertiesPage() {
 
   const load = () => {
     fetch("/api/properties")
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error("Failed to load properties");
+        return r.json();
+      })
       .then(setProperties)
+      .catch(() => toast.error("Failed to load properties"))
       .finally(() => setLoading(false));
   };
 
   useEffect(load, []);
 
   const handleAdd = async (data: Record<string, unknown>) => {
-    await fetch("/api/properties", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    setShowAdd(false);
-    load();
+    try {
+      const res = await fetch("/api/properties", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to save property");
+      toast.success("Property added");
+      setShowAdd(false);
+      load();
+    } catch {
+      toast.error("Failed to save property");
+    }
   };
 
   const handleEdit = async (data: Record<string, unknown>) => {
     if (!editing) return;
-    await fetch(`/api/properties/${editing.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    setEditing(null);
-    load();
+    try {
+      const res = await fetch(`/api/properties/${editing.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to update property");
+      toast.success("Property updated");
+      setEditing(null);
+      load();
+    } catch {
+      toast.error("Failed to update property");
+    }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this property and all its bills/documents?")) return;
-    await fetch(`/api/properties/${id}`, { method: "DELETE" });
-    load();
+    try {
+      const res = await fetch(`/api/properties/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete property");
+      toast.success("Property deleted");
+      load();
+    } catch {
+      toast.error("Failed to delete property");
+    }
   };
 
   if (loading) {
