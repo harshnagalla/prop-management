@@ -13,7 +13,7 @@ None
 - [x] **Phase 1: Database & Infrastructure** - Deploy Neon DB, push schema, configure environment
 - [x] **Phase 2: Complete CRUD & File Upload** - Missing API routes, file upload, data integrity
 - [x] **Phase 3: UI Polish & UX** - Loading states, error handling, toast notifications, responsive fixes
-- [ ] **Phase 4: Deployment & PWA** - Vercel deployment, service worker, offline support
+- [x] **Phase 4: Deployment & PWA** - Vercel deployment, service worker, offline support
 
 ## Phase Details
 
@@ -50,11 +50,10 @@ Plans:
 **Depends on**: Phase 3
 **Research**: Likely (service worker patterns, Next.js PWA configuration)
 **Research topics**: next-pwa or serwist for Next.js 15, service worker caching strategies, Vercel deployment configuration for Neon
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 04-01: Deploy to Vercel, configure environment variables, verify production build
-- [ ] 04-02: Implement service worker for offline support and PWA install prompt
+- [x] 04-01: PWA service worker + Vercel deployment with env vars
 
 ## Progress
 
@@ -63,4 +62,4 @@ Plans:
 | 1. Database & Infrastructure | 1/1 | Complete | 2026-03-14 |
 | 2. Complete CRUD & File Upload | 2/2 | Complete | 2026-03-14 |
 | 3. UI Polish & UX | 1/1 | Complete | 2026-03-14 |
-| 4. Deployment & PWA | 0/2 | Not started | - |
+| 4. Deployment & PWA | 1/1 | Complete | 2026-03-15 |
