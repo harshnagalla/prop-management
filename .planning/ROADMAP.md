@@ -11,7 +11,7 @@ None
 ## Phases
 
 - [x] **Phase 1: Database & Infrastructure** - Deploy Neon DB, push schema, configure environment
-- [ ] **Phase 2: Complete CRUD & File Upload** - Missing API routes, file upload, data integrity
+- [x] **Phase 2: Complete CRUD & File Upload** - Missing API routes, file upload, data integrity
 - [ ] **Phase 3: UI Polish & UX** - Loading states, error handling, toast notifications, responsive fixes
 - [ ] **Phase 4: Deployment & PWA** - Vercel deployment, service worker, offline support
 
@@ -34,7 +34,7 @@ Plans:
 
 Plans:
 - [x] 02-01: Add bills/[id] and rental-income/[id] API routes + edit/delete UI
-- [ ] 02-02: Implement file upload API for documents (upload, store, retrieve)
+- [x] 02-02: Implement file upload API for documents (upload, store, retrieve)
 
 ### Phase 3: UI Polish & UX
 **Goal**: Polished user experience with loading states, error handling, and form validation
@@ -62,6 +62,6 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Database & Infrastructure | 1/1 | Complete | 2026-03-14 |
-| 2. Complete CRUD & File Upload | 1/2 | In progress | - |
+| 2. Complete CRUD & File Upload | 2/2 | Complete | 2026-03-14 |
 | 3. UI Polish & UX | 0/2 | Not started | - |
 | 4. Deployment & PWA | 0/2 | Not started | - |
