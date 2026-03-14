@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Receipt, Plus, Upload } from "lucide-react";
+import { Receipt, Plus, Upload, Pencil, Trash2 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 import { Modal } from "@/components/ui/modal";
@@ -34,24 +34,186 @@ interface BillWithProperty {
   createdAt: string;
 }
 
+function BillForm({
+  initial,
+  properties,
+  onSubmit,
+  onCancel,
+  submitLabel,
+}: {
+  initial?: Partial<BillWithProperty>;
+  properties: Property[];
+  onSubmit: (data: Record<string, unknown>) => void;
+  onCancel: () => void;
+  submitLabel: string;
+}) {
+  const [form, setForm] = useState({
+    propertyId: initial?.propertyId || "",
+    category: initial?.category || "electricity",
+    amount: initial?.amount || "",
+    dueDate: initial?.dueDate
+      ? new Date(initial.dueDate).toISOString().split("T")[0]
+      : "",
+    paidDate: initial?.paidDate
+      ? new Date(initial.paidDate).toISOString().split("T")[0]
+      : "",
+    isPaid: initial?.isPaid || false,
+    vendor: initial?.vendor || "",
+    referenceNumber: initial?.referenceNumber || "",
+    notes: initial?.notes || "",
+  });
+
+  const set = (k: string, v: string | boolean) =>
+    setForm((f) => ({ ...f, [k]: v }));
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit({
+          propertyId: form.propertyId,
+          category: form.category,
+          amount: form.amount,
+          dueDate: form.dueDate || null,
+          paidDate: form.paidDate || null,
+          isPaid: form.isPaid,
+          vendor: form.vendor || null,
+          referenceNumber: form.referenceNumber || null,
+          notes: form.notes || null,
+        });
+      }}
+      className="space-y-4"
+    >
+      <div>
+        <label className="text-sm text-muted-foreground">Property *</label>
+        <select
+          required
+          value={form.propertyId}
+          onChange={(e) => set("propertyId", e.target.value)}
+          className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+        >
+          <option value="">Select property</option>
+          {properties.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="text-sm text-muted-foreground">Category</label>
+          <select
+            value={form.category}
+            onChange={(e) => set("category", e.target.value)}
+            className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+          >
+            {CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {c.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="text-sm text-muted-foreground">Amount (*) *</label>
+          <input
+            type="number"
+            required
+            value={form.amount}
+            onChange={(e) => set("amount", e.target.value)}
+            className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="text-sm text-muted-foreground">Vendor</label>
+          <input
+            value={form.vendor}
+            onChange={(e) => set("vendor", e.target.value)}
+            className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+            placeholder="e.g. Torrent Power"
+          />
+        </div>
+        <div>
+          <label className="text-sm text-muted-foreground">Due Date</label>
+          <input
+            type="date"
+            value={form.dueDate}
+            onChange={(e) => set("dueDate", e.target.value)}
+            className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="text-sm text-muted-foreground">Paid Date</label>
+          <input
+            type="date"
+            value={form.paidDate}
+            onChange={(e) => set("paidDate", e.target.value)}
+            className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+          />
+        </div>
+        <div className="flex items-end pb-2">
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={form.isPaid}
+              onChange={(e) => set("isPaid", e.target.checked)}
+              className="rounded"
+            />
+            Paid
+          </label>
+        </div>
+      </div>
+      <div>
+        <label className="text-sm text-muted-foreground">Reference #</label>
+        <input
+          value={form.referenceNumber}
+          onChange={(e) => set("referenceNumber", e.target.value)}
+          className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+        />
+      </div>
+      <div>
+        <label className="text-sm text-muted-foreground">Notes</label>
+        <textarea
+          value={form.notes}
+          onChange={(e) => set("notes", e.target.value)}
+          rows={2}
+          className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+        />
+      </div>
+      <div className="flex gap-3 justify-end pt-2">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
+        >
+          {submitLabel}
+        </button>
+      </div>
+    </form>
+  );
+}
+
 export default function BillsPage() {
   const [bills, setBills] = useState<BillWithProperty[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
+  const [editing, setEditing] = useState<BillWithProperty | null>(null);
   const [showScan, setShowScan] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [scanResult, setScanResult] = useState<Record<string, unknown> | null>(null);
-
-  const [form, setForm] = useState({
-    propertyId: "",
-    category: "electricity" as string,
-    amount: "",
-    dueDate: "",
-    vendor: "",
-    referenceNumber: "",
-    notes: "",
-  });
+  const [addFormData, setAddFormData] = useState<Partial<BillWithProperty>>({});
 
   const load = () => {
     Promise.all([
@@ -66,30 +228,31 @@ export default function BillsPage() {
 
   useEffect(load, []);
 
-  const handleAdd = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAdd = async (data: Record<string, unknown>) => {
     await fetch("/api/bills", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...form,
-        amount: form.amount,
-        dueDate: form.dueDate || null,
-        vendor: form.vendor || null,
-        referenceNumber: form.referenceNumber || null,
-        notes: form.notes || null,
-      }),
+      body: JSON.stringify(data),
     });
     setShowAdd(false);
-    setForm({
-      propertyId: "",
-      category: "electricity",
-      amount: "",
-      dueDate: "",
-      vendor: "",
-      referenceNumber: "",
-      notes: "",
+    setAddFormData({});
+    load();
+  };
+
+  const handleEdit = async (data: Record<string, unknown>) => {
+    if (!editing) return;
+    await fetch(`/api/bills/${editing.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
     });
+    setEditing(null);
+    load();
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Delete this bill? This action cannot be undone.")) return;
+    await fetch(`/api/bills/${id}`, { method: "DELETE" });
     load();
   };
 
@@ -110,14 +273,14 @@ export default function BillsPage() {
         });
         const data = await res.json();
         setScanResult(data);
-        setForm((f) => ({
-          ...f,
-          amount: String(data.amount || f.amount),
-          category: data.category || f.category,
-          vendor: data.vendor || f.vendor,
-          referenceNumber: data.referenceNumber || f.referenceNumber,
-          dueDate: data.date || f.dueDate,
-        }));
+
+        const scanned: Partial<BillWithProperty> = {
+          amount: String(data.amount || ""),
+          category: data.category || "electricity",
+          vendor: data.vendor || "",
+          referenceNumber: data.referenceNumber || "",
+          dueDate: data.date || "",
+        };
 
         // Try to match property
         if (data.propertyHint && properties.length > 0) {
@@ -129,10 +292,11 @@ export default function BillsPage() {
               hint.includes(p.name.toLowerCase())
           );
           if (match) {
-            setForm((f) => ({ ...f, propertyId: match.id }));
+            scanned.propertyId = match.id;
           }
         }
 
+        setAddFormData(scanned);
         setShowScan(false);
         setShowAdd(true);
       } catch {
@@ -142,15 +306,6 @@ export default function BillsPage() {
       }
     };
     reader.readAsDataURL(file);
-  };
-
-  const markPaid = async (id: string) => {
-    await fetch("/api/bills", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, isPaid: true, paidDate: new Date().toISOString() }),
-    });
-    load();
   };
 
   if (loading) {
@@ -174,7 +329,10 @@ export default function BillsPage() {
             <Upload size={16} /> Scan Bill
           </button>
           <button
-            onClick={() => setShowAdd(true)}
+            onClick={() => {
+              setAddFormData({});
+              setShowAdd(true);
+            }}
             className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm hover:bg-primary/90"
           >
             <Plus size={16} /> Add Bill
@@ -208,6 +366,7 @@ export default function BillsPage() {
                   <th className="text-right p-4 font-medium">Amount</th>
                   <th className="text-left p-4 font-medium">Due Date</th>
                   <th className="text-center p-4 font-medium">Status</th>
+                  <th className="text-right p-4 font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -239,6 +398,22 @@ export default function BillsPage() {
                           Unpaid
                         </span>
                       )}
+                    </td>
+                    <td className="p-4 text-right">
+                      <div className="flex gap-2 justify-end">
+                        <button
+                          onClick={() => setEditing(b)}
+                          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+                        >
+                          <Pencil size={12} /> Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(b.id)}
+                          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive"
+                        >
+                          <Trash2 size={12} /> Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -283,93 +458,30 @@ export default function BillsPage() {
 
       {/* Add Bill Modal */}
       <Modal open={showAdd} onClose={() => setShowAdd(false)} title="Add Bill">
-        <form onSubmit={handleAdd} className="space-y-4">
-          <div>
-            <label className="text-sm text-muted-foreground">Property *</label>
-            <select
-              required
-              value={form.propertyId}
-              onChange={(e) => setForm((f) => ({ ...f, propertyId: e.target.value }))}
-              className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
-            >
-              <option value="">Select property</option>
-              {properties.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm text-muted-foreground">Category</label>
-              <select
-                value={form.category}
-                onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
-                className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
-              >
-                {CATEGORIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="text-sm text-muted-foreground">Amount (₹) *</label>
-              <input
-                type="number"
-                required
-                value={form.amount}
-                onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))}
-                className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm text-muted-foreground">Vendor</label>
-              <input
-                value={form.vendor}
-                onChange={(e) => setForm((f) => ({ ...f, vendor: e.target.value }))}
-                className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
-                placeholder="e.g. Torrent Power"
-              />
-            </div>
-            <div>
-              <label className="text-sm text-muted-foreground">Due Date</label>
-              <input
-                type="date"
-                value={form.dueDate}
-                onChange={(e) => setForm((f) => ({ ...f, dueDate: e.target.value }))}
-                className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="text-sm text-muted-foreground">Reference #</label>
-            <input
-              value={form.referenceNumber}
-              onChange={(e) => setForm((f) => ({ ...f, referenceNumber: e.target.value }))}
-              className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
-            />
-          </div>
-          <div className="flex gap-3 justify-end pt-2">
-            <button
-              type="button"
-              onClick={() => setShowAdd(false)}
-              className="px-4 py-2 text-sm text-muted-foreground"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg"
-            >
-              Add Bill
-            </button>
-          </div>
-        </form>
+        <BillForm
+          initial={addFormData}
+          properties={properties}
+          onSubmit={handleAdd}
+          onCancel={() => setShowAdd(false)}
+          submitLabel="Add Bill"
+        />
+      </Modal>
+
+      {/* Edit Bill Modal */}
+      <Modal
+        open={!!editing}
+        onClose={() => setEditing(null)}
+        title="Edit Bill"
+      >
+        {editing && (
+          <BillForm
+            initial={editing}
+            properties={properties}
+            onSubmit={handleEdit}
+            onCancel={() => setEditing(null)}
+            submitLabel="Update Bill"
+          />
+        )}
       </Modal>
     </div>
   );
