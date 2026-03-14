@@ -17,15 +17,23 @@ const DOC_TYPES = [
   "other",
 ] as const;
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
 interface DocEntry {
   id: string;
   propertyId: string;
   name: string;
   type: string;
-  fileUrl: string;
   fileSize: number | null;
   mimeType: string | null;
   createdAt: string;
+}
+
+function formatFileSize(bytes: number | null): string {
+  if (!bytes) return "";
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 export default function DocumentsPage() {
@@ -35,6 +43,7 @@ export default function DocumentsPage() {
   const [showUpload, setShowUpload] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [filterProperty, setFilterProperty] = useState("");
+  const [fileError, setFileError] = useState("");
 
   const [form, setForm] = useState({
     propertyId: "",
@@ -55,15 +64,37 @@ export default function DocumentsPage() {
 
   useEffect(load, []);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFileError("");
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > MAX_FILE_SIZE) {
+      setFileError("File size exceeds 10MB limit. Please choose a smaller file.");
+      e.target.value = "";
+      return;
+    }
+
+    // Auto-fill document name from filename if empty
+    if (!form.name) {
+      const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
+      setForm((f) => ({ ...f, name: nameWithoutExt }));
+    }
+  };
+
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     const fileInput = document.getElementById("doc-file") as HTMLInputElement;
     const file = fileInput?.files?.[0];
     if (!file) return;
 
+    if (file.size > MAX_FILE_SIZE) {
+      setFileError("File size exceeds 10MB limit. Please choose a smaller file.");
+      return;
+    }
+
     setUploading(true);
 
-    // Convert to base64 for storage (in production, use S3/R2)
     const reader = new FileReader();
     reader.onload = async () => {
       const base64 = reader.result as string;
@@ -72,13 +103,15 @@ export default function DocumentsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
-          fileUrl: base64,
+          file: base64,
           fileSize: file.size,
           mimeType: file.type,
         }),
       });
       setShowUpload(false);
       setUploading(false);
+      setForm({ propertyId: "", name: "", type: "other" });
+      setFileError("");
       load();
     };
     reader.readAsDataURL(file);
@@ -93,6 +126,11 @@ export default function DocumentsPage() {
   const filtered = filterProperty
     ? docs.filter((d) => d.propertyId === filterProperty)
     : docs;
+
+  const getPropertyName = (propertyId: string) => {
+    const prop = properties.find((p) => p.id === propertyId);
+    return prop?.name || "";
+  };
 
   if (loading) return <div className="animate-pulse h-96 bg-muted rounded-xl" />;
 
@@ -161,18 +199,18 @@ export default function DocumentsPage() {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>{formatDate(doc.createdAt)}</span>
-                <span>
-                  {doc.fileSize
-                    ? `${(doc.fileSize / 1024).toFixed(0)} KB`
-                    : ""}
-                </span>
+              <div className="text-xs text-muted-foreground space-y-1">
+                {getPropertyName(doc.propertyId) && (
+                  <p>{getPropertyName(doc.propertyId)}</p>
+                )}
+                <div className="flex items-center justify-between">
+                  <span>{formatDate(doc.createdAt)}</span>
+                  <span>{formatFileSize(doc.fileSize)}</span>
+                </div>
               </div>
               <div className="flex gap-2 pt-2 border-t border-border">
                 <a
-                  href={doc.fileUrl}
-                  download={doc.name}
+                  href={`/api/documents/${doc.id}?download=true`}
                   className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
                 >
                   <Download size={12} /> Download
@@ -191,7 +229,10 @@ export default function DocumentsPage() {
 
       <Modal
         open={showUpload}
-        onClose={() => setShowUpload(false)}
+        onClose={() => {
+          setShowUpload(false);
+          setFileError("");
+        }}
         title="Upload Document"
       >
         <form onSubmit={handleUpload} className="space-y-4">
@@ -240,20 +281,28 @@ export default function DocumentsPage() {
               type="file"
               required
               accept="image/*,.pdf,.doc,.docx"
+              onChange={handleFileChange}
               className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm file:mr-4 file:bg-primary file:text-primary-foreground file:border-0 file:rounded file:px-3 file:py-1 file:text-xs"
             />
+            {fileError && (
+              <p className="mt-1 text-xs text-destructive">{fileError}</p>
+            )}
+            <p className="mt-1 text-xs text-muted-foreground">Max file size: 10MB</p>
           </div>
           <div className="flex gap-3 justify-end pt-2">
             <button
               type="button"
-              onClick={() => setShowUpload(false)}
+              onClick={() => {
+                setShowUpload(false);
+                setFileError("");
+              }}
               className="px-4 py-2 text-sm text-muted-foreground"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={uploading}
+              disabled={uploading || !!fileError}
               className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg disabled:opacity-50"
             >
               {uploading ? "Uploading..." : "Upload"}
