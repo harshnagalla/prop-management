@@ -30,10 +30,10 @@ Plans:
 **Goal**: All entities have full CRUD operations, documents can be uploaded/downloaded
 **Depends on**: Phase 1
 **Research**: Unlikely (extending existing API patterns)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 02-01: Add bills/[id] and rental-income/[id] API routes (GET, PUT, DELETE)
+- [x] 02-01: Add bills/[id] and rental-income/[id] API routes + edit/delete UI
 - [ ] 02-02: Implement file upload API for documents (upload, store, retrieve)
 
 ### Phase 3: UI Polish & UX
@@ -62,6 +62,6 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Database & Infrastructure | 1/1 | Complete | 2026-03-14 |
-| 2. Complete CRUD & File Upload | 0/2 | Not started | - |
+| 2. Complete CRUD & File Upload | 1/2 | In progress | - |
 | 3. UI Polish & UX | 0/2 | Not started | - |
 | 4. Deployment & PWA | 0/2 | Not started | - |
