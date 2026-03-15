@@ -81,138 +81,157 @@ function PropertyForm({
           notes: form.notes || null,
         });
       }}
-      className="space-y-4"
+      className="space-y-5"
     >
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="col-span-1 sm:col-span-2">
-          <label className="text-sm text-muted-foreground">Name *</label>
-          <Input
-            value={form.name}
-            onChange={(e) => set("name", e.target.value)}
-            required
-            className="mt-1"
-            placeholder="e.g. Bodakdev Flat 301"
-          />
-        </div>
-        <div className="col-span-1 sm:col-span-2">
-          <label className="text-sm text-muted-foreground">Address *</label>
-          <Input
-            value={form.address}
-            onChange={(e) => set("address", e.target.value)}
-            required
-            className="mt-1"
-          />
-        </div>
-        <div>
-          <label className="text-sm text-muted-foreground">City</label>
-          <Input
-            value={form.city}
-            onChange={(e) => set("city", e.target.value)}
-            className="mt-1"
-          />
-        </div>
-        <div>
-          <label className="text-sm text-muted-foreground">Type</label>
-          <select
-            value={form.type}
-            onChange={(e) => set("type", e.target.value)}
-            className={selectClassName}
-          >
-            {PROPERTY_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t.charAt(0).toUpperCase() + t.slice(1)}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="text-sm text-muted-foreground">Status</label>
-          <select
-            value={form.status}
-            onChange={(e) => set("status", e.target.value)}
-            className={selectClassName}
-          >
-            {STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {s.replace("_", " ").replace(/\b\w/g, (c) => c.toUpperCase())}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="text-sm text-muted-foreground">Purchase Price (&#8377;)</label>
-          <Input
-            type="number"
-            value={form.purchasePrice}
-            onChange={(e) => set("purchasePrice", e.target.value)}
-            className="mt-1"
-          />
-        </div>
-        <div>
-          <label className="text-sm text-muted-foreground">Current Value (&#8377;)</label>
-          <Input
-            type="number"
-            value={form.currentValue}
-            onChange={(e) => set("currentValue", e.target.value)}
-            className="mt-1"
-          />
-        </div>
-        <div>
-          <label className="text-sm text-muted-foreground">Purchase Date</label>
-          <Input
-            type="date"
-            value={form.purchaseDate}
-            onChange={(e) => set("purchaseDate", e.target.value)}
-            className="mt-1"
-          />
-        </div>
-        <div>
-          <label className="text-sm text-muted-foreground">Area</label>
-          <div className="flex gap-2 mt-1">
+      {/* Basic Info */}
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Basic Information</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div className="col-span-1 sm:col-span-2">
+            <label className="text-sm font-medium">Name *</label>
             <Input
-              type="number"
-              value={form.area}
-              onChange={(e) => set("area", e.target.value)}
+              value={form.name}
+              onChange={(e) => set("name", e.target.value)}
+              required
+              className="mt-1"
+              placeholder="e.g. Bodakdev Flat 301"
             />
+          </div>
+          <div className="col-span-1 sm:col-span-2">
+            <label className="text-sm font-medium">Address *</label>
+            <Input
+              value={form.address}
+              onChange={(e) => set("address", e.target.value)}
+              required
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">City</label>
+            <Input
+              value={form.city}
+              onChange={(e) => set("city", e.target.value)}
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">Type</label>
             <select
-              value={form.areaUnit}
-              onChange={(e) => set("areaUnit", e.target.value)}
-              className="bg-transparent border border-border rounded-[var(--radius)] h-9 px-2 text-sm text-foreground w-24 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              value={form.type}
+              onChange={(e) => set("type", e.target.value)}
+              className={selectClassName}
             >
-              <option value="sqft">sqft</option>
-              <option value="sqm">sqm</option>
-              <option value="sqyd">sqyd</option>
+              {PROPERTY_TYPES.map((t) => (
+                <option key={t} value={t}>
+                  {t.charAt(0).toUpperCase() + t.slice(1)}
+                </option>
+              ))}
             </select>
           </div>
-        </div>
-        <div>
-          <label className="text-sm text-muted-foreground">Monthly Rent (&#8377;)</label>
-          <Input
-            type="number"
-            value={form.monthlyRent}
-            onChange={(e) => set("monthlyRent", e.target.value)}
-            className="mt-1"
-          />
-        </div>
-        <div>
-          <label className="text-sm text-muted-foreground">Tenant Name</label>
-          <Input
-            value={form.tenantName}
-            onChange={(e) => set("tenantName", e.target.value)}
-            className="mt-1"
-          />
-        </div>
-        <div className="col-span-1 sm:col-span-2">
-          <label className="text-sm text-muted-foreground">Notes</label>
-          <textarea
-            value={form.notes}
-            onChange={(e) => set("notes", e.target.value)}
-            rows={2}
-            className={textareaClassName}
-          />
+          <div>
+            <label className="text-sm font-medium">Status</label>
+            <select
+              value={form.status}
+              onChange={(e) => set("status", e.target.value)}
+              className={selectClassName}
+            >
+              {STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {s.replace("_", " ").replace(/\b\w/g, (c) => c.toUpperCase())}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="text-sm font-medium">Area</label>
+            <div className="flex gap-2 mt-1">
+              <Input
+                type="number"
+                value={form.area}
+                onChange={(e) => set("area", e.target.value)}
+              />
+              <select
+                value={form.areaUnit}
+                onChange={(e) => set("areaUnit", e.target.value)}
+                className="bg-transparent border border-border rounded-[var(--radius)] h-9 px-2 text-sm text-foreground w-24 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              >
+                <option value="sqft">sqft</option>
+                <option value="sqm">sqm</option>
+                <option value="sqyd">sqyd</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
-      <div className="flex gap-3 justify-end pt-2">
+
+      {/* Financial Info */}
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Financial Details</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <label className="text-sm font-medium">Purchase Price (&#8377;)</label>
+            <Input
+              type="number"
+              value={form.purchasePrice}
+              onChange={(e) => set("purchasePrice", e.target.value)}
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">Current Value (&#8377;)</label>
+            <Input
+              type="number"
+              value={form.currentValue}
+              onChange={(e) => set("currentValue", e.target.value)}
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">Purchase Date</label>
+            <Input
+              type="date"
+              value={form.purchaseDate}
+              onChange={(e) => set("purchaseDate", e.target.value)}
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">Monthly Rent (&#8377;)</label>
+            <Input
+              type="number"
+              value={form.monthlyRent}
+              onChange={(e) => set("monthlyRent", e.target.value)}
+              className="mt-1"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Tenant Info */}
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Tenant & Notes</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <label className="text-sm font-medium">Tenant Name</label>
+            <Input
+              value={form.tenantName}
+              onChange={(e) => set("tenantName", e.target.value)}
+              className="mt-1"
+            />
+          </div>
+          <div className="col-span-1 sm:col-span-2">
+            <label className="text-sm font-medium">Notes</label>
+            <textarea
+              value={form.notes}
+              onChange={(e) => set("notes", e.target.value)}
+              rows={2}
+              className={textareaClassName}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex gap-3 justify-end pt-3">
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>
@@ -290,21 +309,44 @@ export default function PropertiesPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6 pt-12 md:pt-0 animate-pulse">
+      <div className="space-y-8 pt-12 md:pt-0 animate-pulse">
         <div className="flex items-center justify-between">
-          <div><div className="h-8 w-40 bg-muted rounded-[var(--radius)]" /><div className="h-4 w-56 bg-muted rounded mt-2" /></div>
-          <div className="h-10 w-36 bg-muted rounded-[var(--radius)]" />
+          <div><div className="h-9 w-44 bg-muted rounded-[var(--radius)]" /><div className="h-4 w-60 bg-muted rounded mt-3" /></div>
+          <div className="h-10 w-40 bg-muted rounded-[var(--radius)]" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-card border border-border rounded-[var(--radius)] p-5 space-y-4">
-              <div className="h-5 w-32 bg-muted rounded" />
-              <div className="h-3 w-48 bg-muted rounded" />
-              <div className="grid grid-cols-2 gap-3">
-                <div className="h-10 bg-muted rounded" />
-                <div className="h-10 bg-muted rounded" />
-                <div className="h-10 bg-muted rounded" />
-                <div className="h-10 bg-muted rounded" />
+            <div key={i} className="bg-card border border-border rounded-[var(--radius)] p-6 space-y-5">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <div className="h-5 w-36 bg-muted rounded" />
+                  <div className="h-3 w-52 bg-muted rounded" />
+                </div>
+                <div className="h-5 w-16 bg-muted rounded-full" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <div className="h-3 w-12 bg-muted rounded" />
+                  <div className="h-4 w-20 bg-muted rounded" />
+                </div>
+                <div className="space-y-1.5">
+                  <div className="h-3 w-14 bg-muted rounded" />
+                  <div className="h-4 w-20 bg-muted rounded" />
+                </div>
+                <div className="space-y-1.5">
+                  <div className="h-3 w-12 bg-muted rounded" />
+                  <div className="h-4 w-16 bg-muted rounded" />
+                </div>
+                <div className="space-y-1.5">
+                  <div className="h-3 w-10 bg-muted rounded" />
+                  <div className="h-4 w-14 bg-muted rounded" />
+                </div>
+              </div>
+              <div className="border-t border-border pt-4 mt-4">
+                <div className="flex gap-2">
+                  <div className="h-8 w-8 bg-muted rounded" />
+                  <div className="h-8 w-8 bg-muted rounded" />
+                </div>
               </div>
             </div>
           ))}
@@ -314,75 +356,83 @@ export default function PropertiesPage() {
   }
 
   return (
-    <div className="space-y-6 pt-12 md:pt-0">
+    <div className="space-y-8 pt-12 md:pt-0">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Properties</h1>
-          <p className="text-muted-foreground text-sm mt-1">
+          <h1 className="text-3xl font-bold tracking-tight">Properties</h1>
+          <p className="text-muted-foreground text-sm mt-2">
             {properties.length} properties in portfolio
           </p>
         </div>
-        <Button onClick={() => setShowAdd(true)} variant="default">
-          <Plus size={16} className="mr-2" /> Add Property
+        <Button onClick={() => setShowAdd(true)} variant="default" size="lg" className="shadow-sm">
+          <Plus size={18} className="mr-2" /> Add Property
         </Button>
       </div>
 
       {properties.length === 0 ? (
-        <EmptyState
-          icon={Building2}
-          title="No properties yet"
-          description="Add your first property to start tracking your portfolio"
-          action={
-            <Button onClick={() => setShowAdd(true)} variant="default">
-              Add Property
-            </Button>
-          }
-        />
+        <div className="py-8">
+          <EmptyState
+            icon={Building2}
+            title="No properties yet"
+            description="Add your first property to start tracking your portfolio"
+            action={
+              <Button onClick={() => setShowAdd(true)} variant="default" size="lg">
+                Add Property
+              </Button>
+            }
+          />
+        </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {properties.map((p) => {
             const yld = calcRentalYield(p.monthlyRent, p.currentValue);
             return (
               <Card key={p.id}>
-                <CardContent className="p-5 space-y-4">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="font-semibold">{p.name}</h3>
-                      <p className="text-xs text-muted-foreground mt-1">
+                <CardContent className="p-6 space-y-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="text-lg font-semibold truncate">{p.name}</h3>
+                      <p className="text-xs text-muted-foreground mt-1.5">
                         {p.address}
                       </p>
                     </div>
-                    <Badge variant={getStatusBadgeVariant(p.status || "vacant")}>
+                    <Badge variant={getStatusBadgeVariant(p.status || "vacant")} className="shrink-0">
                       {p.status?.replace("_", " ")}
                     </Badge>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 text-sm">
+                  {p.type && (
+                    <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
+                      {p.type}
+                    </Badge>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="text-muted-foreground text-xs">Value</p>
-                      <p className="font-medium">
+                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Value</p>
+                      <p className="text-sm font-semibold mt-0.5">
                         {formatCurrency(p.currentValue)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-muted-foreground text-xs">Purchased</p>
-                      <p className="font-medium">
+                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Purchased</p>
+                      <p className="text-sm font-semibold mt-0.5">
                         {formatCurrency(p.purchasePrice)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-muted-foreground text-xs">Rent/mo</p>
-                      <p className="font-medium">
+                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Rent/mo</p>
+                      <p className="text-sm font-semibold mt-0.5">
                         {p.monthlyRent
                           ? formatCurrency(p.monthlyRent)
                           : "\u2014"}
                       </p>
                     </div>
                     <div>
-                      <p className="text-muted-foreground text-xs">Yield</p>
+                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Yield</p>
                       <p
                         className={cn(
-                          "font-medium",
+                          "text-sm font-semibold mt-0.5",
                           yld > 5
                             ? "text-success"
                             : yld > 3
@@ -401,7 +451,7 @@ export default function PropertiesPage() {
                     </p>
                   )}
 
-                  <div className="flex gap-1 pt-2 border-t border-border">
+                  <div className="flex gap-1 pt-4 mt-4 border-t border-border">
                     <Button
                       variant="ghost"
                       size="icon"
