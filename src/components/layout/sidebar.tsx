@@ -52,7 +52,7 @@ export function Sidebar() {
 
       <aside
         className={cn(
-          "fixed top-0 left-0 z-40 h-full w-64 bg-card border-r border-border flex flex-col transition-transform duration-200",
+          "fixed top-0 left-0 z-40 h-full w-64 bg-card border-r border-border flex flex-col transition-transform duration-200 shadow-[var(--shadow-card)]",
           "md:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full"
         )}
@@ -77,7 +77,7 @@ export function Sidebar() {
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius)] text-sm font-medium transition-colors",
                   isActive
-                    ? "bg-muted text-foreground"
+                    ? "bg-primary/10 text-primary font-semibold"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 )}
               >
