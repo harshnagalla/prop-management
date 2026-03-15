@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Building2, Plus, Pencil, Trash2, Search } from "lucide-react";
 import { formatCurrency, formatPercent, calcRentalYield } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
@@ -470,7 +471,7 @@ export default function PropertiesPage() {
                 <CardContent className="p-6 space-y-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <h3 className="text-lg font-semibold truncate">{p.name}</h3>
+                      <Link href={`/properties/${p.id}`} className="text-lg font-semibold truncate text-primary hover:underline block">{p.name}</Link>
                       <p className="text-xs text-muted-foreground mt-1.5">
                         {p.address}
                       </p>
