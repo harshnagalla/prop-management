@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 const nav = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -33,12 +34,14 @@ export function Sidebar() {
 
   return (
     <>
-      <button
+      <Button
+        variant="ghost"
+        size="icon"
         onClick={() => setOpen(!open)}
-        className="fixed top-4 left-4 z-50 md:hidden bg-card p-2 rounded-lg border border-border"
+        className="fixed top-4 left-4 z-50 md:hidden"
       >
         {open ? <X size={20} /> : <Menu size={20} />}
-      </button>
+      </Button>
 
       {open && (
         <div
@@ -72,9 +75,9 @@ export function Sidebar() {
                 href={item.href}
                 onClick={() => setOpen(false)}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                  "flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius)] text-sm font-medium transition-colors",
                   isActive
-                    ? "bg-primary/10 text-primary"
+                    ? "bg-muted text-foreground"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 )}
               >
@@ -95,12 +98,14 @@ export function Sidebar() {
                 {session?.user?.name || session?.user?.email || "User"}
               </p>
             </div>
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => signOut({ callbackUrl: "/signin" })}
-              className="text-muted-foreground hover:text-foreground"
+              className="h-8 w-8"
             >
               <LogOut size={16} />
-            </button>
+            </Button>
           </div>
         </div>
       </aside>

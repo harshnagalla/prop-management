@@ -11,8 +11,9 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { StatCard } from "@/components/ui/stat-card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { formatCurrency, formatPercent } from "@/lib/utils/format";
-import { cn } from "@/lib/utils/cn";
 
 interface DashboardData {
   properties: {
@@ -46,6 +47,25 @@ interface DashboardData {
   }>;
 }
 
+function getStatusBadgeVariant(status: string) {
+  switch (status) {
+    case "occupied":
+      return "success" as const;
+    case "vacant":
+      return "secondary" as const;
+    case "under_renovation":
+      return "warning" as const;
+    default:
+      return "secondary" as const;
+  }
+}
+
+function getYieldBadgeVariant(yld: number) {
+  if (yld > 5) return "success" as const;
+  if (yld > 3) return "secondary" as const;
+  return "warning" as const;
+}
+
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -60,10 +80,10 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="animate-pulse space-y-6">
-        <div className="h-8 bg-muted rounded w-48" />
+        <div className="h-8 bg-muted rounded-[var(--radius)] w-48" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-32 bg-muted rounded-xl" />
+            <div key={i} className="h-32 bg-muted rounded-[var(--radius)]" />
           ))}
         </div>
       </div>
@@ -107,7 +127,7 @@ export default function DashboardPage() {
         <StatCard
           title="Properties"
           value={String(props.total)}
-          subtitle={`${props.occupied} occupied · ${props.vacant} vacant`}
+          subtitle={`${props.occupied} occupied \u00b7 ${props.vacant} vacant`}
           icon={Building2}
         />
         <StatCard
@@ -141,80 +161,69 @@ export default function DashboardPage() {
       </div>
 
       {/* Property performance table */}
-      <div className="bg-card border border-border rounded-xl overflow-hidden">
-        <div className="p-5 border-b border-border">
-          <h2 className="font-semibold">Property Performance</h2>
-        </div>
-        {propertyList.length === 0 ? (
-          <div className="p-8 text-center text-muted-foreground">
-            <AlertCircle className="mx-auto mb-2" size={24} />
-            <p>No properties yet. Add your first property to see analytics.</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border text-muted-foreground">
-                  <th className="text-left p-4 font-medium">Property</th>
-                  <th className="text-left p-4 font-medium">Status</th>
-                  <th className="text-right p-4 font-medium">Value</th>
-                  <th className="text-right p-4 font-medium">Monthly Rent</th>
-                  <th className="text-right p-4 font-medium">Yield</th>
-                  <th className="text-right p-4 font-medium">ROI</th>
-                </tr>
-              </thead>
-              <tbody>
-                {propertyList.map((p) => (
-                  <tr
-                    key={p.id}
-                    className="border-b border-border/50 hover:bg-muted/30 transition-colors"
-                  >
-                    <td className="p-4 font-medium">{p.name}</td>
-                    <td className="p-4">
-                      <span
-                        className={cn(
-                          "px-2 py-1 rounded-full text-xs font-medium",
-                          p.status === "occupied"
-                            ? "bg-accent/10 text-accent"
-                            : p.status === "vacant"
-                            ? "bg-warning/10 text-warning"
-                            : "bg-muted text-muted-foreground"
-                        )}
-                      >
-                        {p.status.replace("_", " ")}
-                      </span>
-                    </td>
-                    <td className="p-4 text-right">
-                      {formatCurrency(p.currentValue)}
-                    </td>
-                    <td className="p-4 text-right">
-                      {p.monthlyRent > 0
-                        ? formatCurrency(p.monthlyRent)
-                        : "—"}
-                    </td>
-                    <td className="p-4 text-right">
-                      <span
-                        className={cn(
-                          p.rentalYield > 5
-                            ? "text-accent"
-                            : p.rentalYield > 3
-                            ? "text-foreground"
-                            : "text-warning"
-                        )}
-                      >
-                        {p.rentalYield > 0 ? formatPercent(p.rentalYield) : "—"}
-                      </span>
-                    </td>
-                    <td className="p-4 text-right">
-                      {p.roi > 0 ? formatPercent(p.roi) : "—"}
-                    </td>
+      <Card>
+        <CardHeader>
+          <CardTitle>Property Performance</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {propertyList.length === 0 ? (
+            <div className="p-8 text-center text-muted-foreground">
+              <AlertCircle className="mx-auto mb-2" size={24} />
+              <p>No properties yet. Add your first property to see analytics.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border text-muted-foreground">
+                    <th className="text-left p-3 font-medium">Property</th>
+                    <th className="text-left p-3 font-medium">Status</th>
+                    <th className="text-right p-3 font-medium">Value</th>
+                    <th className="text-right p-3 font-medium">Monthly Rent</th>
+                    <th className="text-right p-3 font-medium">Yield</th>
+                    <th className="text-right p-3 font-medium">ROI</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+                </thead>
+                <tbody>
+                  {propertyList.map((p) => (
+                    <tr
+                      key={p.id}
+                      className="border-b border-border/50 hover:bg-muted/30 transition-colors"
+                    >
+                      <td className="p-3 font-medium">{p.name}</td>
+                      <td className="p-3">
+                        <Badge variant={getStatusBadgeVariant(p.status)}>
+                          {p.status.replace("_", " ")}
+                        </Badge>
+                      </td>
+                      <td className="p-3 text-right">
+                        {formatCurrency(p.currentValue)}
+                      </td>
+                      <td className="p-3 text-right">
+                        {p.monthlyRent > 0
+                          ? formatCurrency(p.monthlyRent)
+                          : "\u2014"}
+                      </td>
+                      <td className="p-3 text-right">
+                        {p.rentalYield > 0 ? (
+                          <Badge variant={getYieldBadgeVariant(p.rentalYield)}>
+                            {formatPercent(p.rentalYield)}
+                          </Badge>
+                        ) : (
+                          "\u2014"
+                        )}
+                      </td>
+                      <td className="p-3 text-right">
+                        {p.roi > 0 ? formatPercent(p.roi) : "\u2014"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils/cn";
+import { Card, CardContent } from "@/components/ui/card";
 import type { LucideIcon } from "lucide-react";
 
 interface StatCardProps {
@@ -19,32 +20,29 @@ export function StatCard({
   className,
 }: StatCardProps) {
   return (
-    <div
-      className={cn(
-        "bg-card border border-border rounded-xl p-5 flex flex-col gap-3",
-        className
-      )}
-    >
-      <div className="flex items-center justify-between">
-        <span className="text-sm text-muted-foreground">{title}</span>
-        <Icon size={18} className="text-muted-foreground" />
-      </div>
-      <div>
-        <p className="text-2xl font-bold">{value}</p>
-        {subtitle && (
-          <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
-        )}
-        {trend && (
-          <p
-            className={cn(
-              "text-xs mt-1 font-medium",
-              trend.positive ? "text-accent" : "text-destructive"
-            )}
-          >
-            {trend.positive ? "↑" : "↓"} {trend.value}
-          </p>
-        )}
-      </div>
-    </div>
+    <Card className={cn(className)}>
+      <CardContent className="p-5 flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">{title}</span>
+          <Icon size={18} className="text-muted-foreground" />
+        </div>
+        <div>
+          <p className="text-2xl font-bold">{value}</p>
+          {subtitle && (
+            <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
+          )}
+          {trend && (
+            <p
+              className={cn(
+                "text-xs mt-1 font-medium",
+                trend.positive ? "text-success" : "text-destructive"
+              )}
+            >
+              {trend.positive ? "\u2191" : "\u2193"} {trend.value}
+            </p>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
