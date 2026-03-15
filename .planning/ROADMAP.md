@@ -47,10 +47,10 @@ Plans:
 **Goal**: Full responsive redesign — responsive layouts, touch targets, mobile navigation
 **Depends on**: Phase 6
 **Research**: Unlikely (Tailwind responsive utilities)
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 07-01: TBD
+- [ ] 07-01: Forms, tables, headers, modals — full mobile optimization
 
 ## Progress
 
@@ -62,4 +62,4 @@ Plans:
 | 4. Deployment & PWA | v1.0 | 1/1 | Complete | 2026-03-15 |
 | 5. Design System | v1.1 | 1/1 | Complete | 2026-03-15 |
 | 6. Page Redesign | v1.1 | 2/2 | Complete | 2026-03-15 |
-| 7. Mobile Responsiveness | v1.1 | 0/? | Not started | - |
+| 7. Mobile Responsiveness | v1.1 | 0/1 | Not started | - |
