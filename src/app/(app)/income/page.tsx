@@ -83,105 +83,122 @@ function IncomeForm({
           notes: (form.notes as string) || null,
         });
       }}
-      className="space-y-4"
+      className="space-y-5"
     >
+      {/* Payment Details */}
       <div>
-        <label className="text-sm text-muted-foreground">Property *</label>
-        <select
-          required
-          value={form.propertyId as string}
-          onChange={(e) => {
-            if (onPropertyChange) {
-              onPropertyChange(e.target.value, setForm);
-            } else {
-              set("propertyId", e.target.value);
-            }
-          }}
-          className={selectClassName}
-        >
-          <option value="">Select property</option>
-          {properties.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Payment Details</p>
+        <div className="space-y-5">
+          <div>
+            <label className="text-sm font-medium">Property *</label>
+            <select
+              required
+              value={form.propertyId as string}
+              onChange={(e) => {
+                if (onPropertyChange) {
+                  onPropertyChange(e.target.value, setForm);
+                } else {
+                  set("propertyId", e.target.value);
+                }
+              }}
+              className={selectClassName}
+            >
+              <option value="">Select property</option>
+              {properties.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label className="text-sm font-medium">Month</label>
+              <select
+                value={form.month as string}
+                onChange={(e) => set("month", e.target.value)}
+                className={selectClassName}
+              >
+                {MONTHS.map((m, i) => (
+                  <option key={i} value={i + 1}>{m}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-sm font-medium">Year</label>
+              <Input
+                type="number"
+                value={form.year as string}
+                onChange={(e) => set("year", e.target.value)}
+                className="mt-1"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label className="text-sm font-medium">Amount (*) *</label>
+              <Input
+                type="number"
+                required
+                value={form.amount as string}
+                onChange={(e) => set("amount", e.target.value)}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Tenant</label>
+              <Input
+                value={form.tenantName as string}
+                onChange={(e) => set("tenantName", e.target.value)}
+                className="mt-1"
+              />
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="text-sm text-muted-foreground">Month</label>
-          <select
-            value={form.month as string}
-            onChange={(e) => set("month", e.target.value)}
-            className={selectClassName}
-          >
-            {MONTHS.map((m, i) => (
-              <option key={i} value={i + 1}>{m}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="text-sm text-muted-foreground">Year</label>
-          <Input
-            type="number"
-            value={form.year as string}
-            onChange={(e) => set("year", e.target.value)}
-            className="mt-1"
-          />
-        </div>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="text-sm text-muted-foreground">Amount (*) *</label>
-          <Input
-            type="number"
-            required
-            value={form.amount as string}
-            onChange={(e) => set("amount", e.target.value)}
-            className="mt-1"
-          />
-        </div>
-        <div>
-          <label className="text-sm text-muted-foreground">Tenant</label>
-          <Input
-            value={form.tenantName as string}
-            onChange={(e) => set("tenantName", e.target.value)}
-            className="mt-1"
-          />
-        </div>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="text-sm text-muted-foreground">Received Date</label>
-          <Input
-            type="date"
-            value={form.receivedDate as string}
-            onChange={(e) => set("receivedDate", e.target.value)}
-            className="mt-1"
-          />
-        </div>
-        <div className="flex items-end pb-2">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={form.isReceived as boolean}
-              onChange={(e) => set("isReceived", e.target.checked)}
-              className="rounded"
+
+      {/* Date & Status */}
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Date & Status</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <label className="text-sm font-medium">Received Date</label>
+            <Input
+              type="date"
+              value={form.receivedDate as string}
+              onChange={(e) => set("receivedDate", e.target.value)}
+              className="mt-1"
             />
-            Received
-          </label>
+          </div>
+          <div className="flex items-end pb-2">
+            <label className="flex items-center gap-2 text-sm font-medium">
+              <input
+                type="checkbox"
+                checked={form.isReceived as boolean}
+                onChange={(e) => set("isReceived", e.target.checked)}
+                className="rounded"
+              />
+              Received
+            </label>
+          </div>
         </div>
       </div>
+
+      {/* Notes */}
       <div>
-        <label className="text-sm text-muted-foreground">Notes</label>
-        <textarea
-          value={form.notes as string}
-          onChange={(e) => set("notes", e.target.value)}
-          rows={2}
-          className={textareaClassName}
-        />
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Notes</p>
+        <div>
+          <label className="text-sm font-medium">Notes</label>
+          <textarea
+            value={form.notes as string}
+            onChange={(e) => set("notes", e.target.value)}
+            rows={2}
+            className={textareaClassName}
+          />
+        </div>
       </div>
-      <div className="flex gap-3 justify-end pt-2">
+
+      <div className="flex gap-3 justify-end pt-3">
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>
@@ -282,9 +299,9 @@ export default function IncomePage() {
 
   if (loading) {
     return (
-      <div className="space-y-6 pt-12 md:pt-0 animate-pulse">
+      <div className="space-y-8 pt-12 md:pt-0 animate-pulse">
         <div className="flex items-center justify-between">
-          <div><div className="h-8 w-40 bg-muted rounded-[var(--radius)]" /><div className="h-4 w-52 bg-muted rounded mt-2" /></div>
+          <div><div className="h-9 w-44 bg-muted rounded-[var(--radius)]" /><div className="h-4 w-52 bg-muted rounded mt-3" /></div>
           <div className="h-10 w-40 bg-muted rounded-[var(--radius)]" />
         </div>
         {[1, 2].map((g) => (
@@ -322,11 +339,11 @@ export default function IncomePage() {
   );
 
   return (
-    <div className="space-y-6 pt-12 md:pt-0">
+    <div className="space-y-8 pt-12 md:pt-0">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Rental Income</h1>
-          <p className="text-muted-foreground text-sm mt-1">
+          <h1 className="text-3xl font-bold tracking-tight">Rental Income</h1>
+          <p className="text-muted-foreground text-sm mt-2">
             Track rent payments by property
           </p>
         </div>
@@ -336,16 +353,18 @@ export default function IncomePage() {
       </div>
 
       {income.length === 0 ? (
-        <EmptyState
-          icon={IndianRupee}
-          title="No income recorded"
-          description="Record rental payments as they come in"
-          action={
-            <Button onClick={() => setShowAdd(true)} variant="default">
-              Record Payment
-            </Button>
-          }
-        />
+        <div className="py-8">
+          <EmptyState
+            icon={IndianRupee}
+            title="No income recorded"
+            description="Record rental payments as they come in"
+            action={
+              <Button onClick={() => setShowAdd(true)} variant="default">
+                Record Payment
+              </Button>
+            }
+          />
+        </div>
       ) : (
         <div className="space-y-6">
           {Object.entries(grouped)
@@ -358,25 +377,25 @@ export default function IncomePage() {
                     <CardTitle>
                       {MONTHS[parseInt(month) - 1]} {year}
                     </CardTitle>
-                    <span className="text-sm font-medium text-accent">
+                    <span className="text-sm font-semibold text-accent tabular-nums">
                       {formatCurrency(group.total)}
                     </span>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-6 pt-0">
                     <div className="divide-y divide-border/50">
                       {group.entries.map((entry) => (
-                        <div key={entry.id} className="py-3 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                          <div>
+                        <div key={entry.id} className="py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div className="min-w-0">
                             <p className="font-medium text-sm">{entry.propertyName}</p>
                             {entry.tenantName && (
-                              <p className="text-xs text-muted-foreground">
+                              <p className="text-xs text-muted-foreground mt-1">
                                 {entry.tenantName}
                               </p>
                             )}
                           </div>
                           <div className="flex items-center gap-4">
                             <div className="sm:text-right">
-                              <p className="font-medium text-sm">
+                              <p className="font-semibold text-sm tabular-nums">
                                 {formatCurrency(entry.amount)}
                               </p>
                               {entry.isReceived ? (
