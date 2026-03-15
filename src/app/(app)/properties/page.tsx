@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Building2, Plus, Pencil, Trash2 } from "lucide-react";
+import { Building2, Plus, Pencil, Trash2, Search } from "lucide-react";
 import { formatCurrency, formatPercent, calcRentalYield } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/utils/toast";
@@ -248,6 +248,27 @@ export default function PropertiesPage() {
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState<Property | null>(null);
+  const [search, setSearch] = useState("");
+  const [filterType, setFilterType] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+
+  const filtered = properties.filter((p) => {
+    const matchesSearch = search === "" ||
+      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      p.address.toLowerCase().includes(search.toLowerCase()) ||
+      (p.city || "").toLowerCase().includes(search.toLowerCase());
+    const matchesType = filterType === "all" || p.type === filterType;
+    const matchesStatus = filterStatus === "all" || p.status === filterStatus;
+    return matchesSearch && matchesType && matchesStatus;
+  });
+
+  const filtersActive = search !== "" || filterType !== "all" || filterStatus !== "all";
+
+  const clearFilters = () => {
+    setSearch("");
+    setFilterType("all");
+    setFilterStatus("all");
+  };
 
   const load = () => {
     fetch("/api/properties")
@@ -361,13 +382,58 @@ export default function PropertiesPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Properties</h1>
           <p className="text-muted-foreground text-sm mt-2">
-            {properties.length} properties in portfolio
+            {filtersActive
+              ? `${filtered.length} of ${properties.length} properties`
+              : `${properties.length} properties in portfolio`}
           </p>
         </div>
         <Button onClick={() => setShowAdd(true)} variant="default" size="lg" className="shadow-sm">
           <Plus size={18} className="mr-2" /> Add Property
         </Button>
       </div>
+
+      {properties.length > 0 && (
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative sm:max-w-xs w-full">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            <Input
+              placeholder="Search properties..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+            className={`${selectClassName} mt-0 sm:w-40`}
+          >
+            <option value="all">All Types</option>
+            {PROPERTY_TYPES.map((t) => (
+              <option key={t} value={t}>
+                {t.charAt(0).toUpperCase() + t.slice(1)}
+              </option>
+            ))}
+          </select>
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className={`${selectClassName} mt-0 sm:w-40`}
+          >
+            <option value="all">All Statuses</option>
+            {STATUSES.map((s) => (
+              <option key={s} value={s}>
+                {s.replace("_", " ").replace(/\b\w/g, (c) => c.toUpperCase())}
+              </option>
+            ))}
+          </select>
+          {filtersActive && (
+            <Button variant="ghost" size="sm" onClick={clearFilters} className="self-center">
+              Clear
+            </Button>
+          )}
+        </div>
+      )}
 
       {properties.length === 0 ? (
         <div className="py-8">
@@ -382,9 +448,22 @@ export default function PropertiesPage() {
             }
           />
         </div>
+      ) : filtered.length === 0 ? (
+        <div className="py-8">
+          <EmptyState
+            icon={Building2}
+            title="No properties match filters"
+            description="Try adjusting your search or filter criteria"
+            action={
+              <Button onClick={clearFilters} variant="outline">
+                Clear Filters
+              </Button>
+            }
+          />
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {properties.map((p) => {
+          {filtered.map((p) => {
             const yld = calcRentalYield(p.monthlyRent, p.currentValue);
             return (
               <Card key={p.id}>
