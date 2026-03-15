@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { bills, rentalIncome } from "@/lib/db/schema";
 import { eq, sql } from "drizzle-orm";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 
 function generateLast12Months(): { label: string; month: number; year: number }[] {
   const months: { label: string; month: number; year: number }[] = [];
@@ -16,7 +16,7 @@ function generateLast12Months(): { label: string; month: number; year: number }[
 }
 
 export async function GET() {
-  const session = await auth();
+  const { data: session } = await auth.getSession();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

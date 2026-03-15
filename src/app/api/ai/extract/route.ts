@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { extractBillData, extractSpreadsheetData } from "@/lib/ai/gemini";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 
 export async function POST(req: NextRequest) {
-  const session = await auth();
+  const { data: session } = await auth.getSession();
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { file, mimeType, mode } = await req.json();

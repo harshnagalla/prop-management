@@ -1,15 +1,17 @@
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Toaster } from "@/components/ui/toaster";
+
+export const dynamic = "force-dynamic";
 
 export default async function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth();
-  if (!session?.user) redirect("/signin");
+  const { data: session } = await auth.getSession();
+  if (!session?.user) redirect("/auth/sign-in");
 
   return (
     <div className="min-h-screen flex">

@@ -14,7 +14,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import { useSession, signOut } from "next-auth/react";
+import { authClient } from "@/lib/auth/client";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -29,7 +29,7 @@ const nav = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const { data: session } = authClient.useSession();
   const [open, setOpen] = useState(false);
 
   return (
@@ -101,7 +101,7 @@ export function Sidebar() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => signOut({ callbackUrl: "/signin" })}
+              onClick={() => authClient.signOut()}
               className="h-8 w-8"
             >
               <LogOut size={16} />

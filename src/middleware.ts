@@ -1,7 +1,11 @@
-export { auth as middleware } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
+
+export default auth.middleware({
+  loginUrl: "/auth/sign-in",
+});
 
 export const config = {
   matcher: [
-    "/((?!api/auth|signin|_next/static|_next/image|favicon.ico|manifest.json|icon-.*\\.png).*)",
+    "/((?!api/auth|auth|_next/static|_next/image|favicon.ico|manifest.json|icon-.*\\.png).*)",
   ],
 };
