@@ -7,10 +7,35 @@ import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/utils/toast";
 import { Modal } from "@/components/ui/modal";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import type { Property } from "@/lib/db/schema";
 
 const PROPERTY_TYPES = ["residential", "commercial", "industrial", "land", "mixed"] as const;
 const STATUSES = ["occupied", "vacant", "under_renovation", "for_sale"] as const;
+
+const selectClassName =
+  "mt-1 w-full bg-transparent border border-border rounded-[var(--radius)] h-9 px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+
+const textareaClassName =
+  "mt-1 w-full bg-transparent border border-border rounded-[var(--radius)] px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+
+function getStatusBadgeVariant(status: string) {
+  switch (status) {
+    case "occupied":
+      return "success" as const;
+    case "vacant":
+      return "secondary" as const;
+    case "under_renovation":
+      return "warning" as const;
+    case "for_sale":
+      return "outline" as const;
+    default:
+      return "secondary" as const;
+  }
+}
 
 function PropertyForm({
   initial,
@@ -61,29 +86,29 @@ function PropertyForm({
       <div className="grid grid-cols-2 gap-4">
         <div className="col-span-2">
           <label className="text-sm text-muted-foreground">Name *</label>
-          <input
+          <Input
             value={form.name}
             onChange={(e) => set("name", e.target.value)}
             required
-            className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+            className="mt-1"
             placeholder="e.g. Bodakdev Flat 301"
           />
         </div>
         <div className="col-span-2">
           <label className="text-sm text-muted-foreground">Address *</label>
-          <input
+          <Input
             value={form.address}
             onChange={(e) => set("address", e.target.value)}
             required
-            className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+            className="mt-1"
           />
         </div>
         <div>
           <label className="text-sm text-muted-foreground">City</label>
-          <input
+          <Input
             value={form.city}
             onChange={(e) => set("city", e.target.value)}
-            className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+            className="mt-1"
           />
         </div>
         <div>
@@ -91,7 +116,7 @@ function PropertyForm({
           <select
             value={form.type}
             onChange={(e) => set("type", e.target.value)}
-            className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+            className={selectClassName}
           >
             {PROPERTY_TYPES.map((t) => (
               <option key={t} value={t}>
@@ -105,7 +130,7 @@ function PropertyForm({
           <select
             value={form.status}
             onChange={(e) => set("status", e.target.value)}
-            className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+            className={selectClassName}
           >
             {STATUSES.map((s) => (
               <option key={s} value={s}>
@@ -115,45 +140,44 @@ function PropertyForm({
           </select>
         </div>
         <div>
-          <label className="text-sm text-muted-foreground">Purchase Price (₹)</label>
-          <input
+          <label className="text-sm text-muted-foreground">Purchase Price (&#8377;)</label>
+          <Input
             type="number"
             value={form.purchasePrice}
             onChange={(e) => set("purchasePrice", e.target.value)}
-            className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+            className="mt-1"
           />
         </div>
         <div>
-          <label className="text-sm text-muted-foreground">Current Value (₹)</label>
-          <input
+          <label className="text-sm text-muted-foreground">Current Value (&#8377;)</label>
+          <Input
             type="number"
             value={form.currentValue}
             onChange={(e) => set("currentValue", e.target.value)}
-            className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+            className="mt-1"
           />
         </div>
         <div>
           <label className="text-sm text-muted-foreground">Purchase Date</label>
-          <input
+          <Input
             type="date"
             value={form.purchaseDate}
             onChange={(e) => set("purchaseDate", e.target.value)}
-            className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+            className="mt-1"
           />
         </div>
         <div>
           <label className="text-sm text-muted-foreground">Area</label>
           <div className="flex gap-2 mt-1">
-            <input
+            <Input
               type="number"
               value={form.area}
               onChange={(e) => set("area", e.target.value)}
-              className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
             />
             <select
               value={form.areaUnit}
               onChange={(e) => set("areaUnit", e.target.value)}
-              className="bg-muted border border-border rounded-lg px-2 py-2 text-sm w-24"
+              className="bg-transparent border border-border rounded-[var(--radius)] h-9 px-2 text-sm text-foreground w-24 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <option value="sqft">sqft</option>
               <option value="sqm">sqm</option>
@@ -162,20 +186,20 @@ function PropertyForm({
           </div>
         </div>
         <div>
-          <label className="text-sm text-muted-foreground">Monthly Rent (₹)</label>
-          <input
+          <label className="text-sm text-muted-foreground">Monthly Rent (&#8377;)</label>
+          <Input
             type="number"
             value={form.monthlyRent}
             onChange={(e) => set("monthlyRent", e.target.value)}
-            className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+            className="mt-1"
           />
         </div>
         <div>
           <label className="text-sm text-muted-foreground">Tenant Name</label>
-          <input
+          <Input
             value={form.tenantName}
             onChange={(e) => set("tenantName", e.target.value)}
-            className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+            className="mt-1"
           />
         </div>
         <div className="col-span-2">
@@ -184,24 +208,17 @@ function PropertyForm({
             value={form.notes}
             onChange={(e) => set("notes", e.target.value)}
             rows={2}
-            className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+            className={textareaClassName}
           />
         </div>
       </div>
       <div className="flex gap-3 justify-end pt-2">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground"
-        >
+        <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
-        </button>
-        <button
-          type="submit"
-          className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
-        >
+        </Button>
+        <Button type="submit" variant="default">
           {initial ? "Update" : "Add Property"}
-        </button>
+        </Button>
       </div>
     </form>
   );
@@ -275,12 +292,12 @@ export default function PropertiesPage() {
     return (
       <div className="space-y-6 pt-12 md:pt-0 animate-pulse">
         <div className="flex items-center justify-between">
-          <div><div className="h-8 w-40 bg-muted rounded-lg" /><div className="h-4 w-56 bg-muted rounded mt-2" /></div>
-          <div className="h-10 w-36 bg-muted rounded-lg" />
+          <div><div className="h-8 w-40 bg-muted rounded-[var(--radius)]" /><div className="h-4 w-56 bg-muted rounded mt-2" /></div>
+          <div className="h-10 w-36 bg-muted rounded-[var(--radius)]" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-card border border-border rounded-xl p-5 space-y-4">
+            <div key={i} className="bg-card border border-border rounded-[var(--radius)] p-5 space-y-4">
               <div className="h-5 w-32 bg-muted rounded" />
               <div className="h-3 w-48 bg-muted rounded" />
               <div className="grid grid-cols-2 gap-3">
@@ -305,12 +322,9 @@ export default function PropertiesPage() {
             {properties.length} properties in portfolio
           </p>
         </div>
-        <button
-          onClick={() => setShowAdd(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm hover:bg-primary/90"
-        >
-          <Plus size={16} /> Add Property
-        </button>
+        <Button onClick={() => setShowAdd(true)} variant="default">
+          <Plus size={16} className="mr-2" /> Add Property
+        </Button>
       </div>
 
       {properties.length === 0 ? (
@@ -319,12 +333,9 @@ export default function PropertiesPage() {
           title="No properties yet"
           description="Add your first property to start tracking your portfolio"
           action={
-            <button
-              onClick={() => setShowAdd(true)}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm"
-            >
+            <Button onClick={() => setShowAdd(true)} variant="default">
               Add Property
-            </button>
+            </Button>
           }
         />
       ) : (
@@ -332,90 +343,84 @@ export default function PropertiesPage() {
           {properties.map((p) => {
             const yld = calcRentalYield(p.monthlyRent, p.currentValue);
             return (
-              <div
-                key={p.id}
-                className="bg-card border border-border rounded-xl p-5 space-y-4"
-              >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-semibold">{p.name}</h3>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {p.address}
-                    </p>
+              <Card key={p.id}>
+                <CardContent className="p-5 space-y-4">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="font-semibold">{p.name}</h3>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {p.address}
+                      </p>
+                    </div>
+                    <Badge variant={getStatusBadgeVariant(p.status || "vacant")}>
+                      {p.status?.replace("_", " ")}
+                    </Badge>
                   </div>
-                  <span
-                    className={cn(
-                      "px-2 py-1 rounded-full text-xs font-medium",
-                      p.status === "occupied"
-                        ? "bg-accent/10 text-accent"
-                        : p.status === "vacant"
-                        ? "bg-warning/10 text-warning"
-                        : "bg-muted text-muted-foreground"
-                    )}
-                  >
-                    {p.status?.replace("_", " ")}
-                  </span>
-                </div>
 
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div>
-                    <p className="text-muted-foreground text-xs">Value</p>
-                    <p className="font-medium">
-                      {formatCurrency(p.currentValue)}
-                    </p>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <p className="text-muted-foreground text-xs">Value</p>
+                      <p className="font-medium">
+                        {formatCurrency(p.currentValue)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground text-xs">Purchased</p>
+                      <p className="font-medium">
+                        {formatCurrency(p.purchasePrice)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground text-xs">Rent/mo</p>
+                      <p className="font-medium">
+                        {p.monthlyRent
+                          ? formatCurrency(p.monthlyRent)
+                          : "\u2014"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground text-xs">Yield</p>
+                      <p
+                        className={cn(
+                          "font-medium",
+                          yld > 5
+                            ? "text-success"
+                            : yld > 3
+                            ? "text-foreground"
+                            : "text-warning"
+                        )}
+                      >
+                        {yld > 0 ? formatPercent(yld) : "\u2014"}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-muted-foreground text-xs">Purchased</p>
-                    <p className="font-medium">
-                      {formatCurrency(p.purchasePrice)}
+
+                  {p.tenantName && (
+                    <p className="text-xs text-muted-foreground">
+                      Tenant: {p.tenantName}
                     </p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground text-xs">Rent/mo</p>
-                    <p className="font-medium">
-                      {p.monthlyRent
-                        ? formatCurrency(p.monthlyRent)
-                        : "—"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground text-xs">Yield</p>
-                    <p
-                      className={cn(
-                        "font-medium",
-                        yld > 5
-                          ? "text-accent"
-                          : yld > 3
-                          ? "text-foreground"
-                          : "text-warning"
-                      )}
+                  )}
+
+                  <div className="flex gap-1 pt-2 border-t border-border">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setEditing(p)}
+                      className="h-8 w-8"
                     >
-                      {yld > 0 ? formatPercent(yld) : "—"}
-                    </p>
+                      <Pencil size={14} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDelete(p.id)}
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                    >
+                      <Trash2 size={14} />
+                    </Button>
                   </div>
-                </div>
-
-                {p.tenantName && (
-                  <p className="text-xs text-muted-foreground">
-                    Tenant: {p.tenantName}
-                  </p>
-                )}
-
-                <div className="flex gap-2 pt-2 border-t border-border">
-                  <button
-                    onClick={() => setEditing(p)}
-                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-                  >
-                    <Pencil size={12} /> Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(p.id)}
-                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive"
-                  >
-                    <Trash2 size={12} /> Delete
-                  </button>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             );
           })}
         </div>
