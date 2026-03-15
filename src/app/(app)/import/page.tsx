@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Upload, FileSpreadsheet, Check, AlertCircle } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/format";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface ExtractedProperty {
   name: string;
@@ -65,7 +67,7 @@ export default function ImportPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             name: prop.name,
-            address: prop.address || "—",
+            address: prop.address || "\u2014",
             type: prop.type || "residential",
             status: prop.monthlyRent ? "occupied" : "vacant",
             purchasePrice: prop.purchasePrice || null,
@@ -106,7 +108,7 @@ export default function ImportPage() {
       </div>
 
       {step === "upload" && (
-        <label className="block border-2 border-dashed border-border rounded-xl p-12 text-center cursor-pointer hover:border-primary/50 transition-colors">
+        <label className="block border-2 border-dashed border-border rounded-[var(--radius)] p-12 text-center cursor-pointer hover:border-primary/50 hover:bg-muted/30 transition-colors">
           {extracting ? (
             <div className="space-y-3">
               <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin mx-auto" />
@@ -146,112 +148,110 @@ export default function ImportPage() {
               Found {extracted.length} properties. Select which to import:
             </p>
             <div className="flex gap-2">
-              <button
-                onClick={() => setStep("upload")}
-                className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground"
-              >
+              <Button variant="outline" onClick={() => setStep("upload")}>
                 Re-upload
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="default"
                 onClick={handleImport}
                 disabled={selected.size === 0 || importing}
-                className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg disabled:opacity-50"
               >
                 {importing
                   ? "Importing..."
                   : `Import ${selected.size} Properties`}
-              </button>
+              </Button>
             </div>
           </div>
 
           <div className="space-y-3">
             {extracted.map((prop, idx) => (
-              <div
+              <Card
                 key={idx}
                 onClick={() => toggleSelect(idx)}
-                className={`bg-card border rounded-xl p-4 cursor-pointer transition-colors ${
+                className={`cursor-pointer transition-colors ${
                   selected.has(idx)
                     ? "border-primary/50 bg-primary/5"
-                    : "border-border"
+                    : ""
                 }`}
               >
-                <div className="flex items-start gap-3">
-                  <div
-                    className={`w-5 h-5 rounded border-2 flex items-center justify-center mt-0.5 ${
-                      selected.has(idx)
-                        ? "border-primary bg-primary"
-                        : "border-border"
-                    }`}
-                  >
-                    {selected.has(idx) && (
-                      <Check size={12} className="text-white" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium">{prop.name}</p>
-                    {prop.address && (
-                      <p className="text-xs text-muted-foreground">
-                        {prop.address}
-                      </p>
-                    )}
-                    <div className="flex gap-4 mt-2 text-xs text-muted-foreground">
-                      {prop.purchasePrice && (
-                        <span>
-                          Bought: {formatCurrency(prop.purchasePrice)}
-                        </span>
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <div
+                      className={`w-5 h-5 rounded border-2 flex items-center justify-center mt-0.5 ${
+                        selected.has(idx)
+                          ? "border-primary bg-primary"
+                          : "border-border"
+                      }`}
+                    >
+                      {selected.has(idx) && (
+                        <Check size={12} className="text-white" />
                       )}
-                      {prop.currentValue && (
-                        <span>
-                          Value: {formatCurrency(prop.currentValue)}
-                        </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium">{prop.name}</p>
+                      {prop.address && (
+                        <p className="text-xs text-muted-foreground">
+                          {prop.address}
+                        </p>
                       )}
-                      {prop.monthlyRent && (
-                        <span>
-                          Rent: {formatCurrency(prop.monthlyRent)}/mo
-                        </span>
-                      )}
-                      {prop.area && <span>{prop.area} sqft</span>}
+                      <div className="flex gap-4 mt-2 text-xs text-muted-foreground">
+                        {prop.purchasePrice && (
+                          <span>
+                            Bought: {formatCurrency(prop.purchasePrice)}
+                          </span>
+                        )}
+                        {prop.currentValue && (
+                          <span>
+                            Value: {formatCurrency(prop.currentValue)}
+                          </span>
+                        )}
+                        {prop.monthlyRent && (
+                          <span>
+                            Rent: {formatCurrency(prop.monthlyRent)}/mo
+                          </span>
+                        )}
+                        {prop.area && <span>{prop.area} sqft</span>}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
       )}
 
       {step === "done" && (
-        <div className="bg-card border border-border rounded-xl p-8 text-center space-y-4">
-          <div className="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center mx-auto">
-            <Check size={32} className="text-accent" />
-          </div>
-          <h2 className="text-xl font-semibold">Import Complete</h2>
-          <p className="text-muted-foreground">
-            {results.success} properties imported successfully
-            {results.failed > 0 && (
-              <span className="text-destructive">
-                , {results.failed} failed
-              </span>
-            )}
-          </p>
-          <div className="flex gap-3 justify-center pt-4">
-            <button
-              onClick={() => {
-                setStep("upload");
-                setExtracted([]);
-              }}
-              className="px-4 py-2 text-sm border border-border rounded-lg"
-            >
-              Import More
-            </button>
-            <a
-              href="/properties"
-              className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg"
-            >
-              View Properties
-            </a>
-          </div>
-        </div>
+        <Card>
+          <CardContent className="p-8 text-center space-y-4">
+            <div className="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center mx-auto">
+              <Check size={32} className="text-accent" />
+            </div>
+            <h2 className="text-xl font-semibold">Import Complete</h2>
+            <p className="text-muted-foreground">
+              {results.success} properties imported successfully
+              {results.failed > 0 && (
+                <span className="text-destructive">
+                  , {results.failed} failed
+                </span>
+              )}
+            </p>
+            <div className="flex gap-3 justify-center pt-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setStep("upload");
+                  setExtracted([]);
+                }}
+              >
+                Import More
+              </Button>
+              <Button variant="default" asChild>
+                <a href="/properties">View Properties</a>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

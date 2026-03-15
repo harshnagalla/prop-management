@@ -6,6 +6,9 @@ import { formatDate } from "@/lib/utils/format";
 import { toast } from "@/lib/utils/toast";
 import { Modal } from "@/components/ui/modal";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
 import type { Property } from "@/lib/db/schema";
 
 const DOC_TYPES = [
@@ -19,6 +22,9 @@ const DOC_TYPES = [
 ] as const;
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+const selectClassName =
+  "mt-1 w-full bg-transparent border border-border rounded-[var(--radius)] h-9 px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
 interface DocEntry {
   id: string;
@@ -159,19 +165,21 @@ export default function DocumentsPage() {
     return (
       <div className="space-y-6 pt-12 md:pt-0 animate-pulse">
         <div className="flex items-center justify-between">
-          <div><div className="h-8 w-36 bg-muted rounded-lg" /><div className="h-4 w-48 bg-muted rounded mt-2" /></div>
-          <div className="h-10 w-28 bg-muted rounded-lg" />
+          <div><div className="h-8 w-36 bg-muted rounded-[var(--radius)]" /><div className="h-4 w-48 bg-muted rounded mt-2" /></div>
+          <div className="h-10 w-28 bg-muted rounded-[var(--radius)]" />
         </div>
-        <div className="h-10 w-40 bg-muted rounded-lg" />
+        <div className="h-9 w-40 bg-muted rounded-[var(--radius)]" />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-card border border-border rounded-xl p-4 space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-muted rounded-lg" />
-                <div><div className="h-4 w-28 bg-muted rounded" /><div className="h-3 w-20 bg-muted rounded mt-1" /></div>
-              </div>
-              <div className="flex justify-between"><div className="h-3 w-24 bg-muted rounded" /><div className="h-3 w-16 bg-muted rounded" /></div>
-            </div>
+            <Card key={i}>
+              <CardContent className="p-4 space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-muted rounded-[var(--radius)]" />
+                  <div><div className="h-4 w-28 bg-muted rounded" /><div className="h-3 w-20 bg-muted rounded mt-1" /></div>
+                </div>
+                <div className="flex justify-between"><div className="h-3 w-24 bg-muted rounded" /><div className="h-3 w-16 bg-muted rounded" /></div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>
@@ -187,12 +195,9 @@ export default function DocumentsPage() {
             Property papers and records
           </p>
         </div>
-        <button
-          onClick={() => setShowUpload(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm hover:bg-primary/90"
-        >
-          <Upload size={16} /> Upload
-        </button>
+        <Button variant="default" onClick={() => setShowUpload(true)}>
+          <Upload size={16} className="mr-2" /> Upload
+        </Button>
       </div>
 
       {/* Filter */}
@@ -200,7 +205,7 @@ export default function DocumentsPage() {
         <select
           value={filterProperty}
           onChange={(e) => setFilterProperty(e.target.value)}
-          className="bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+          className="bg-transparent border border-border rounded-[var(--radius)] h-9 px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
           <option value="">All Properties</option>
           {properties.map((p) => (
@@ -215,58 +220,55 @@ export default function DocumentsPage() {
           title="No documents"
           description="Upload property papers, sale deeds, and other records"
           action={
-            <button
-              onClick={() => setShowUpload(true)}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm"
-            >
+            <Button onClick={() => setShowUpload(true)} variant="default">
               Upload Document
-            </button>
+            </Button>
           }
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((doc) => (
-            <div
-              key={doc.id}
-              className="bg-card border border-border rounded-xl p-4 space-y-3"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <FileText size={18} className="text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-sm">{doc.name}</p>
-                    <p className="text-xs text-muted-foreground capitalize">
-                      {doc.type.replace("_", " ")}
-                    </p>
+            <Card key={doc.id}>
+              <CardContent className="p-4 space-y-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-[var(--radius)] bg-primary/10 flex items-center justify-center">
+                      <FileText size={18} className="text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm">{doc.name}</p>
+                      <p className="text-xs text-muted-foreground capitalize">
+                        {doc.type.replace("_", " ")}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="text-xs text-muted-foreground space-y-1">
-                {getPropertyName(doc.propertyId) && (
-                  <p>{getPropertyName(doc.propertyId)}</p>
-                )}
-                <div className="flex items-center justify-between">
-                  <span>{formatDate(doc.createdAt)}</span>
-                  <span>{formatFileSize(doc.fileSize)}</span>
+                <div className="text-xs text-muted-foreground space-y-1">
+                  {getPropertyName(doc.propertyId) && (
+                    <p>{getPropertyName(doc.propertyId)}</p>
+                  )}
+                  <div className="flex items-center justify-between">
+                    <span>{formatDate(doc.createdAt)}</span>
+                    <span>{formatFileSize(doc.fileSize)}</span>
+                  </div>
                 </div>
-              </div>
-              <div className="flex gap-2 pt-2 border-t border-border">
-                <a
-                  href={`/api/documents/${doc.id}?download=true`}
-                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-                >
-                  <Download size={12} /> Download
-                </a>
-                <button
-                  onClick={() => handleDelete(doc.id)}
-                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive"
-                >
-                  <Trash2 size={12} /> Delete
-                </button>
-              </div>
-            </div>
+                <div className="flex gap-1 pt-2 border-t border-border">
+                  <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                    <a href={`/api/documents/${doc.id}?download=true`}>
+                      <Download size={14} />
+                    </a>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDelete(doc.id)}
+                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                  >
+                    <Trash2 size={14} />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}
@@ -286,7 +288,7 @@ export default function DocumentsPage() {
               required
               value={form.propertyId}
               onChange={(e) => setForm((f) => ({ ...f, propertyId: e.target.value }))}
-              className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+              className={selectClassName}
             >
               <option value="">Select property</option>
               {properties.map((p) => (
@@ -296,11 +298,11 @@ export default function DocumentsPage() {
           </div>
           <div>
             <label className="text-sm text-muted-foreground">Document Name *</label>
-            <input
+            <Input
               required
               value={form.name}
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-              className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+              className="mt-1"
               placeholder="e.g. Sale Deed - Bodakdev"
             />
           </div>
@@ -309,7 +311,7 @@ export default function DocumentsPage() {
             <select
               value={form.type}
               onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}
-              className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+              className={selectClassName}
             >
               {DOC_TYPES.map((t) => (
                 <option key={t} value={t}>
@@ -326,7 +328,7 @@ export default function DocumentsPage() {
               required
               accept="image/*,.pdf,.doc,.docx"
               onChange={handleFileChange}
-              className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm file:mr-4 file:bg-primary file:text-primary-foreground file:border-0 file:rounded file:px-3 file:py-1 file:text-xs"
+              className="mt-1 w-full bg-transparent border border-border rounded-[var(--radius)] px-3 py-2 text-sm file:mr-4 file:bg-primary file:text-primary-foreground file:border-0 file:rounded-[var(--radius)] file:px-3 file:py-1 file:text-xs"
             />
             {fileError && (
               <p className="mt-1 text-xs text-destructive">{fileError}</p>
@@ -334,23 +336,23 @@ export default function DocumentsPage() {
             <p className="mt-1 text-xs text-muted-foreground">Max file size: 10MB</p>
           </div>
           <div className="flex gap-3 justify-end pt-2">
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={() => {
                 setShowUpload(false);
                 setFileError("");
               }}
-              className="px-4 py-2 text-sm text-muted-foreground"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
+              variant="default"
               disabled={uploading || !!fileError}
-              className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg disabled:opacity-50"
             >
               {uploading ? "Uploading..." : "Upload"}
-            </button>
+            </Button>
           </div>
         </form>
       </Modal>
