@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-15)
 
 **Core value:** Know exactly how much money each property is making and whether it's worth holding — at a glance, always up to date.
-**Current focus:** v1.0 complete — planning next milestone
+**Current focus:** v1.1 UI/UX Redesign — clean minimal design, mobile responsiveness
 
 ## Current Position
 
-Phase: 4 of 4 (all complete)
-Plan: All complete
-Status: Milestone v1.0 shipped
-Last activity: 2026-03-15 — v1.0 milestone archived
+Phase: 5 of 7 (Design System)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-03-15 — Milestone v1.1 created
 
-Progress: ██████████ 100%
+Progress: ░░░░░░░░░░ 0%
 
 ## Performance Metrics
 
@@ -46,8 +46,12 @@ None.
 
 None.
 
+### Roadmap Evolution
+
+- Milestone v1.1 created: UI/UX Redesign with clean minimal design, 3 phases (Phase 5-7)
+
 ## Session Continuity
 
 Last session: 2026-03-15
-Stopped at: v1.0 milestone complete and archived
+Stopped at: Milestone v1.1 initialization
 Resume file: None

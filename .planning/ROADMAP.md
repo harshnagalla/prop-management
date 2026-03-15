@@ -3,6 +3,7 @@
 ## Milestones
 
 - ✅ **v1.0 MVP** — Phases 1-4 (shipped 2026-03-15) — [Archive](milestones/v1.0-ROADMAP.md)
+- 🚧 **v1.1 UI/UX Redesign** — Phases 5-7 (in progress)
 
 ## Completed Milestones
 
@@ -16,6 +17,40 @@
 
 </details>
 
+### 🚧 v1.1 UI/UX Redesign (In Progress)
+
+**Milestone Goal:** Transform PropManager from functional MVP to polished, mobile-friendly experience using clean minimal design (Linear/Notion-inspired)
+
+#### Phase 5: Design System
+
+**Goal**: Establish design tokens, color palette, typography, spacing scale, and component primitives using ui-ux-pro-max skill
+**Depends on**: Previous milestone complete
+**Research**: Unlikely (internal patterns with existing Tailwind/shadcn)
+**Plans**: TBD
+
+Plans:
+- [ ] 05-01: TBD (run /gsd:plan-phase 5 to break down)
+
+#### Phase 6: Page Redesign
+
+**Goal**: Apply new design system across all pages — dashboard, properties, bills, income, documents
+**Depends on**: Phase 5
+**Research**: Unlikely (internal UI work)
+**Plans**: TBD
+
+Plans:
+- [ ] 06-01: TBD
+
+#### Phase 7: Mobile Responsiveness
+
+**Goal**: Full responsive redesign — responsive layouts, touch targets, mobile navigation
+**Depends on**: Phase 6
+**Research**: Unlikely (Tailwind responsive utilities)
+**Plans**: TBD
+
+Plans:
+- [ ] 07-01: TBD
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -24,3 +59,6 @@
 | 2. Complete CRUD & File Upload | v1.0 | 2/2 | Complete | 2026-03-14 |
 | 3. UI Polish & UX | v1.0 | 1/1 | Complete | 2026-03-14 |
 | 4. Deployment & PWA | v1.0 | 1/1 | Complete | 2026-03-15 |
+| 5. Design System | v1.1 | 0/? | Not started | - |
+| 6. Page Redesign | v1.1 | 0/? | Not started | - |
+| 7. Mobile Responsiveness | v1.1 | 0/? | Not started | - |
