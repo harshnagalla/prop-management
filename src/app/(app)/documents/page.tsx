@@ -163,19 +163,19 @@ export default function DocumentsPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6 pt-12 md:pt-0 animate-pulse">
+      <div className="space-y-8 pt-12 md:pt-0 animate-pulse">
         <div className="flex items-center justify-between">
-          <div><div className="h-8 w-36 bg-muted rounded-[var(--radius)]" /><div className="h-4 w-48 bg-muted rounded mt-2" /></div>
+          <div><div className="h-9 w-44 bg-muted rounded-[var(--radius)]" /><div className="h-4 w-56 bg-muted rounded mt-3" /></div>
           <div className="h-10 w-28 bg-muted rounded-[var(--radius)]" />
         </div>
         <div className="h-9 w-40 bg-muted rounded-[var(--radius)]" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3].map((i) => (
             <Card key={i}>
-              <CardContent className="p-4 space-y-3">
+              <CardContent className="p-6 space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-muted rounded-[var(--radius)]" />
-                  <div><div className="h-4 w-28 bg-muted rounded" /><div className="h-3 w-20 bg-muted rounded mt-1" /></div>
+                  <div className="w-10 h-10 bg-muted rounded-full" />
+                  <div><div className="h-4 w-28 bg-muted rounded" /><div className="h-3 w-20 bg-muted rounded mt-1.5" /></div>
                 </div>
                 <div className="flex justify-between"><div className="h-3 w-24 bg-muted rounded" /><div className="h-3 w-16 bg-muted rounded" /></div>
               </CardContent>
@@ -187,16 +187,16 @@ export default function DocumentsPage() {
   }
 
   return (
-    <div className="space-y-6 pt-12 md:pt-0">
+    <div className="space-y-8 pt-12 md:pt-0">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Documents</h1>
-          <p className="text-muted-foreground text-sm mt-1">
+          <h1 className="text-3xl font-bold tracking-tight">Documents</h1>
+          <p className="text-muted-foreground text-sm mt-2">
             Property papers and records
           </p>
         </div>
-        <Button variant="default" onClick={() => setShowUpload(true)}>
-          <Upload size={16} className="mr-2" /> Upload
+        <Button variant="default" size="lg" className="shadow-sm" onClick={() => setShowUpload(true)}>
+          <Upload size={18} className="mr-2" /> Upload
         </Button>
       </div>
 
@@ -226,33 +226,33 @@ export default function DocumentsPage() {
           }
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filtered.map((doc) => (
             <Card key={doc.id}>
-              <CardContent className="p-4 space-y-3">
+              <CardContent className="p-6 space-y-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-[var(--radius)] bg-primary/10 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                       <FileText size={18} className="text-primary" />
                     </div>
-                    <div>
-                      <p className="font-medium text-sm">{doc.name}</p>
-                      <p className="text-xs text-muted-foreground capitalize">
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold truncate">{doc.name}</p>
+                      <p className="text-xs text-muted-foreground capitalize mt-0.5">
                         {doc.type.replace("_", " ")}
                       </p>
                     </div>
                   </div>
                 </div>
-                <div className="text-xs text-muted-foreground space-y-1">
+                <div className="space-y-2">
                   {getPropertyName(doc.propertyId) && (
-                    <p>{getPropertyName(doc.propertyId)}</p>
+                    <p className="text-xs font-medium text-muted-foreground">{getPropertyName(doc.propertyId)}</p>
                   )}
                   <div className="flex items-center justify-between">
-                    <span>{formatDate(doc.createdAt)}</span>
-                    <span>{formatFileSize(doc.fileSize)}</span>
+                    <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{formatDate(doc.createdAt)}</span>
+                    <span className="text-xs font-medium text-muted-foreground">{formatFileSize(doc.fileSize)}</span>
                   </div>
                 </div>
-                <div className="flex gap-1 pt-2 border-t border-border">
+                <div className="flex gap-1 pt-4 mt-4 border-t border-border">
                   <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
                     <a href={`/api/documents/${doc.id}?download=true`}>
                       <Download size={14} />
@@ -283,7 +283,7 @@ export default function DocumentsPage() {
       >
         <form onSubmit={handleUpload} className="space-y-4">
           <div>
-            <label className="text-sm text-muted-foreground">Property *</label>
+            <label className="text-sm font-medium">Property *</label>
             <select
               required
               value={form.propertyId}
@@ -297,7 +297,7 @@ export default function DocumentsPage() {
             </select>
           </div>
           <div>
-            <label className="text-sm text-muted-foreground">Document Name *</label>
+            <label className="text-sm font-medium">Document Name *</label>
             <Input
               required
               value={form.name}
@@ -307,7 +307,7 @@ export default function DocumentsPage() {
             />
           </div>
           <div>
-            <label className="text-sm text-muted-foreground">Type</label>
+            <label className="text-sm font-medium">Type</label>
             <select
               value={form.type}
               onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}
@@ -321,7 +321,7 @@ export default function DocumentsPage() {
             </select>
           </div>
           <div>
-            <label className="text-sm text-muted-foreground">File *</label>
+            <label className="text-sm font-medium">File *</label>
             <input
               id="doc-file"
               type="file"
