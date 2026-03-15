@@ -3,8 +3,8 @@
 ## Milestones
 
 - ✅ **v1.0 MVP** — Phases 1-4 (shipped 2026-03-15) — [Archive](milestones/v1.0-ROADMAP.md)
-- 🚧 **v1.1 UI/UX Redesign** — Phases 5-7 (in progress)
-- 📋 **v1.2 AI SDK Migration** — Phase 8 (planned)
+- ✅ **v1.1 UI/UX Redesign** — Phases 5-7 (shipped 2026-03-15) — [Archive](milestones/v1.1-ROADMAP.md)
+- ✅ **v1.2 AI SDK Migration** — Phase 8 (shipped 2026-03-15) — [Archive](milestones/v1.2-ROADMAP.md)
 
 ## Completed Milestones
 
@@ -18,54 +18,21 @@
 
 </details>
 
-### 🚧 v1.1 UI/UX Redesign (In Progress)
+<details>
+<summary>✅ v1.1 UI/UX Redesign (Phases 5-7) — SHIPPED 2026-03-15</summary>
 
-**Milestone Goal:** Transform PropManager from functional MVP to polished, mobile-friendly experience using clean minimal design (Linear/Notion-inspired)
+- [x] Phase 5: Design System (1/1 plans) — completed 2026-03-15
+- [x] Phase 6: Page Redesign (2/2 plans) — completed 2026-03-15
+- [x] Phase 7: Mobile Responsiveness (1/1 plans) — completed 2026-03-15
 
-#### Phase 5: Design System ✅
+</details>
 
-**Goal**: Establish design tokens, color palette, typography, spacing scale, and component primitives
-**Depends on**: Previous milestone complete
-**Research**: Unlikely (internal patterns with existing Tailwind/shadcn)
-**Plans**: 1 plan
+<details>
+<summary>✅ v1.2 AI SDK Migration (Phase 8) — SHIPPED 2026-03-15</summary>
 
-Plans:
-- [x] 05-01: Design tokens, Inter font, and component primitives (Button, Input, Card, Badge)
+- [x] Phase 8: Vercel AI SDK Migration (1/1 plans) — completed 2026-03-15
 
-#### Phase 6: Page Redesign
-
-**Goal**: Apply new design system across all pages — dashboard, properties, bills, income, documents
-**Depends on**: Phase 5
-**Research**: Unlikely (internal UI work)
-**Plans**: 2 plans
-
-Plans:
-- [x] 06-01: Sidebar, dashboard, and properties redesign
-- [x] 06-02: Bills, income, documents, and import redesign
-
-#### Phase 7: Mobile Responsiveness
-
-**Goal**: Full responsive redesign — responsive layouts, touch targets, mobile navigation
-**Depends on**: Phase 6
-**Research**: Unlikely (Tailwind responsive utilities)
-**Plans**: 1 plan
-
-Plans:
-- [x] 07-01: Forms, tables, headers, modals — full mobile optimization
-
-### 📋 v1.2 AI SDK Migration (Planned)
-
-**Milestone Goal:** Migrate AI import from direct Google Generative AI SDK to Vercel AI SDK with Gemini provider for better Next.js integration
-
-#### Phase 8: Vercel AI SDK Migration
-
-**Goal**: Replace @google/generative-ai with Vercel AI SDK (`ai` + `@ai-sdk/google`) in the AI import feature
-**Depends on**: Phase 7
-**Research**: Unlikely (Vercel AI SDK is well-documented)
-**Plans**: TBD
-
-Plans:
-- [x] 08-01: Install Vercel AI SDK, rewrite gemini.ts, verify API route
+</details>
 
 ## Progress
 

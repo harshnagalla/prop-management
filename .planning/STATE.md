@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-03-15)
 
 **Core value:** Know exactly how much money each property is making and whether it's worth holding — at a glance, always up to date.
-**Current focus:** v1.2 AI SDK Migration complete
+**Current focus:** v1.2 complete — planning next milestone
 
 ## Current Position
 
-Phase: 8 of 8 (Vercel AI SDK Migration)
-Plan: 1 of 1 in current phase
-Status: Milestone v1.2 complete
-Last activity: 2026-03-15 — Completed 08-01-PLAN.md
+Phase: 8 of 8 (all complete)
+Plan: All complete
+Status: Milestones v1.1 + v1.2 shipped
+Last activity: 2026-03-15 — v1.1 + v1.2 milestones archived
 
 Progress: ██████████ 100%
 
