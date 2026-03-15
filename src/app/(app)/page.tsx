@@ -172,6 +172,7 @@ export default function DashboardPage() {
               <p>No properties yet. Add your first property to see analytics.</p>
             </div>
           ) : (
+            <>
             {/* Desktop table */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-sm">
@@ -268,6 +269,7 @@ export default function DashboardPage() {
                 </Card>
               ))}
             </div>
+            </>
           )}
         </CardContent>
       </Card>

@@ -402,6 +402,7 @@ export default function BillsPage() {
           }
         />
       ) : (
+        <>
         {/* Desktop table */}
         <Card className="hidden md:block">
           <CardContent className="p-0">
@@ -517,6 +518,7 @@ export default function BillsPage() {
             </Card>
           ))}
         </div>
+        </>
       )}
 
       {/* Scan Modal */}
