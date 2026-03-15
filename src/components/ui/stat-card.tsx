@@ -21,25 +21,29 @@ export function StatCard({
 }: StatCardProps) {
   return (
     <Card className={cn(className)}>
-      <CardContent className="p-5 flex flex-col gap-3">
+      <CardContent className="p-6 flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">{title}</span>
-          <Icon size={18} className="text-muted-foreground" />
+          <span className="text-sm font-medium text-muted-foreground">{title}</span>
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+            <Icon size={18} className="text-primary" />
+          </div>
         </div>
         <div>
-          <p className="text-2xl font-bold">{value}</p>
+          <p className="text-3xl font-bold tracking-tight">{value}</p>
           {subtitle && (
-            <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
+            <p className="text-xs text-muted-foreground mt-1.5">{subtitle}</p>
           )}
           {trend && (
-            <p
-              className={cn(
-                "text-xs mt-1 font-medium",
-                trend.positive ? "text-success" : "text-destructive"
-              )}
-            >
-              {trend.positive ? "\u2191" : "\u2193"} {trend.value}
-            </p>
+            <div className="mt-2 pt-2 border-t border-border/50">
+              <p
+                className={cn(
+                  "text-xs font-medium",
+                  trend.positive ? "text-success" : "text-destructive"
+                )}
+              >
+                {trend.positive ? "\u2191" : "\u2193"} {trend.value}
+              </p>
+            </div>
           )}
         </div>
       </CardContent>
