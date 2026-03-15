@@ -4,6 +4,7 @@
 
 - ✅ **v1.0 MVP** — Phases 1-4 (shipped 2026-03-15) — [Archive](milestones/v1.0-ROADMAP.md)
 - 🚧 **v1.1 UI/UX Redesign** — Phases 5-7 (in progress)
+- 📋 **v1.2 AI SDK Migration** — Phase 8 (planned)
 
 ## Completed Milestones
 
@@ -52,6 +53,20 @@ Plans:
 Plans:
 - [x] 07-01: Forms, tables, headers, modals — full mobile optimization
 
+### 📋 v1.2 AI SDK Migration (Planned)
+
+**Milestone Goal:** Migrate AI import from direct Google Generative AI SDK to Vercel AI SDK with Gemini provider for better Next.js integration
+
+#### Phase 8: Vercel AI SDK Migration
+
+**Goal**: Replace @google/generative-ai with Vercel AI SDK (`ai` + `@ai-sdk/google`) in the AI import feature
+**Depends on**: Phase 7
+**Research**: Unlikely (Vercel AI SDK is well-documented)
+**Plans**: TBD
+
+Plans:
+- [ ] 08-01: TBD (run /gsd:plan-phase 8 to break down)
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -63,3 +78,4 @@ Plans:
 | 5. Design System | v1.1 | 1/1 | Complete | 2026-03-15 |
 | 6. Page Redesign | v1.1 | 2/2 | Complete | 2026-03-15 |
 | 7. Mobile Responsiveness | v1.1 | 1/1 | Complete | 2026-03-15 |
+| 8. Vercel AI SDK Migration | v1.2 | 0/? | Not started | - |
