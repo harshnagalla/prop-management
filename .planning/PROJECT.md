@@ -27,9 +27,13 @@ Know exactly how much money each property is making and whether it's worth holdi
 - ✓ Mobile responsiveness — mobile card views, stacking forms, responsive headers — v1.1
 - ✓ Vercel AI SDK migration — replaced @google/generative-ai with ai + @ai-sdk/google — v1.2
 
+- ✓ Type-safe AI extraction — generateObject with Zod schemas, retry logic, Indian-optimized prompts — v1.3
+- ✓ Dashboard charts — income vs expenses area chart, expense breakdown pie chart with recharts — v1.3
+- ✓ Search & filters — search properties/bills, filter by category/status/property, sortable table columns — v1.3
+
 ### Active
 
-(None — all v1.2 requirements validated)
+(None — all v1.3 requirements validated)
 
 ### Out of Scope
 
@@ -42,7 +46,7 @@ Know exactly how much money each property is making and whether it's worth holdi
 ## Context
 
 - Family portfolio of 30+ properties in Ahmedabad, Gujarat
-- v1.2 shipped with 4,137 LOC TypeScript
+- v1.3 shipped with 4,874 LOC TypeScript
 - Tech stack: Next.js 15, Tailwind CSS 4, Drizzle ORM, Neon Postgres, NextAuth v5, Vercel AI SDK + Gemini 2.0 Flash, @serwist/next
 - Deployed to Vercel: https://prop-management-one.vercel.app
 - Documents stored as base64 in Postgres (no external file storage)
@@ -62,6 +66,9 @@ Know exactly how much money each property is making and whether it's worth holdi
 |----------|-----------|---------|
 | PWA over native mobile | Single codebase, installable, offline-capable — avoids maintaining separate apps | ✓ Good |
 | Google AI for OCR → Vercel AI SDK | Migrated to Vercel AI SDK for better Next.js integration, same Gemini model | ✓ Good |
+| generateObject + Zod schemas | Type-safe structured output, eliminated fragile JSON.parse | ✓ Good |
+| recharts for dashboard charts | Already installed, well-supported React charting library | ✓ Good |
+| Client-side filtering (no API changes) | Data already fetched, instant filtering experience | ✓ Good |
 | No tenant management in v1 | Keep scope focused on financial tracking and portfolio health | ✓ Good |
 | AI-powered Excel import + manual entry | Bulk migration for existing data, manual for ongoing corrections | ✓ Good |
 | NextAuth v5 over Stack Auth | Simpler integration, better Next.js 15 support | ✓ Good |
@@ -72,4 +79,4 @@ Know exactly how much money each property is making and whether it's worth holdi
 | Next.js pinned to 15.x | 16.x defaults to Turbopack, incompatible with serwist webpack | ⚠️ Revisit when serwist supports Turbopack |
 
 ---
-*Last updated: 2026-03-15 after v1.2 milestone*
+*Last updated: 2026-03-15 after v1.3 milestone*

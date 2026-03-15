@@ -1,5 +1,32 @@
 # Project Milestones: PropManager
 
+## v1.3 Analytics & Intelligence (Shipped: 2026-03-15)
+
+**Delivered:** Type-safe AI extraction with Zod schemas, dashboard charts with recharts, and search/filter/sort across all data pages.
+
+**Phases completed:** 9-11 (4 plans total)
+
+**Key accomplishments:**
+
+- Migrated AI extraction to generateObject with Zod schemas — no more fragile JSON.parse
+- Indian-optimized prompts for bill recognition (Torrent Power, UGVCL, AMC, GWSSB, DD/MM/YYYY dates, lakhs/crores)
+- Retry logic for transient AI failures (withRetry helper)
+- Dashboard charts: income vs expenses area chart + expense breakdown pie chart
+- Chart data API endpoint with 12-month aggregation and gap-filling
+- Search/filter on Properties (name/address/type/status), Bills (vendor/category/status/property), Income (property/year/status)
+- Sortable table columns on Bills and Dashboard pages
+
+**Stats:**
+
+- 8 files modified, 845 lines added
+- 4,874 lines of TypeScript (total codebase)
+- 3 phases, 4 plans, 8 tasks
+- Same day as v1.2
+
+**Git range:** `feat(09-01)` → `feat(11-02)`
+
+---
+
 ## v1.2 AI SDK Migration (Shipped: 2026-03-15)
 
 **Delivered:** Migrated AI import from @google/generative-ai to Vercel AI SDK with Gemini provider for better Next.js integration.

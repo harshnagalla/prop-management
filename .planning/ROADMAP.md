@@ -5,7 +5,7 @@
 - ✅ **v1.0 MVP** — Phases 1-4 (shipped 2026-03-15) — [Archive](milestones/v1.0-ROADMAP.md)
 - ✅ **v1.1 UI/UX Redesign** — Phases 5-7 (shipped 2026-03-15) — [Archive](milestones/v1.1-ROADMAP.md)
 - ✅ **v1.2 AI SDK Migration** — Phase 8 (shipped 2026-03-15) — [Archive](milestones/v1.2-ROADMAP.md)
-- 🚧 **v1.3 Analytics & Intelligence** — Phases 9-11 (in progress)
+- ✅ **v1.3 Analytics & Intelligence** — Phases 9-11 (shipped 2026-03-15) — [Archive](milestones/v1.3-ROADMAP.md)
 
 ## Completed Milestones
 
@@ -35,40 +35,14 @@
 
 </details>
 
-### 🚧 v1.3 Analytics & Intelligence (In Progress)
+<details>
+<summary>✅ v1.3 Analytics & Intelligence (Phases 9-11) — SHIPPED 2026-03-15</summary>
 
-**Milestone Goal:** Make the app smarter (AI), more insightful (charts), and easier to navigate (search/filter)
+- [x] Phase 9: Enhanced AI Extraction (1/1 plans) — completed 2026-03-15
+- [x] Phase 10: Dashboard Charts (1/1 plans) — completed 2026-03-15
+- [x] Phase 11: Search & Filters (2/2 plans) — completed 2026-03-15
 
-#### Phase 9: Enhanced AI Extraction
-
-**Goal**: Migrate to generateObject for type-safe structured output, improve prompts, add error handling and retry logic, support more document types
-**Depends on**: Previous milestone complete
-**Research**: Unlikely (Vercel AI SDK already in codebase)
-**Plans**: TBD
-
-Plans:
-- [x] 09-01: Zod schemas, generateObject migration, retry logic, error handling
-
-#### Phase 10: Dashboard Charts
-
-**Goal**: Visual analytics using recharts — income trends, expense breakdown by category, occupancy rate over time, property value appreciation
-**Depends on**: Phase 9
-**Research**: Unlikely (recharts already installed)
-**Plans**: TBD
-
-Plans:
-- [x] 10-01: Chart data API endpoint + recharts dashboard visualizations
-
-#### Phase 11: Search & Filters
-
-**Goal**: Search properties by name/address, filter bills by date range/category/status/property, filter income by property/month, sort tables by any column
-**Depends on**: Phase 10
-**Research**: Unlikely (internal patterns)
-**Plans**: TBD
-
-Plans:
-- [x] 11-01: Properties search/filter + Bills search/filter
-- [x] 11-02: Income filter + table column sorting
+</details>
 
 ## Progress
 
