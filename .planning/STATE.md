@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-15)
 
 **Core value:** Know exactly how much money each property is making and whether it's worth holding — at a glance, always up to date.
-**Current focus:** v1.3 complete — Planning next milestone
+**Current focus:** v1.4 Property Detail Pages — deep-dive per-property view
 
 ## Current Position
 
-Phase: All complete (v1.3 shipped)
-Plan: N/A
-Status: Milestone complete
-Last activity: 2026-03-15 — v1.3 milestone archived
+Phase: 12 of 14 (Property Detail Page)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-03-16 — Milestone v1.4 created
 
-Progress: ██████████ 100%
+Progress: ░░░░░░░░░░ 0%
 
 ## Performance Metrics
 
@@ -75,9 +75,10 @@ None.
 
 - Milestone v1.1 created: UI/UX Redesign with clean minimal design, 3 phases (Phase 5-7)
 - Milestone v1.3 created: Analytics & Intelligence, 3 phases (Phase 9-11)
+- Milestone v1.4 created: Property Detail Pages, 3 phases (Phase 12-14)
 
 ## Session Continuity
 
-Last session: 2026-03-15
-Stopped at: v1.3 milestone archived and tagged
+Last session: 2026-03-16
+Stopped at: Milestone v1.4 initialization
 Resume file: None
