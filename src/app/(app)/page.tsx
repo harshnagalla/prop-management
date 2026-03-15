@@ -10,8 +10,9 @@ import {
   BarChart3,
   AlertCircle,
 } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
 import { StatCard } from "@/components/ui/stat-card";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency, formatPercent } from "@/lib/utils/format";
 
@@ -79,13 +80,22 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="animate-pulse space-y-6">
-        <div className="h-8 bg-muted rounded-[var(--radius)] w-48" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="animate-pulse space-y-10 pt-12 md:pt-0">
+        <div className="space-y-2">
+          <div className="h-9 bg-muted rounded-[var(--radius)] w-56" />
+          <div className="h-4 bg-muted rounded-[var(--radius)] w-72" />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-32 bg-muted rounded-[var(--radius)]" />
+            <div key={i} className="h-36 bg-muted rounded-[var(--radius)]" />
           ))}
         </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-36 bg-muted rounded-[var(--radius)]" />
+          ))}
+        </div>
+        <div className="h-64 bg-muted rounded-[var(--radius)]" />
       </div>
     );
   }
@@ -95,16 +105,16 @@ export default function DashboardPage() {
   const { properties: props, financials, propertyList } = data;
 
   return (
-    <div className="space-y-8 pt-12 md:pt-0">
+    <div className="space-y-10 pt-12 md:pt-0">
       <div>
-        <h1 className="text-2xl font-bold">Mission Control</h1>
-        <p className="text-muted-foreground text-sm mt-1">
+        <h1 className="text-3xl font-bold tracking-tight">Mission Control</h1>
+        <p className="text-muted-foreground text-sm mt-2">
           Portfolio overview at a glance
         </p>
       </div>
 
       {/* Top stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Portfolio Value"
           value={formatCurrency(financials.totalPortfolioValue)}
@@ -139,7 +149,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Second row */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <StatCard
           title="Occupancy Rate"
           value={formatPercent(props.occupancyRate)}
@@ -164,6 +174,9 @@ export default function DashboardPage() {
       <Card>
         <CardHeader>
           <CardTitle>Property Performance</CardTitle>
+          <CardDescription>
+            Track yield, ROI, and occupancy across your portfolio
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {propertyList.length === 0 ? (
@@ -177,36 +190,39 @@ export default function DashboardPage() {
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border text-muted-foreground">
-                    <th className="text-left p-3 font-medium">Property</th>
-                    <th className="text-left p-3 font-medium">Status</th>
-                    <th className="text-right p-3 font-medium">Value</th>
-                    <th className="text-right p-3 font-medium">Monthly Rent</th>
-                    <th className="text-right p-3 font-medium">Yield</th>
-                    <th className="text-right p-3 font-medium">ROI</th>
+                  <tr className="border-b border-border bg-muted/50">
+                    <th className="text-left p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Property</th>
+                    <th className="text-left p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</th>
+                    <th className="text-right p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Value</th>
+                    <th className="text-right p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Monthly Rent</th>
+                    <th className="text-right p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Yield</th>
+                    <th className="text-right p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">ROI</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {propertyList.map((p) => (
+                  {propertyList.map((p, idx) => (
                     <tr
                       key={p.id}
-                      className="border-b border-border/50 hover:bg-muted/30 transition-colors"
+                      className={cn(
+                        "border-b border-border/50 hover:bg-muted/40 transition-colors",
+                        idx % 2 === 1 && "bg-muted/20"
+                      )}
                     >
-                      <td className="p-3 font-medium">{p.name}</td>
-                      <td className="p-3">
+                      <td className="p-4 font-medium">{p.name}</td>
+                      <td className="p-4">
                         <Badge variant={getStatusBadgeVariant(p.status)}>
                           {p.status.replace("_", " ")}
                         </Badge>
                       </td>
-                      <td className="p-3 text-right">
+                      <td className="p-4 text-right tabular-nums">
                         {formatCurrency(p.currentValue)}
                       </td>
-                      <td className="p-3 text-right">
+                      <td className="p-4 text-right tabular-nums">
                         {p.monthlyRent > 0
                           ? formatCurrency(p.monthlyRent)
                           : "\u2014"}
                       </td>
-                      <td className="p-3 text-right">
+                      <td className="p-4 text-right">
                         {p.rentalYield > 0 ? (
                           <Badge variant={getYieldBadgeVariant(p.rentalYield)}>
                             {formatPercent(p.rentalYield)}
@@ -215,7 +231,7 @@ export default function DashboardPage() {
                           "\u2014"
                         )}
                       </td>
-                      <td className="p-3 text-right">
+                      <td className="p-4 text-right tabular-nums">
                         {p.roi > 0 ? formatPercent(p.roi) : "\u2014"}
                       </td>
                     </tr>
@@ -225,26 +241,26 @@ export default function DashboardPage() {
             </div>
 
             {/* Mobile card list */}
-            <div className="md:hidden space-y-3">
+            <div className="md:hidden space-y-4">
               {propertyList.map((p) => (
                 <Card key={p.id}>
-                  <CardContent className="p-4 space-y-3">
+                  <CardContent className="p-4 space-y-4">
                     <div className="flex items-center justify-between">
                       <p className="font-medium text-sm">{p.name}</p>
                       <Badge variant={getStatusBadgeVariant(p.status)}>
                         {p.status.replace("_", " ")}
                       </Badge>
                     </div>
-                    <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <p className="text-muted-foreground text-xs">Monthly Rent</p>
-                        <p className="font-medium">
+                        <p className="text-muted-foreground text-xs font-medium">Monthly Rent</p>
+                        <p className="font-medium tabular-nums mt-0.5">
                           {p.monthlyRent > 0 ? formatCurrency(p.monthlyRent) : "\u2014"}
                         </p>
                       </div>
                       <div>
-                        <p className="text-muted-foreground text-xs">Yield</p>
-                        <p className="font-medium">
+                        <p className="text-muted-foreground text-xs font-medium">Yield</p>
+                        <p className="font-medium mt-0.5">
                           {p.rentalYield > 0 ? (
                             <Badge variant={getYieldBadgeVariant(p.rentalYield)}>
                               {formatPercent(p.rentalYield)}
@@ -255,14 +271,14 @@ export default function DashboardPage() {
                         </p>
                       </div>
                       <div>
-                        <p className="text-muted-foreground text-xs">ROI</p>
-                        <p className="font-medium">
+                        <p className="text-muted-foreground text-xs font-medium">ROI</p>
+                        <p className="font-medium tabular-nums mt-0.5">
                           {p.roi > 0 ? formatPercent(p.roi) : "\u2014"}
                         </p>
                       </div>
                       <div>
-                        <p className="text-muted-foreground text-xs">Value</p>
-                        <p className="font-medium">{formatCurrency(p.currentValue)}</p>
+                        <p className="text-muted-foreground text-xs font-medium">Value</p>
+                        <p className="font-medium tabular-nums mt-0.5">{formatCurrency(p.currentValue)}</p>
                       </div>
                     </div>
                   </CardContent>
