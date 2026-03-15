@@ -83,8 +83,8 @@ function PropertyForm({
       }}
       className="space-y-4"
     >
-      <div className="grid grid-cols-2 gap-4">
-        <div className="col-span-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="col-span-1 sm:col-span-2">
           <label className="text-sm text-muted-foreground">Name *</label>
           <Input
             value={form.name}
@@ -94,7 +94,7 @@ function PropertyForm({
             placeholder="e.g. Bodakdev Flat 301"
           />
         </div>
-        <div className="col-span-2">
+        <div className="col-span-1 sm:col-span-2">
           <label className="text-sm text-muted-foreground">Address *</label>
           <Input
             value={form.address}
@@ -202,7 +202,7 @@ function PropertyForm({
             className="mt-1"
           />
         </div>
-        <div className="col-span-2">
+        <div className="col-span-1 sm:col-span-2">
           <label className="text-sm text-muted-foreground">Notes</label>
           <textarea
             value={form.notes}
@@ -315,7 +315,7 @@ export default function PropertiesPage() {
 
   return (
     <div className="space-y-6 pt-12 md:pt-0">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-bold">Properties</h1>
           <p className="text-muted-foreground text-sm mt-1">

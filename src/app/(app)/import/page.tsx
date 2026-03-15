@@ -108,7 +108,7 @@ export default function ImportPage() {
       </div>
 
       {step === "upload" && (
-        <label className="block border-2 border-dashed border-border rounded-[var(--radius)] p-12 text-center cursor-pointer hover:border-primary/50 hover:bg-muted/30 transition-colors">
+        <label className="block border-2 border-dashed border-border rounded-[var(--radius)] p-6 sm:p-12 text-center cursor-pointer hover:border-primary/50 hover:bg-muted/30 transition-colors">
           {extracting ? (
             <div className="space-y-3">
               <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin mx-auto" />

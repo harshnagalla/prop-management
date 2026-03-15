@@ -111,7 +111,7 @@ function BillForm({
           ))}
         </select>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="text-sm text-muted-foreground">Category</label>
           <select
@@ -137,7 +137,7 @@ function BillForm({
           />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="text-sm text-muted-foreground">Vendor</label>
           <Input
@@ -157,7 +157,7 @@ function BillForm({
           />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="text-sm text-muted-foreground">Paid Date</label>
           <Input
@@ -367,7 +367,7 @@ export default function BillsPage() {
 
   return (
     <div className="space-y-6 pt-12 md:pt-0">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-bold">Bills</h1>
           <p className="text-muted-foreground text-sm mt-1">
@@ -478,7 +478,7 @@ export default function BillsPage() {
           <p className="text-sm text-muted-foreground">
             Upload a photo or scan of your bill. AI will extract the details automatically.
           </p>
-          <label className="block border-2 border-dashed border-border rounded-[var(--radius)] p-8 text-center cursor-pointer hover:border-primary/50 transition-colors">
+          <label className="block border-2 border-dashed border-border rounded-[var(--radius)] p-6 sm:p-8 text-center cursor-pointer hover:border-primary/50 transition-colors">
             <Upload className="mx-auto mb-2 text-muted-foreground" size={32} />
             <p className="text-sm text-muted-foreground">
               {scanning ? "Processing..." : "Click to upload or drag a bill image"}

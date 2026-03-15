@@ -107,7 +107,7 @@ function IncomeForm({
           ))}
         </select>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="text-sm text-muted-foreground">Month</label>
           <select
@@ -130,7 +130,7 @@ function IncomeForm({
           />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="text-sm text-muted-foreground">Amount (*) *</label>
           <Input
@@ -150,7 +150,7 @@ function IncomeForm({
           />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="text-sm text-muted-foreground">Received Date</label>
           <Input
@@ -323,7 +323,7 @@ export default function IncomePage() {
 
   return (
     <div className="space-y-6 pt-12 md:pt-0">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-bold">Rental Income</h1>
           <p className="text-muted-foreground text-sm mt-1">
