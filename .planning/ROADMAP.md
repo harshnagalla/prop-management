@@ -68,7 +68,7 @@ Plans:
 
 Plans:
 - [x] 11-01: Properties search/filter + Bills search/filter
-- [ ] 11-02: Income filter + table column sorting
+- [x] 11-02: Income filter + table column sorting
 
 ## Progress
 
@@ -84,4 +84,4 @@ Plans:
 | 8. Vercel AI SDK Migration | v1.2 | 1/1 | Complete | 2026-03-15 |
 | 9. Enhanced AI Extraction | v1.3 | 1/1 | Complete | 2026-03-15 |
 | 10. Dashboard Charts | v1.3 | 1/1 | Complete | 2026-03-15 |
-| 11. Search & Filters | v1.3 | 1/2 | In progress | - |
+| 11. Search & Filters | v1.3 | 2/2 | Complete | 2026-03-15 |
