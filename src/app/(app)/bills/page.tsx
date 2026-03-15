@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Receipt, Plus, Upload, Pencil, Trash2 } from "lucide-react";
+import { Receipt, Plus, Upload, Pencil, Trash2, Search } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/utils/toast";
@@ -235,6 +235,31 @@ export default function BillsPage() {
   const [scanning, setScanning] = useState(false);
   const [scanResult, setScanResult] = useState<Record<string, unknown> | null>(null);
   const [addFormData, setAddFormData] = useState<Partial<BillWithProperty>>({});
+  const [search, setSearch] = useState("");
+  const [filterCategory, setFilterCategory] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterProperty, setFilterProperty] = useState<string>("all");
+
+  const filtered = bills.filter((b) => {
+    const matchesSearch = search === "" ||
+      (b.vendor || "").toLowerCase().includes(search.toLowerCase()) ||
+      (b.propertyName || "").toLowerCase().includes(search.toLowerCase()) ||
+      (b.referenceNumber || "").toLowerCase().includes(search.toLowerCase());
+    const matchesCategory = filterCategory === "all" || b.category === filterCategory;
+    const matchesStatus = filterStatus === "all" ||
+      (filterStatus === "paid" ? b.isPaid : !b.isPaid);
+    const matchesProperty = filterProperty === "all" || b.propertyId === filterProperty;
+    return matchesSearch && matchesCategory && matchesStatus && matchesProperty;
+  });
+
+  const filtersActive = search !== "" || filterCategory !== "all" || filterStatus !== "all" || filterProperty !== "all";
+
+  const clearFilters = () => {
+    setSearch("");
+    setFilterCategory("all");
+    setFilterStatus("all");
+    setFilterProperty("all");
+  };
 
   const load = () => {
     Promise.all([
@@ -388,7 +413,9 @@ export default function BillsPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Bills</h1>
           <p className="text-muted-foreground text-sm mt-2">
-            Track expenses across properties
+            {filtersActive
+              ? `${filtered.length} of ${bills.length} bills`
+              : "Track expenses across properties"}
           </p>
         </div>
         <div className="flex gap-2">
@@ -407,6 +434,58 @@ export default function BillsPage() {
         </div>
       </div>
 
+      {bills.length > 0 && (
+        <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
+          <div className="relative sm:max-w-xs w-full">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            <Input
+              placeholder="Search vendor, reference..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <select
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            className={`${selectClassName} mt-0 sm:w-40`}
+          >
+            <option value="all">All Categories</option>
+            {CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {c.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+              </option>
+            ))}
+          </select>
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className={`${selectClassName} mt-0 sm:w-32`}
+          >
+            <option value="all">All</option>
+            <option value="paid">Paid</option>
+            <option value="unpaid">Unpaid</option>
+          </select>
+          <select
+            value={filterProperty}
+            onChange={(e) => setFilterProperty(e.target.value)}
+            className={`${selectClassName} mt-0 sm:w-44`}
+          >
+            <option value="all">All Properties</option>
+            {properties.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+          {filtersActive && (
+            <Button variant="ghost" size="sm" onClick={clearFilters} className="self-center">
+              Clear
+            </Button>
+          )}
+        </div>
+      )}
+
       {bills.length === 0 ? (
         <div className="py-8">
           <EmptyState
@@ -416,6 +495,19 @@ export default function BillsPage() {
             action={
               <Button onClick={() => setShowAdd(true)} variant="default">
                 Add Bill
+              </Button>
+            }
+          />
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="py-8">
+          <EmptyState
+            icon={Receipt}
+            title="No bills match filters"
+            description="Try adjusting your search or filter criteria"
+            action={
+              <Button onClick={clearFilters} variant="outline">
+                Clear Filters
               </Button>
             }
           />
@@ -439,7 +531,7 @@ export default function BillsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {bills.map((b, idx) => (
+                  {filtered.map((b, idx) => (
                     <tr
                       key={b.id}
                       className={cn(
@@ -497,7 +589,7 @@ export default function BillsPage() {
 
         {/* Mobile card list */}
         <div className="md:hidden space-y-4">
-          {bills.map((b) => (
+          {filtered.map((b) => (
             <Card key={b.id}>
               <CardContent className="p-6 space-y-4">
                 <div className="flex items-start justify-between gap-3">
