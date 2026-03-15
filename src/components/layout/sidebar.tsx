@@ -101,7 +101,10 @@ export function Sidebar() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => authClient.signOut()}
+              onClick={async () => {
+                await authClient.signOut();
+                window.location.href = "/auth/sign-in";
+              }}
               className="h-8 w-8"
             >
               <LogOut size={16} />
