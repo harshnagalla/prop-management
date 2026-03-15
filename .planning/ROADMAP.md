@@ -47,7 +47,7 @@
 **Plans**: TBD
 
 Plans:
-- [ ] 09-01: TBD (run /gsd:plan-phase 9 to break down)
+- [ ] 09-01: Zod schemas, generateObject migration, retry logic, error handling
 
 #### Phase 10: Dashboard Charts
 
@@ -81,6 +81,6 @@ Plans:
 | 6. Page Redesign | v1.1 | 2/2 | Complete | 2026-03-15 |
 | 7. Mobile Responsiveness | v1.1 | 1/1 | Complete | 2026-03-15 |
 | 8. Vercel AI SDK Migration | v1.2 | 1/1 | Complete | 2026-03-15 |
-| 9. Enhanced AI Extraction | v1.3 | 0/? | Not started | - |
+| 9. Enhanced AI Extraction | v1.3 | 0/1 | Not started | - |
 | 10. Dashboard Charts | v1.3 | 0/? | Not started | - |
 | 11. Search & Filters | v1.3 | 0/? | Not started | - |
