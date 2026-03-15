@@ -10,6 +10,19 @@ import {
   BarChart3,
   AlertCircle,
 } from "lucide-react";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from "recharts";
 import { cn } from "@/lib/utils/cn";
 import { StatCard } from "@/components/ui/stat-card";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
@@ -48,6 +61,12 @@ interface DashboardData {
   }>;
 }
 
+interface ChartData {
+  monthlyIncome: Array<{ month: string; amount: number }>;
+  expenseByCategory: Array<{ category: string; amount: number }>;
+  monthlyExpenses: Array<{ month: string; amount: number }>;
+}
+
 function getStatusBadgeVariant(status: string) {
   switch (status) {
     case "occupied":
@@ -67,14 +86,41 @@ function getYieldBadgeVariant(yld: number) {
   return "warning" as const;
 }
 
+function formatCompactCurrency(value: number): string {
+  if (value >= 100000) return `₹${(value / 100000).toFixed(1)}L`;
+  if (value >= 1000) return `₹${(value / 1000).toFixed(0)}K`;
+  return `₹${value}`;
+}
+
+function formatCategoryLabel(category: string): string {
+  return category
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+const PIE_COLORS = [
+  "var(--color-primary)",
+  "var(--color-success)",
+  "var(--color-warning)",
+  "var(--color-destructive)",
+  "var(--color-info)",
+  "var(--color-accent)",
+];
+
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
+  const [chartData, setChartData] = useState<ChartData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/dashboard")
-      .then((r) => r.json())
-      .then(setData)
+    Promise.all([
+      fetch("/api/dashboard").then((r) => r.json()),
+      fetch("/api/dashboard/charts").then((r) => r.json()),
+    ])
+      .then(([dashboardData, charts]) => {
+        setData(dashboardData);
+        setChartData(charts);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -103,6 +149,19 @@ export default function DashboardPage() {
   if (!data) return null;
 
   const { properties: props, financials, propertyList } = data;
+
+  // Merge income and expenses into a single dataset for the area chart
+  const areaChartData = chartData
+    ? chartData.monthlyIncome.map((inc, i) => ({
+        month: inc.month,
+        income: inc.amount,
+        expenses: chartData.monthlyExpenses[i]?.amount ?? 0,
+      }))
+    : [];
+
+  const hasChartData =
+    areaChartData.some((d) => d.income > 0 || d.expenses > 0) ||
+    (chartData?.expenseByCategory && chartData.expenseByCategory.length > 0);
 
   return (
     <div className="space-y-10 pt-12 md:pt-0">
@@ -168,6 +227,132 @@ export default function DashboardPage() {
           subtitle="Received this month"
           icon={IndianRupee}
         />
+      </div>
+
+      {/* Charts section */}
+      <div className="space-y-6">
+        {/* Income vs Expenses Area Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Income vs Expenses</CardTitle>
+            <CardDescription>Monthly trends over last 12 months</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {!hasChartData || areaChartData.every((d) => d.income === 0 && d.expenses === 0) ? (
+              <div className="p-8 text-center text-muted-foreground">
+                <AlertCircle className="mx-auto mb-2" size={24} />
+                <p>No data yet. Add income and bills to see trends.</p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={areaChartData} margin={{ top: 5, right: 10, left: 10, bottom: 20 }}>
+                  <defs>
+                    <linearGradient id="incomeGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--color-success)" stopOpacity={0.15} />
+                      <stop offset="95%" stopColor="var(--color-success)" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="expenseGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--color-destructive)" stopOpacity={0.15} />
+                      <stop offset="95%" stopColor="var(--color-destructive)" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fontSize: 12 }}
+                    interval="preserveStartEnd"
+                    angle={-45}
+                    textAnchor="end"
+                    height={50}
+                  />
+                  <YAxis
+                    tickFormatter={formatCompactCurrency}
+                    tick={{ fontSize: 12 }}
+                    width={60}
+                  />
+                  <Tooltip
+                    formatter={(value: number, name: string) => [
+                      formatCurrency(value),
+                      name === "income" ? "Income" : "Expenses",
+                    ]}
+                    labelStyle={{ fontWeight: 600 }}
+                    contentStyle={{
+                      borderRadius: "var(--radius)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-card)",
+                    }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="income"
+                    stroke="var(--color-success)"
+                    fill="url(#incomeGrad)"
+                    strokeWidth={2}
+                    name="income"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="expenses"
+                    stroke="var(--color-destructive)"
+                    fill="url(#expenseGrad)"
+                    strokeWidth={2}
+                    name="expenses"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Expense Breakdown Pie Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Expense Breakdown</CardTitle>
+            <CardDescription>Total spending by category</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {!chartData?.expenseByCategory || chartData.expenseByCategory.length === 0 ? (
+              <div className="p-8 text-center text-muted-foreground">
+                <AlertCircle className="mx-auto mb-2" size={24} />
+                <p>No expenses recorded yet. Add bills to see breakdown.</p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={chartData.expenseByCategory}
+                    dataKey="amount"
+                    nameKey="category"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    innerRadius={50}
+                    paddingAngle={2}
+                  >
+                    {chartData.expenseByCategory.map((_, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={PIE_COLORS[index % PIE_COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value: number) => [formatCurrency(value), "Amount"]}
+                    contentStyle={{
+                      borderRadius: "var(--radius)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-card)",
+                    }}
+                  />
+                  <Legend
+                    verticalAlign="bottom"
+                    formatter={(value: string) => formatCategoryLabel(value)}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Property performance table */}
