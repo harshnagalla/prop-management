@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-03-15)
 
 ## Current Position
 
-Phase: 5 of 7 (Design System)
-Plan: 1 of 1 in current phase
-Status: Phase complete
-Last activity: 2026-03-15 — Completed 05-01-PLAN.md
+Phase: 6 of 7 (Page Redesign)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-03-15 — Completed 06-01-PLAN.md
 
-Progress: ███░░░░░░░ 33%
+Progress: █████░░░░░ 50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: 21 min
-- Total execution time: 2.1 hours
+- Total plans completed: 7
+- Average duration: 18 min
+- Total execution time: 2.2 hours
 
 **By Phase:**
 
@@ -32,6 +32,7 @@ Progress: ███░░░░░░░ 33%
 | 03-ui-polish | 1 | 4 min | 4 min |
 | 04-deployment-pwa | 1 | 7 min | 7 min |
 | 05-design-system | 1 | 59 min | 59 min |
+| 06-page-redesign | 1 | 4 min | 4 min |
 
 ## Accumulated Context
 
@@ -44,6 +45,8 @@ Full decision log in PROJECT.md Key Decisions table.
 | 05 | Inter font for typography | Clean minimal aesthetic matching Linear/Notion |
 | 05 | cva + forwardRef + cn() component pattern | Consistent primitive pattern for all UI components |
 | 05 | Semantic color tokens (success, info) | Status indicators beyond primary/accent/destructive |
+| 06 | Badge variant mapping for status | Occupied=success, Vacant=secondary, Renovation=warning, For Sale=outline |
+| 06 | Styled selects (not Select component) | Input-matching classes sufficient, avoids new component |
 
 ### Deferred Issues
 
@@ -60,5 +63,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-15
-Stopped at: Completed 05-01-PLAN.md — Phase 5 complete
+Stopped at: Completed 06-01-PLAN.md — 1 of 2 plans in Phase 6
 Resume file: None
