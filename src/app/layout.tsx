@@ -1,6 +1,13 @@
 import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "PropManager — Property Portfolio Dashboard",
@@ -20,8 +27,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className="min-h-screen bg-background antialiased">
+    <html lang="en" className={`dark ${inter.variable}`}>
+      <body className="min-h-screen bg-background font-sans antialiased">
         <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
