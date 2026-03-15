@@ -40,7 +40,7 @@ Plans:
 
 Plans:
 - [x] 06-01: Sidebar, dashboard, and properties redesign
-- [ ] 06-02: Bills, income, documents, and import redesign
+- [x] 06-02: Bills, income, documents, and import redesign
 
 #### Phase 7: Mobile Responsiveness
 
@@ -61,5 +61,5 @@ Plans:
 | 3. UI Polish & UX | v1.0 | 1/1 | Complete | 2026-03-14 |
 | 4. Deployment & PWA | v1.0 | 1/1 | Complete | 2026-03-15 |
 | 5. Design System | v1.1 | 1/1 | Complete | 2026-03-15 |
-| 6. Page Redesign | v1.1 | 1/2 | In progress | - |
+| 6. Page Redesign | v1.1 | 2/2 | Complete | 2026-03-15 |
 | 7. Mobile Responsiveness | v1.1 | 0/? | Not started | - |
