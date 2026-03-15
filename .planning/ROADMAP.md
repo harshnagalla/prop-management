@@ -65,7 +65,7 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 08-01: Install Vercel AI SDK, rewrite gemini.ts, verify API route
+- [x] 08-01: Install Vercel AI SDK, rewrite gemini.ts, verify API route
 
 ## Progress
 
@@ -78,4 +78,4 @@ Plans:
 | 5. Design System | v1.1 | 1/1 | Complete | 2026-03-15 |
 | 6. Page Redesign | v1.1 | 2/2 | Complete | 2026-03-15 |
 | 7. Mobile Responsiveness | v1.1 | 1/1 | Complete | 2026-03-15 |
-| 8. Vercel AI SDK Migration | v1.2 | 0/? | Not started | - |
+| 8. Vercel AI SDK Migration | v1.2 | 1/1 | Complete | 2026-03-15 |

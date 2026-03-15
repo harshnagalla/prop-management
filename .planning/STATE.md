@@ -5,22 +5,22 @@
 See: .planning/PROJECT.md (updated 2026-03-15)
 
 **Core value:** Know exactly how much money each property is making and whether it's worth holding — at a glance, always up to date.
-**Current focus:** v1.1 UI/UX Redesign — clean minimal design, mobile responsiveness
+**Current focus:** v1.2 AI SDK Migration complete
 
 ## Current Position
 
-Phase: 7 of 7 (Mobile Responsiveness)
+Phase: 8 of 8 (Vercel AI SDK Migration)
 Plan: 1 of 1 in current phase
-Status: Phase complete
-Last activity: 2026-03-15 — Completed 07-01-PLAN.md
+Status: Milestone v1.2 complete
+Last activity: 2026-03-15 — Completed 08-01-PLAN.md
 
 Progress: ██████████ 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
-- Average duration: 38 min
+- Total plans completed: 10
+- Average duration: 35 min
 - Total execution time: 5.7 hours
 
 **By Phase:**
@@ -34,6 +34,7 @@ Progress: ██████████ 100%
 | 05-design-system | 1 | 59 min | 59 min |
 | 06-page-redesign | 2 | 178 min | 89 min |
 | 07-mobile-responsiveness | 1 | 35 min | 35 min |
+| 08-vercel-ai-sdk | 1 | 2 min | 2 min |
 
 ## Accumulated Context
 
@@ -50,6 +51,8 @@ Full decision log in PROJECT.md Key Decisions table.
 | 06 | Styled selects (not Select component) | Input-matching classes sufficient, avoids new component |
 | 06 | Badge mapping for payments | Paid=success, Unpaid=destructive, Received=success, Pending=warning |
 | 06 | Button asChild for download links | Preserves native anchor download behavior |
+| 08 | Vercel AI SDK (generateText, not streamText) | JSON responses need synchronous parsing |
+| 08 | FilePart uses mediaType property | Vercel AI SDK naming convention |
 
 ### Deferred Issues
 
@@ -66,5 +69,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-15
-Stopped at: Completed 07-01-PLAN.md — Milestone v1.1 complete
+Stopped at: Completed 08-01-PLAN.md — Milestone v1.2 complete
 Resume file: None
