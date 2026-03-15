@@ -1,65 +1,26 @@
 # Roadmap: PropManager
 
-## Overview
+## Milestones
 
-PropManager has a complete initial implementation (auth, API routes, all pages, AI integration). The roadmap covers the remaining work to go from working code to a deployed, production-ready application — database setup, missing CRUD operations, UI polish, and deployment with PWA support.
+- ✅ **v1.0 MVP** — Phases 1-4 (shipped 2026-03-15) — [Archive](milestones/v1.0-ROADMAP.md)
 
-## Domain Expertise
+## Completed Milestones
 
-None
+<details>
+<summary>✅ v1.0 MVP (Phases 1-4) — SHIPPED 2026-03-15</summary>
 
-## Phases
+- [x] Phase 1: Database & Infrastructure (1/1 plans) — completed 2026-03-14
+- [x] Phase 2: Complete CRUD & File Upload (2/2 plans) — completed 2026-03-14
+- [x] Phase 3: UI Polish & UX (1/1 plans) — completed 2026-03-14
+- [x] Phase 4: Deployment & PWA (1/1 plans) — completed 2026-03-15
 
-- [x] **Phase 1: Database & Infrastructure** - Deploy Neon DB, push schema, configure environment
-- [x] **Phase 2: Complete CRUD & File Upload** - Missing API routes, file upload, data integrity
-- [x] **Phase 3: UI Polish & UX** - Loading states, error handling, toast notifications, responsive fixes
-- [x] **Phase 4: Deployment & PWA** - Vercel deployment, service worker, offline support
-
-## Phase Details
-
-### Phase 1: Database & Infrastructure
-**Goal**: Working database with schema deployed, environment configured for local development
-**Depends on**: Nothing (first phase)
-**Research**: Unlikely (Neon + Drizzle already configured in codebase)
-**Plans**: 1 plan
-
-Plans:
-- [x] 01-01: Push Drizzle schema to Neon, configure environment, verify auth flow end-to-end
-
-### Phase 2: Complete CRUD & File Upload
-**Goal**: All entities have full CRUD operations, documents can be uploaded/downloaded
-**Depends on**: Phase 1
-**Research**: Unlikely (extending existing API patterns)
-**Plans**: 2 plans
-
-Plans:
-- [x] 02-01: Add bills/[id] and rental-income/[id] API routes + edit/delete UI
-- [x] 02-02: Implement file upload API for documents (upload, store, retrieve)
-
-### Phase 3: UI Polish & UX
-**Goal**: Polished user experience with loading states, error handling, and form validation
-**Depends on**: Phase 2
-**Research**: Unlikely (internal UI work using existing component patterns)
-**Plans**: 1 plan
-
-Plans:
-- [x] 03-01: Toast notifications, error handling, and loading skeletons
-
-### Phase 4: Deployment & PWA
-**Goal**: Live application deployed to Vercel with installable PWA and offline support
-**Depends on**: Phase 3
-**Research**: Likely (service worker patterns, Next.js PWA configuration)
-**Research topics**: next-pwa or serwist for Next.js 15, service worker caching strategies, Vercel deployment configuration for Neon
-**Plans**: 1 plan
-
-Plans:
-- [x] 04-01: PWA service worker + Vercel deployment with env vars
+</details>
 
 ## Progress
 
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 1. Database & Infrastructure | 1/1 | Complete | 2026-03-14 |
-| 2. Complete CRUD & File Upload | 2/2 | Complete | 2026-03-14 |
-| 3. UI Polish & UX | 1/1 | Complete | 2026-03-14 |
-| 4. Deployment & PWA | 1/1 | Complete | 2026-03-15 |
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 1. Database & Infrastructure | v1.0 | 1/1 | Complete | 2026-03-14 |
+| 2. Complete CRUD & File Upload | v1.0 | 2/2 | Complete | 2026-03-14 |
+| 3. UI Polish & UX | v1.0 | 1/1 | Complete | 2026-03-14 |
+| 4. Deployment & PWA | v1.0 | 1/1 | Complete | 2026-03-15 |
