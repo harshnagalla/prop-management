@@ -7,6 +7,10 @@ import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/utils/toast";
 import { Modal } from "@/components/ui/modal";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import type { Property } from "@/lib/db/schema";
 
 const CATEGORIES = [
@@ -19,6 +23,12 @@ const CATEGORIES = [
   "legal",
   "other",
 ] as const;
+
+const selectClassName =
+  "mt-1 w-full bg-transparent border border-border rounded-[var(--radius)] h-9 px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+
+const textareaClassName =
+  "mt-1 w-full bg-transparent border border-border rounded-[var(--radius)] px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
 interface BillWithProperty {
   id: string;
@@ -91,7 +101,7 @@ function BillForm({
           required
           value={form.propertyId}
           onChange={(e) => set("propertyId", e.target.value)}
-          className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+          className={selectClassName}
         >
           <option value="">Select property</option>
           {properties.map((p) => (
@@ -107,7 +117,7 @@ function BillForm({
           <select
             value={form.category}
             onChange={(e) => set("category", e.target.value)}
-            className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+            className={selectClassName}
           >
             {CATEGORIES.map((c) => (
               <option key={c} value={c}>
@@ -118,43 +128,43 @@ function BillForm({
         </div>
         <div>
           <label className="text-sm text-muted-foreground">Amount (*) *</label>
-          <input
+          <Input
             type="number"
             required
             value={form.amount}
             onChange={(e) => set("amount", e.target.value)}
-            className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+            className="mt-1"
           />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="text-sm text-muted-foreground">Vendor</label>
-          <input
+          <Input
             value={form.vendor}
             onChange={(e) => set("vendor", e.target.value)}
-            className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+            className="mt-1"
             placeholder="e.g. Torrent Power"
           />
         </div>
         <div>
           <label className="text-sm text-muted-foreground">Due Date</label>
-          <input
+          <Input
             type="date"
             value={form.dueDate}
             onChange={(e) => set("dueDate", e.target.value)}
-            className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+            className="mt-1"
           />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="text-sm text-muted-foreground">Paid Date</label>
-          <input
+          <Input
             type="date"
             value={form.paidDate}
             onChange={(e) => set("paidDate", e.target.value)}
-            className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+            className="mt-1"
           />
         </div>
         <div className="flex items-end pb-2">
@@ -171,10 +181,10 @@ function BillForm({
       </div>
       <div>
         <label className="text-sm text-muted-foreground">Reference #</label>
-        <input
+        <Input
           value={form.referenceNumber}
           onChange={(e) => set("referenceNumber", e.target.value)}
-          className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+          className="mt-1"
         />
       </div>
       <div>
@@ -183,23 +193,16 @@ function BillForm({
           value={form.notes}
           onChange={(e) => set("notes", e.target.value)}
           rows={2}
-          className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+          className={textareaClassName}
         />
       </div>
       <div className="flex gap-3 justify-end pt-2">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground"
-        >
+        <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
-        </button>
-        <button
-          type="submit"
-          className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
-        >
+        </Button>
+        <Button type="submit" variant="default">
           {submitLabel}
-        </button>
+        </Button>
       </div>
     </form>
   );
@@ -339,23 +342,25 @@ export default function BillsPage() {
     return (
       <div className="space-y-6 pt-12 md:pt-0 animate-pulse">
         <div className="flex items-center justify-between">
-          <div><div className="h-8 w-28 bg-muted rounded-lg" /><div className="h-4 w-52 bg-muted rounded mt-2" /></div>
-          <div className="flex gap-2"><div className="h-10 w-28 bg-muted rounded-lg" /><div className="h-10 w-28 bg-muted rounded-lg" /></div>
+          <div><div className="h-8 w-28 bg-muted rounded-[var(--radius)]" /><div className="h-4 w-52 bg-muted rounded mt-2" /></div>
+          <div className="flex gap-2"><div className="h-10 w-28 bg-muted rounded-[var(--radius)]" /><div className="h-10 w-28 bg-muted rounded-[var(--radius)]" /></div>
         </div>
-        <div className="bg-card border border-border rounded-xl overflow-hidden">
-          <div className="p-4 border-b border-border flex gap-4">
-            {["w-28","w-24","w-28","w-20","w-24","w-16","w-20"].map((w, i) => (
-              <div key={i} className={`h-4 ${w} bg-muted rounded`} />
-            ))}
-          </div>
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="p-4 border-b border-border/50 flex gap-4">
-              {["w-28","w-24","w-28","w-20","w-24","w-16","w-20"].map((w, j) => (
-                <div key={j} className={`h-4 ${w} bg-muted rounded`} />
+        <Card>
+          <CardContent className="p-0">
+            <div className="p-4 border-b border-border flex gap-4">
+              {["w-28","w-24","w-28","w-20","w-24","w-16","w-20"].map((w, i) => (
+                <div key={i} className={`h-4 ${w} bg-muted rounded`} />
               ))}
             </div>
-          ))}
-        </div>
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="p-4 border-b border-border/50 flex gap-4">
+                {["w-28","w-24","w-28","w-20","w-24","w-16","w-20"].map((w, j) => (
+                  <div key={j} className={`h-4 ${w} bg-muted rounded`} />
+                ))}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -370,21 +375,18 @@ export default function BillsPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <button
-            onClick={() => setShowScan(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-muted text-foreground rounded-lg text-sm hover:bg-muted/70 border border-border"
-          >
-            <Upload size={16} /> Scan Bill
-          </button>
-          <button
+          <Button variant="outline" onClick={() => setShowScan(true)}>
+            <Upload size={16} className="mr-2" /> Scan Bill
+          </Button>
+          <Button
+            variant="default"
             onClick={() => {
               setAddFormData({});
               setShowAdd(true);
             }}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm hover:bg-primary/90"
           >
-            <Plus size={16} /> Add Bill
-          </button>
+            <Plus size={16} className="mr-2" /> Add Bill
+          </Button>
         </div>
       </div>
 
@@ -394,81 +396,80 @@ export default function BillsPage() {
           title="No bills tracked"
           description="Add bills manually or scan them with AI"
           action={
-            <button
-              onClick={() => setShowAdd(true)}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm"
-            >
+            <Button onClick={() => setShowAdd(true)} variant="default">
               Add Bill
-            </button>
+            </Button>
           }
         />
       ) : (
-        <div className="bg-card border border-border rounded-xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border text-muted-foreground">
-                  <th className="text-left p-4 font-medium">Property</th>
-                  <th className="text-left p-4 font-medium">Category</th>
-                  <th className="text-left p-4 font-medium">Vendor</th>
-                  <th className="text-right p-4 font-medium">Amount</th>
-                  <th className="text-left p-4 font-medium">Due Date</th>
-                  <th className="text-center p-4 font-medium">Status</th>
-                  <th className="text-right p-4 font-medium">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {bills.map((b) => (
-                  <tr
-                    key={b.id}
-                    className="border-b border-border/50 hover:bg-muted/30"
-                  >
-                    <td className="p-4 font-medium">
-                      {b.propertyName || "—"}
-                    </td>
-                    <td className="p-4 capitalize">
-                      {b.category.replace("_", " ")}
-                    </td>
-                    <td className="p-4 text-muted-foreground">
-                      {b.vendor || "—"}
-                    </td>
-                    <td className="p-4 text-right font-medium">
-                      {formatCurrency(b.amount)}
-                    </td>
-                    <td className="p-4">{formatDate(b.dueDate)}</td>
-                    <td className="p-4 text-center">
-                      {b.isPaid ? (
-                        <span className="px-2 py-1 rounded-full text-xs bg-accent/10 text-accent">
-                          Paid
-                        </span>
-                      ) : (
-                        <span className="px-2 py-1 rounded-full text-xs bg-warning/10 text-warning">
-                          Unpaid
-                        </span>
-                      )}
-                    </td>
-                    <td className="p-4 text-right">
-                      <div className="flex gap-2 justify-end">
-                        <button
-                          onClick={() => setEditing(b)}
-                          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-                        >
-                          <Pencil size={12} /> Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(b.id)}
-                          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive"
-                        >
-                          <Trash2 size={12} /> Delete
-                        </button>
-                      </div>
-                    </td>
+        <Card>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border text-muted-foreground">
+                    <th className="text-left p-4 font-medium">Property</th>
+                    <th className="text-left p-4 font-medium">Category</th>
+                    <th className="text-left p-4 font-medium">Vendor</th>
+                    <th className="text-right p-4 font-medium">Amount</th>
+                    <th className="text-left p-4 font-medium">Due Date</th>
+                    <th className="text-center p-4 font-medium">Status</th>
+                    <th className="text-right p-4 font-medium">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+                </thead>
+                <tbody>
+                  {bills.map((b) => (
+                    <tr
+                      key={b.id}
+                      className="border-b border-border/50 hover:bg-muted/30"
+                    >
+                      <td className="p-4 font-medium">
+                        {b.propertyName || "\u2014"}
+                      </td>
+                      <td className="p-4 capitalize">
+                        {b.category.replace("_", " ")}
+                      </td>
+                      <td className="p-4 text-muted-foreground">
+                        {b.vendor || "\u2014"}
+                      </td>
+                      <td className="p-4 text-right font-medium">
+                        {formatCurrency(b.amount)}
+                      </td>
+                      <td className="p-4">{formatDate(b.dueDate)}</td>
+                      <td className="p-4 text-center">
+                        {b.isPaid ? (
+                          <Badge variant="success">Paid</Badge>
+                        ) : (
+                          <Badge variant="destructive">Unpaid</Badge>
+                        )}
+                      </td>
+                      <td className="p-4 text-right">
+                        <div className="flex gap-1 justify-end">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setEditing(b)}
+                            className="h-8 w-8"
+                          >
+                            <Pencil size={14} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(b.id)}
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                          >
+                            <Trash2 size={14} />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Scan Modal */}
@@ -477,7 +478,7 @@ export default function BillsPage() {
           <p className="text-sm text-muted-foreground">
             Upload a photo or scan of your bill. AI will extract the details automatically.
           </p>
-          <label className="block border-2 border-dashed border-border rounded-xl p-8 text-center cursor-pointer hover:border-primary/50 transition-colors">
+          <label className="block border-2 border-dashed border-border rounded-[var(--radius)] p-8 text-center cursor-pointer hover:border-primary/50 transition-colors">
             <Upload className="mx-auto mb-2 text-muted-foreground" size={32} />
             <p className="text-sm text-muted-foreground">
               {scanning ? "Processing..." : "Click to upload or drag a bill image"}
@@ -493,8 +494,13 @@ export default function BillsPage() {
               disabled={scanning}
             />
           </label>
+          {scanning && (
+            <div className="flex justify-center">
+              <div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+            </div>
+          )}
           {scanResult && (
-            <div className="bg-muted rounded-lg p-3 text-xs">
+            <div className="bg-muted rounded-[var(--radius)] p-3 text-xs">
               <p className="font-medium mb-1">AI extracted:</p>
               <pre className="text-muted-foreground overflow-auto">
                 {JSON.stringify(scanResult, null, 2)}

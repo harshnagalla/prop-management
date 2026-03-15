@@ -6,12 +6,22 @@ import { formatCurrency } from "@/lib/utils/format";
 import { toast } from "@/lib/utils/toast";
 import { Modal } from "@/components/ui/modal";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import type { Property } from "@/lib/db/schema";
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December",
 ];
+
+const selectClassName =
+  "mt-1 w-full bg-transparent border border-border rounded-[var(--radius)] h-9 px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+
+const textareaClassName =
+  "mt-1 w-full bg-transparent border border-border rounded-[var(--radius)] px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
 interface IncomeEntry {
   id: string;
@@ -87,7 +97,7 @@ function IncomeForm({
               set("propertyId", e.target.value);
             }
           }}
-          className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+          className={selectClassName}
         >
           <option value="">Select property</option>
           {properties.map((p) => (
@@ -103,7 +113,7 @@ function IncomeForm({
           <select
             value={form.month as string}
             onChange={(e) => set("month", e.target.value)}
-            className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+            className={selectClassName}
           >
             {MONTHS.map((m, i) => (
               <option key={i} value={i + 1}>{m}</option>
@@ -112,42 +122,42 @@ function IncomeForm({
         </div>
         <div>
           <label className="text-sm text-muted-foreground">Year</label>
-          <input
+          <Input
             type="number"
             value={form.year as string}
             onChange={(e) => set("year", e.target.value)}
-            className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+            className="mt-1"
           />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="text-sm text-muted-foreground">Amount (*) *</label>
-          <input
+          <Input
             type="number"
             required
             value={form.amount as string}
             onChange={(e) => set("amount", e.target.value)}
-            className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+            className="mt-1"
           />
         </div>
         <div>
           <label className="text-sm text-muted-foreground">Tenant</label>
-          <input
+          <Input
             value={form.tenantName as string}
             onChange={(e) => set("tenantName", e.target.value)}
-            className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+            className="mt-1"
           />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="text-sm text-muted-foreground">Received Date</label>
-          <input
+          <Input
             type="date"
             value={form.receivedDate as string}
             onChange={(e) => set("receivedDate", e.target.value)}
-            className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+            className="mt-1"
           />
         </div>
         <div className="flex items-end pb-2">
@@ -168,23 +178,16 @@ function IncomeForm({
           value={form.notes as string}
           onChange={(e) => set("notes", e.target.value)}
           rows={2}
-          className="mt-1 w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm"
+          className={textareaClassName}
         />
       </div>
       <div className="flex gap-3 justify-end pt-2">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground"
-        >
+        <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
-        </button>
-        <button
-          type="submit"
-          className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
-        >
+        </Button>
+        <Button type="submit" variant="default">
           {submitLabel}
-        </button>
+        </Button>
       </div>
     </form>
   );
@@ -281,22 +284,26 @@ export default function IncomePage() {
     return (
       <div className="space-y-6 pt-12 md:pt-0 animate-pulse">
         <div className="flex items-center justify-between">
-          <div><div className="h-8 w-40 bg-muted rounded-lg" /><div className="h-4 w-52 bg-muted rounded mt-2" /></div>
-          <div className="h-10 w-40 bg-muted rounded-lg" />
+          <div><div className="h-8 w-40 bg-muted rounded-[var(--radius)]" /><div className="h-4 w-52 bg-muted rounded mt-2" /></div>
+          <div className="h-10 w-40 bg-muted rounded-[var(--radius)]" />
         </div>
         {[1, 2].map((g) => (
-          <div key={g} className="bg-card border border-border rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-border flex justify-between">
-              <div className="h-5 w-32 bg-muted rounded" />
-              <div className="h-5 w-20 bg-muted rounded" />
-            </div>
-            {[1, 2].map((i) => (
-              <div key={i} className="p-4 border-b border-border/50 flex justify-between">
-                <div><div className="h-4 w-32 bg-muted rounded" /><div className="h-3 w-24 bg-muted rounded mt-1" /></div>
-                <div className="h-4 w-20 bg-muted rounded" />
+          <Card key={g}>
+            <CardHeader className="pb-0">
+              <div className="flex justify-between">
+                <div className="h-5 w-32 bg-muted rounded" />
+                <div className="h-5 w-20 bg-muted rounded" />
               </div>
-            ))}
-          </div>
+            </CardHeader>
+            <CardContent>
+              {[1, 2].map((i) => (
+                <div key={i} className="py-3 border-b border-border/50 flex justify-between">
+                  <div><div className="h-4 w-32 bg-muted rounded" /><div className="h-3 w-24 bg-muted rounded mt-1" /></div>
+                  <div className="h-4 w-20 bg-muted rounded" />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
         ))}
       </div>
     );
@@ -323,12 +330,9 @@ export default function IncomePage() {
             Track rent payments by property
           </p>
         </div>
-        <button
-          onClick={() => setShowAdd(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm hover:bg-primary/90"
-        >
-          <Plus size={16} /> Record Payment
-        </button>
+        <Button variant="default" onClick={() => setShowAdd(true)}>
+          <Plus size={16} className="mr-2" /> Record Payment
+        </Button>
       </div>
 
       {income.length === 0 ? (
@@ -337,12 +341,9 @@ export default function IncomePage() {
           title="No income recorded"
           description="Record rental payments as they come in"
           action={
-            <button
-              onClick={() => setShowAdd(true)}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm"
-            >
+            <Button onClick={() => setShowAdd(true)} variant="default">
               Record Payment
-            </button>
+            </Button>
           }
         />
       ) : (
@@ -352,57 +353,62 @@ export default function IncomePage() {
             .map(([key, group]) => {
               const [year, month] = key.split("-");
               return (
-                <div
-                  key={key}
-                  className="bg-card border border-border rounded-xl overflow-hidden"
-                >
-                  <div className="p-4 border-b border-border flex items-center justify-between">
-                    <h3 className="font-semibold">
+                <Card key={key}>
+                  <CardHeader className="flex-row items-center justify-between">
+                    <CardTitle>
                       {MONTHS[parseInt(month) - 1]} {year}
-                    </h3>
+                    </CardTitle>
                     <span className="text-sm font-medium text-accent">
                       {formatCurrency(group.total)}
                     </span>
-                  </div>
-                  <div className="divide-y divide-border/50">
-                    {group.entries.map((entry) => (
-                      <div key={entry.id} className="p-4 flex items-center justify-between">
-                        <div>
-                          <p className="font-medium text-sm">{entry.propertyName}</p>
-                          {entry.tenantName && (
-                            <p className="text-xs text-muted-foreground">
-                              {entry.tenantName}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <div className="text-right">
-                            <p className="font-medium text-sm">
-                              {formatCurrency(entry.amount)}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {entry.isReceived ? "Received" : "Pending"}
-                            </p>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="divide-y divide-border/50">
+                      {group.entries.map((entry) => (
+                        <div key={entry.id} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between">
+                          <div>
+                            <p className="font-medium text-sm">{entry.propertyName}</p>
+                            {entry.tenantName && (
+                              <p className="text-xs text-muted-foreground">
+                                {entry.tenantName}
+                              </p>
+                            )}
                           </div>
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => setEditing(entry)}
-                              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-                            >
-                              <Pencil size={12} />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(entry.id)}
-                              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive"
-                            >
-                              <Trash2 size={12} />
-                            </button>
+                          <div className="flex items-center gap-4">
+                            <div className="text-right">
+                              <p className="font-medium text-sm">
+                                {formatCurrency(entry.amount)}
+                              </p>
+                              {entry.isReceived ? (
+                                <Badge variant="success" className="mt-1">Received</Badge>
+                              ) : (
+                                <Badge variant="warning" className="mt-1">Pending</Badge>
+                              )}
+                            </div>
+                            <div className="flex gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => setEditing(entry)}
+                                className="h-8 w-8"
+                              >
+                                <Pencil size={14} />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleDelete(entry.id)}
+                                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                              >
+                                <Trash2 size={14} />
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
               );
             })}
         </div>
