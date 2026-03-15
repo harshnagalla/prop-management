@@ -1,6 +1,9 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { generateText } from "ai";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || "");
+const google = createGoogleGenerativeAI({
+  apiKey: process.env.GOOGLE_AI_API_KEY || "",
+});
 
 export async function extractBillData(
   base64Image: string,
@@ -14,17 +17,20 @@ export async function extractBillData(
   propertyHint?: string;
   lineItems?: Array<{ description: string; amount: number }>;
 }> {
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
-  const result = await model.generateContent([
-    {
-      inlineData: {
-        mimeType,
-        data: base64Image,
-      },
-    },
-    {
-      text: `Extract the following information from this bill/receipt image. Return ONLY valid JSON with these fields:
+  const { text } = await generateText({
+    model: google("gemini-2.0-flash"),
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "file",
+            data: base64Image,
+            mediaType: mimeType,
+          },
+          {
+            type: "text",
+            text: `Extract the following information from this bill/receipt image. Return ONLY valid JSON with these fields:
 {
   "amount": <total amount as number>,
   "date": "<date in YYYY-MM-DD format>",
@@ -40,11 +46,13 @@ If a field is not found, omit it. For Indian bills, look for:
 - AMC / Ahmedabad Municipal Corporation → municipal_tax
 - Water supply bills → water
 Return ONLY the JSON, no markdown or explanation.`,
-    },
-  ]);
+          },
+        ],
+      },
+    ],
+  });
 
-  const text = result.response.text().trim();
-  const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "");
+  const cleaned = text.trim().replace(/```json\n?/g, "").replace(/```\n?/g, "");
 
   try {
     return JSON.parse(cleaned);
@@ -68,17 +76,20 @@ export async function extractSpreadsheetData(
     area?: number;
   }>;
 }> {
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
-  const result = await model.generateContent([
-    {
-      inlineData: {
-        mimeType,
-        data: base64File,
-      },
-    },
-    {
-      text: `This is a spreadsheet/document containing property data. Extract all properties into this JSON format:
+  const { text } = await generateText({
+    model: google("gemini-2.0-flash"),
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "file",
+            data: base64File,
+            mediaType: mimeType,
+          },
+          {
+            type: "text",
+            text: `This is a spreadsheet/document containing property data. Extract all properties into this JSON format:
 {
   "properties": [
     {
@@ -94,11 +105,13 @@ export async function extractSpreadsheetData(
   ]
 }
 Return ONLY valid JSON. Convert all amounts to numbers (remove ₹, commas, etc).`,
-    },
-  ]);
+          },
+        ],
+      },
+    ],
+  });
 
-  const text = result.response.text().trim();
-  const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "");
+  const cleaned = text.trim().replace(/```json\n?/g, "").replace(/```\n?/g, "");
 
   try {
     return JSON.parse(cleaned);
