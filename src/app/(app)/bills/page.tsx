@@ -93,110 +93,127 @@ function BillForm({
           notes: form.notes || null,
         });
       }}
-      className="space-y-4"
+      className="space-y-5"
     >
+      {/* Bill Details */}
       <div>
-        <label className="text-sm text-muted-foreground">Property *</label>
-        <select
-          required
-          value={form.propertyId}
-          onChange={(e) => set("propertyId", e.target.value)}
-          className={selectClassName}
-        >
-          <option value="">Select property</option>
-          {properties.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Bill Details</p>
+        <div className="space-y-5">
+          <div>
+            <label className="text-sm font-medium">Property *</label>
+            <select
+              required
+              value={form.propertyId}
+              onChange={(e) => set("propertyId", e.target.value)}
+              className={selectClassName}
+            >
+              <option value="">Select property</option>
+              {properties.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label className="text-sm font-medium">Category</label>
+              <select
+                value={form.category}
+                onChange={(e) => set("category", e.target.value)}
+                className={selectClassName}
+              >
+                {CATEGORIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-sm font-medium">Amount (*) *</label>
+              <Input
+                type="number"
+                required
+                value={form.amount}
+                onChange={(e) => set("amount", e.target.value)}
+                className="mt-1"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label className="text-sm font-medium">Vendor</label>
+              <Input
+                value={form.vendor}
+                onChange={(e) => set("vendor", e.target.value)}
+                className="mt-1"
+                placeholder="e.g. Torrent Power"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Reference #</label>
+              <Input
+                value={form.referenceNumber}
+                onChange={(e) => set("referenceNumber", e.target.value)}
+                className="mt-1"
+              />
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="text-sm text-muted-foreground">Category</label>
-          <select
-            value={form.category}
-            onChange={(e) => set("category", e.target.value)}
-            className={selectClassName}
-          >
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {c.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="text-sm text-muted-foreground">Amount (*) *</label>
-          <Input
-            type="number"
-            required
-            value={form.amount}
-            onChange={(e) => set("amount", e.target.value)}
-            className="mt-1"
-          />
-        </div>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="text-sm text-muted-foreground">Vendor</label>
-          <Input
-            value={form.vendor}
-            onChange={(e) => set("vendor", e.target.value)}
-            className="mt-1"
-            placeholder="e.g. Torrent Power"
-          />
-        </div>
-        <div>
-          <label className="text-sm text-muted-foreground">Due Date</label>
-          <Input
-            type="date"
-            value={form.dueDate}
-            onChange={(e) => set("dueDate", e.target.value)}
-            className="mt-1"
-          />
-        </div>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="text-sm text-muted-foreground">Paid Date</label>
-          <Input
-            type="date"
-            value={form.paidDate}
-            onChange={(e) => set("paidDate", e.target.value)}
-            className="mt-1"
-          />
-        </div>
-        <div className="flex items-end pb-2">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={form.isPaid}
-              onChange={(e) => set("isPaid", e.target.checked)}
-              className="rounded"
+
+      {/* Dates & Status */}
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Dates & Status</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <label className="text-sm font-medium">Due Date</label>
+            <Input
+              type="date"
+              value={form.dueDate}
+              onChange={(e) => set("dueDate", e.target.value)}
+              className="mt-1"
             />
-            Paid
-          </label>
+          </div>
+          <div>
+            <label className="text-sm font-medium">Paid Date</label>
+            <Input
+              type="date"
+              value={form.paidDate}
+              onChange={(e) => set("paidDate", e.target.value)}
+              className="mt-1"
+            />
+          </div>
+          <div className="flex items-end pb-2">
+            <label className="flex items-center gap-2 text-sm font-medium">
+              <input
+                type="checkbox"
+                checked={form.isPaid}
+                onChange={(e) => set("isPaid", e.target.checked)}
+                className="rounded"
+              />
+              Paid
+            </label>
+          </div>
         </div>
       </div>
+
+      {/* Notes */}
       <div>
-        <label className="text-sm text-muted-foreground">Reference #</label>
-        <Input
-          value={form.referenceNumber}
-          onChange={(e) => set("referenceNumber", e.target.value)}
-          className="mt-1"
-        />
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Notes</p>
+        <div>
+          <label className="text-sm font-medium">Notes</label>
+          <textarea
+            value={form.notes}
+            onChange={(e) => set("notes", e.target.value)}
+            rows={2}
+            className={textareaClassName}
+          />
+        </div>
       </div>
-      <div>
-        <label className="text-sm text-muted-foreground">Notes</label>
-        <textarea
-          value={form.notes}
-          onChange={(e) => set("notes", e.target.value)}
-          rows={2}
-          className={textareaClassName}
-        />
-      </div>
-      <div className="flex gap-3 justify-end pt-2">
+
+      <div className="flex gap-3 justify-end pt-3">
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>
@@ -340,9 +357,9 @@ export default function BillsPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6 pt-12 md:pt-0 animate-pulse">
+      <div className="space-y-8 pt-12 md:pt-0 animate-pulse">
         <div className="flex items-center justify-between">
-          <div><div className="h-8 w-28 bg-muted rounded-[var(--radius)]" /><div className="h-4 w-52 bg-muted rounded mt-2" /></div>
+          <div><div className="h-9 w-28 bg-muted rounded-[var(--radius)]" /><div className="h-4 w-52 bg-muted rounded mt-3" /></div>
           <div className="flex gap-2"><div className="h-10 w-28 bg-muted rounded-[var(--radius)]" /><div className="h-10 w-28 bg-muted rounded-[var(--radius)]" /></div>
         </div>
         <Card>
@@ -366,11 +383,11 @@ export default function BillsPage() {
   }
 
   return (
-    <div className="space-y-6 pt-12 md:pt-0">
+    <div className="space-y-8 pt-12 md:pt-0">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Bills</h1>
-          <p className="text-muted-foreground text-sm mt-1">
+          <h1 className="text-3xl font-bold tracking-tight">Bills</h1>
+          <p className="text-muted-foreground text-sm mt-2">
             Track expenses across properties
           </p>
         </div>
@@ -391,16 +408,18 @@ export default function BillsPage() {
       </div>
 
       {bills.length === 0 ? (
-        <EmptyState
-          icon={Receipt}
-          title="No bills tracked"
-          description="Add bills manually or scan them with AI"
-          action={
-            <Button onClick={() => setShowAdd(true)} variant="default">
-              Add Bill
-            </Button>
-          }
-        />
+        <div className="py-8">
+          <EmptyState
+            icon={Receipt}
+            title="No bills tracked"
+            description="Add bills manually or scan them with AI"
+            action={
+              <Button onClick={() => setShowAdd(true)} variant="default">
+                Add Bill
+              </Button>
+            }
+          />
+        </div>
       ) : (
         <>
         {/* Desktop table */}
@@ -409,21 +428,24 @@ export default function BillsPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border text-muted-foreground">
-                    <th className="text-left p-4 font-medium">Property</th>
-                    <th className="text-left p-4 font-medium">Category</th>
-                    <th className="text-left p-4 font-medium">Vendor</th>
-                    <th className="text-right p-4 font-medium">Amount</th>
-                    <th className="text-left p-4 font-medium">Due Date</th>
-                    <th className="text-center p-4 font-medium">Status</th>
-                    <th className="text-right p-4 font-medium">Actions</th>
+                  <tr className="border-b border-border bg-muted/50">
+                    <th className="text-left p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Property</th>
+                    <th className="text-left p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Category</th>
+                    <th className="text-left p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Vendor</th>
+                    <th className="text-right p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Amount</th>
+                    <th className="text-left p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Due Date</th>
+                    <th className="text-center p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</th>
+                    <th className="text-right p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {bills.map((b) => (
+                  {bills.map((b, idx) => (
                     <tr
                       key={b.id}
-                      className="border-b border-border/50 hover:bg-muted/30"
+                      className={cn(
+                        "border-b border-border/50 hover:bg-muted/40 transition-colors",
+                        idx % 2 === 1 && "bg-muted/20"
+                      )}
                     >
                       <td className="p-4 font-medium">
                         {b.propertyName || "\u2014"}
@@ -434,10 +456,10 @@ export default function BillsPage() {
                       <td className="p-4 text-muted-foreground">
                         {b.vendor || "\u2014"}
                       </td>
-                      <td className="p-4 text-right font-medium">
+                      <td className="p-4 text-right font-medium tabular-nums">
                         {formatCurrency(b.amount)}
                       </td>
-                      <td className="p-4">{formatDate(b.dueDate)}</td>
+                      <td className="p-4 tabular-nums">{formatDate(b.dueDate)}</td>
                       <td className="p-4 text-center">
                         {b.isPaid ? (
                           <Badge variant="success">Paid</Badge>
@@ -474,29 +496,39 @@ export default function BillsPage() {
         </Card>
 
         {/* Mobile card list */}
-        <div className="md:hidden space-y-3">
+        <div className="md:hidden space-y-4">
           {bills.map((b) => (
             <Card key={b.id}>
-              <CardContent className="p-4 space-y-3">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="font-medium text-sm">{b.propertyName || "\u2014"}</p>
-                    <p className="text-xs text-muted-foreground capitalize">
+              <CardContent className="p-6 space-y-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-medium text-sm truncate">{b.propertyName || "\u2014"}</p>
+                    <p className="text-xs text-muted-foreground capitalize mt-1">
                       {b.category.replace("_", " ")}
                     </p>
                   </div>
                   {b.isPaid ? (
-                    <Badge variant="success">Paid</Badge>
+                    <Badge variant="success" className="shrink-0">Paid</Badge>
                   ) : (
-                    <Badge variant="destructive">Unpaid</Badge>
+                    <Badge variant="destructive" className="shrink-0">Unpaid</Badge>
                   )}
                 </div>
-                <p className="text-lg font-semibold">{formatCurrency(b.amount)}</p>
-                <div className="text-xs text-muted-foreground space-y-1">
-                  {b.vendor && <p>Vendor: {b.vendor}</p>}
-                  {b.dueDate && <p>Due: {formatDate(b.dueDate)}</p>}
+                <p className="text-lg font-semibold tabular-nums">{formatCurrency(b.amount)}</p>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  {b.vendor && (
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Vendor</p>
+                      <p className="text-sm mt-0.5">{b.vendor}</p>
+                    </div>
+                  )}
+                  {b.dueDate && (
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Due Date</p>
+                      <p className="text-sm tabular-nums mt-0.5">{formatDate(b.dueDate)}</p>
+                    </div>
+                  )}
                 </div>
-                <div className="flex gap-1 pt-2 border-t border-border">
+                <div className="flex gap-1 pt-4 mt-4 border-t border-border">
                   <Button
                     variant="ghost"
                     size="icon"
