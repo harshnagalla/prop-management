@@ -65,7 +65,7 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 08-01: TBD (run /gsd:plan-phase 8 to break down)
+- [ ] 08-01: Install Vercel AI SDK, rewrite gemini.ts, verify API route
 
 ## Progress
 
