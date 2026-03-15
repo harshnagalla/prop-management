@@ -225,6 +225,31 @@ function BillForm({
   );
 }
 
+function SortHeader({ label, sortKey: key, currentKey, currentDir, onSort, className }: {
+  label: string;
+  sortKey: string;
+  currentKey: string;
+  currentDir: "asc" | "desc";
+  onSort: (key: string) => void;
+  className?: string;
+}) {
+  const active = currentKey === key;
+  return (
+    <th
+      className={cn(
+        "text-left p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground cursor-pointer hover:text-foreground select-none transition-colors",
+        className
+      )}
+      onClick={() => onSort(key)}
+    >
+      <span className="inline-flex items-center gap-1">
+        {label}
+        {active && (currentDir === "asc" ? " ↑" : " ↓")}
+      </span>
+    </th>
+  );
+}
+
 export default function BillsPage() {
   const [bills, setBills] = useState<BillWithProperty[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
@@ -239,6 +264,8 @@ export default function BillsPage() {
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterProperty, setFilterProperty] = useState<string>("all");
+  const [sortKey, setSortKey] = useState<string>("");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
   const filtered = bills.filter((b) => {
     const matchesSearch = search === "" ||
@@ -260,6 +287,30 @@ export default function BillsPage() {
     setFilterStatus("all");
     setFilterProperty("all");
   };
+
+  const toggleSort = (key: string) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  };
+
+  const sorted = [...filtered].sort((a, b) => {
+    if (!sortKey) return 0;
+    const aRaw = a[sortKey as keyof BillWithProperty];
+    const bRaw = b[sortKey as keyof BillWithProperty];
+    let aVal: string | number | boolean | null = aRaw ?? "";
+    let bVal: string | number | boolean | null = bRaw ?? "";
+    if (typeof aVal === "string" && !isNaN(parseFloat(aVal)) && aVal !== "") {
+      aVal = parseFloat(aVal);
+      bVal = parseFloat(bVal as string);
+    }
+    if (aVal < bVal) return sortDir === "asc" ? -1 : 1;
+    if (aVal > bVal) return sortDir === "asc" ? 1 : -1;
+    return 0;
+  });
 
   const load = () => {
     Promise.all([
@@ -521,17 +572,17 @@ export default function BillsPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border bg-muted/50">
-                    <th className="text-left p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Property</th>
-                    <th className="text-left p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Category</th>
+                    <SortHeader label="Property" sortKey="propertyName" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} />
+                    <SortHeader label="Category" sortKey="category" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} />
                     <th className="text-left p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Vendor</th>
-                    <th className="text-right p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Amount</th>
-                    <th className="text-left p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Due Date</th>
-                    <th className="text-center p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</th>
+                    <SortHeader label="Amount" sortKey="amount" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} className="text-right" />
+                    <SortHeader label="Due Date" sortKey="dueDate" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} />
+                    <SortHeader label="Status" sortKey="isPaid" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} className="text-center" />
                     <th className="text-right p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((b, idx) => (
+                  {sorted.map((b, idx) => (
                     <tr
                       key={b.id}
                       className={cn(

@@ -107,10 +107,46 @@ const PIE_COLORS = [
   "var(--color-accent)",
 ];
 
+function SortHeader({ label, sortKey: key, currentKey, currentDir, onSort, className }: {
+  label: string;
+  sortKey: string;
+  currentKey: string;
+  currentDir: "asc" | "desc";
+  onSort: (key: string) => void;
+  className?: string;
+}) {
+  const active = currentKey === key;
+  return (
+    <th
+      className={cn(
+        "text-left p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground cursor-pointer hover:text-foreground select-none transition-colors",
+        className
+      )}
+      onClick={() => onSort(key)}
+    >
+      <span className="inline-flex items-center gap-1">
+        {label}
+        {active && (currentDir === "asc" ? " ↑" : " ↓")}
+      </span>
+    </th>
+  );
+}
+
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [chartData, setChartData] = useState<ChartData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sortKey, setSortKey] = useState<string>("");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+
+  const toggleSort = (key: string) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  };
 
   useEffect(() => {
     Promise.all([
@@ -149,6 +185,15 @@ export default function DashboardPage() {
   if (!data) return null;
 
   const { properties: props, financials, propertyList } = data;
+
+  const sortedProperties = [...propertyList].sort((a, b) => {
+    if (!sortKey) return 0;
+    const aVal = a[sortKey as keyof typeof a];
+    const bVal = b[sortKey as keyof typeof b];
+    if (aVal < bVal) return sortDir === "asc" ? -1 : 1;
+    if (aVal > bVal) return sortDir === "asc" ? 1 : -1;
+    return 0;
+  });
 
   // Merge income and expenses into a single dataset for the area chart
   const areaChartData = chartData
@@ -376,16 +421,16 @@ export default function DashboardPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border bg-muted/50">
-                    <th className="text-left p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Property</th>
+                    <SortHeader label="Property" sortKey="name" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} />
                     <th className="text-left p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</th>
-                    <th className="text-right p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Value</th>
-                    <th className="text-right p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Monthly Rent</th>
-                    <th className="text-right p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Yield</th>
-                    <th className="text-right p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">ROI</th>
+                    <SortHeader label="Value" sortKey="currentValue" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} className="text-right" />
+                    <SortHeader label="Monthly Rent" sortKey="monthlyRent" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} className="text-right" />
+                    <SortHeader label="Yield" sortKey="rentalYield" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} className="text-right" />
+                    <SortHeader label="ROI" sortKey="roi" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} className="text-right" />
                   </tr>
                 </thead>
                 <tbody>
-                  {propertyList.map((p, idx) => (
+                  {sortedProperties.map((p, idx) => (
                     <tr
                       key={p.id}
                       className={cn(
