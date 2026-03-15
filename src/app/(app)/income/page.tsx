@@ -216,6 +216,9 @@ export default function IncomePage() {
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState<IncomeEntry | null>(null);
+  const [filterProperty, setFilterProperty] = useState<string>("all");
+  const [filterYear, setFilterYear] = useState<string>("all");
+  const [filterReceived, setFilterReceived] = useState<string>("all");
 
   const load = () => {
     Promise.all([
@@ -326,8 +329,27 @@ export default function IncomePage() {
     );
   }
 
+  // Filter income entries
+  const filtered = income.filter((entry) => {
+    const matchesProperty = filterProperty === "all" || entry.propertyId === filterProperty;
+    const matchesYear = filterYear === "all" || String(entry.year) === filterYear;
+    const matchesReceived = filterReceived === "all" ||
+      (filterReceived === "received" ? entry.isReceived : !entry.isReceived);
+    return matchesProperty && matchesYear && matchesReceived;
+  });
+
+  const years = [...new Set(income.map((e) => e.year))].sort((a, b) => b - a);
+  const filtersActive = filterProperty !== "all" || filterYear !== "all" || filterReceived !== "all";
+  const filteredTotal = filtered.reduce((sum, e) => sum + parseFloat(e.amount), 0);
+
+  const clearFilters = () => {
+    setFilterProperty("all");
+    setFilterYear("all");
+    setFilterReceived("all");
+  };
+
   // Group by month/year
-  const grouped = income.reduce(
+  const grouped = filtered.reduce(
     (acc, entry) => {
       const key = `${entry.year}-${String(entry.month).padStart(2, "0")}`;
       if (!acc[key]) acc[key] = { entries: [], total: 0 };
@@ -344,13 +366,58 @@ export default function IncomePage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Rental Income</h1>
           <p className="text-muted-foreground text-sm mt-2">
-            Track rent payments by property
+            {filtersActive
+              ? `${filtered.length} records · ${formatCurrency(filteredTotal)}`
+              : "Track rent payments by property"}
           </p>
         </div>
         <Button variant="default" onClick={() => setShowAdd(true)}>
           <Plus size={16} className="mr-2" /> Record Payment
         </Button>
       </div>
+
+      {income.length > 0 && (
+        <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
+          <select
+            value={filterProperty}
+            onChange={(e) => setFilterProperty(e.target.value)}
+            className={`${selectClassName} mt-0 sm:w-44`}
+          >
+            <option value="all">All Properties</option>
+            {properties.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+          <select
+            value={filterYear}
+            onChange={(e) => setFilterYear(e.target.value)}
+            className={`${selectClassName} mt-0 sm:w-32`}
+          >
+            <option value="all">All Years</option>
+            {years.map((y) => (
+              <option key={y} value={String(y)}>
+                {y}
+              </option>
+            ))}
+          </select>
+          <select
+            value={filterReceived}
+            onChange={(e) => setFilterReceived(e.target.value)}
+            className={`${selectClassName} mt-0 sm:w-32`}
+          >
+            <option value="all">All</option>
+            <option value="received">Received</option>
+            <option value="pending">Pending</option>
+          </select>
+          {filtersActive && (
+            <Button variant="ghost" size="sm" onClick={clearFilters} className="self-center">
+              Clear
+            </Button>
+          )}
+        </div>
+      )}
 
       {income.length === 0 ? (
         <div className="py-8">
@@ -361,6 +428,19 @@ export default function IncomePage() {
             action={
               <Button onClick={() => setShowAdd(true)} variant="default">
                 Record Payment
+              </Button>
+            }
+          />
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="py-8">
+          <EmptyState
+            icon={IndianRupee}
+            title="No income matches filters"
+            description="Try adjusting your filter criteria"
+            action={
+              <Button onClick={clearFilters} variant="outline">
+                Clear Filters
               </Button>
             }
           />
