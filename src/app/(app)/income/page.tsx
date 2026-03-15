@@ -365,7 +365,7 @@ export default function IncomePage() {
                   <CardContent>
                     <div className="divide-y divide-border/50">
                       {group.entries.map((entry) => (
-                        <div key={entry.id} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between">
+                        <div key={entry.id} className="py-3 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                           <div>
                             <p className="font-medium text-sm">{entry.propertyName}</p>
                             {entry.tenantName && (
@@ -375,7 +375,7 @@ export default function IncomePage() {
                             )}
                           </div>
                           <div className="flex items-center gap-4">
-                            <div className="text-right">
+                            <div className="sm:text-right">
                               <p className="font-medium text-sm">
                                 {formatCurrency(entry.amount)}
                               </p>
@@ -390,7 +390,7 @@ export default function IncomePage() {
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => setEditing(entry)}
-                                className="h-8 w-8"
+                                className="h-8 w-8 min-h-[32px] min-w-[32px]"
                               >
                                 <Pencil size={14} />
                               </Button>
@@ -398,7 +398,7 @@ export default function IncomePage() {
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => handleDelete(entry.id)}
-                                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                                className="h-8 w-8 min-h-[32px] min-w-[32px] text-muted-foreground hover:text-destructive"
                               >
                                 <Trash2 size={14} />
                               </Button>

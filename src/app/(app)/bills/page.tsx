@@ -402,7 +402,8 @@ export default function BillsPage() {
           }
         />
       ) : (
-        <Card>
+        {/* Desktop table */}
+        <Card className="hidden md:block">
           <CardContent className="p-0">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -470,6 +471,52 @@ export default function BillsPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Mobile card list */}
+        <div className="md:hidden space-y-3">
+          {bills.map((b) => (
+            <Card key={b.id}>
+              <CardContent className="p-4 space-y-3">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="font-medium text-sm">{b.propertyName || "\u2014"}</p>
+                    <p className="text-xs text-muted-foreground capitalize">
+                      {b.category.replace("_", " ")}
+                    </p>
+                  </div>
+                  {b.isPaid ? (
+                    <Badge variant="success">Paid</Badge>
+                  ) : (
+                    <Badge variant="destructive">Unpaid</Badge>
+                  )}
+                </div>
+                <p className="text-lg font-semibold">{formatCurrency(b.amount)}</p>
+                <div className="text-xs text-muted-foreground space-y-1">
+                  {b.vendor && <p>Vendor: {b.vendor}</p>}
+                  {b.dueDate && <p>Due: {formatDate(b.dueDate)}</p>}
+                </div>
+                <div className="flex gap-1 pt-2 border-t border-border">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setEditing(b)}
+                    className="h-8 w-8"
+                  >
+                    <Pencil size={14} />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDelete(b.id)}
+                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                  >
+                    <Trash2 size={14} />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       )}
 
       {/* Scan Modal */}

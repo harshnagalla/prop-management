@@ -172,7 +172,8 @@ export default function DashboardPage() {
               <p>No properties yet. Add your first property to see analytics.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            {/* Desktop table */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border text-muted-foreground">
@@ -220,6 +221,52 @@ export default function DashboardPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile card list */}
+            <div className="md:hidden space-y-3">
+              {propertyList.map((p) => (
+                <Card key={p.id}>
+                  <CardContent className="p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <p className="font-medium text-sm">{p.name}</p>
+                      <Badge variant={getStatusBadgeVariant(p.status)}>
+                        {p.status.replace("_", " ")}
+                      </Badge>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <p className="text-muted-foreground text-xs">Monthly Rent</p>
+                        <p className="font-medium">
+                          {p.monthlyRent > 0 ? formatCurrency(p.monthlyRent) : "\u2014"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground text-xs">Yield</p>
+                        <p className="font-medium">
+                          {p.rentalYield > 0 ? (
+                            <Badge variant={getYieldBadgeVariant(p.rentalYield)}>
+                              {formatPercent(p.rentalYield)}
+                            </Badge>
+                          ) : (
+                            "\u2014"
+                          )}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground text-xs">ROI</p>
+                        <p className="font-medium">
+                          {p.roi > 0 ? formatPercent(p.roi) : "\u2014"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground text-xs">Value</p>
+                        <p className="font-medium">{formatCurrency(p.currentValue)}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           )}
         </CardContent>
