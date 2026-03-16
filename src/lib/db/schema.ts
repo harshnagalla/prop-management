@@ -131,3 +131,16 @@ export type RentalIncome = typeof rentalIncome.$inferSelect;
 export type NewRentalIncome = typeof rentalIncome.$inferInsert;
 export type Document = typeof documents.$inferSelect;
 export type NewDocument = typeof documents.$inferInsert;
+
+export const propertyRemarks = pgTable("property_remarks", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  propertyId: uuid("property_id")
+    .references(() => properties.id, { onDelete: "cascade" })
+    .notNull(),
+  userId: text("user_id").notNull(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type PropertyRemark = typeof propertyRemarks.$inferSelect;
+export type NewPropertyRemark = typeof propertyRemarks.$inferInsert;
