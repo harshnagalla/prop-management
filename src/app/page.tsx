@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, Suspense, lazy } from "react";
 import Link from "next/link";
+
+const Scene3D = lazy(() => import("@/components/landing/scene-3d"));
 import {
   Building2,
   BarChart3,
@@ -267,10 +269,16 @@ export default function LandingPage() {
             </div>
           </Reveal>
 
-          {/* Animated skyline */}
+          {/* 3D City Scene */}
           <Reveal delay={400}>
-            <div className="relative h-[320px] mt-16">
-              <AnimatedSkyline />
+            <div className="relative h-[400px] md:h-[500px] mt-12 rounded-3xl overflow-hidden">
+              <Suspense fallback={
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="w-16 h-16 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+                </div>
+              }>
+                <Scene3D />
+              </Suspense>
             </div>
           </Reveal>
         </div>
