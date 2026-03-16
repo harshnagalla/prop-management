@@ -10,8 +10,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "PropManager — Property Portfolio Dashboard",
-  description: "Track properties, bills, rentals, and ROI at a glance",
+  title: "BhoomiQ — AI-Powered Property Intelligence",
+  description: "Track your family's property portfolio — bills, rental income, documents, and ROI at a glance",
   manifest: "/manifest.json",
 };
 

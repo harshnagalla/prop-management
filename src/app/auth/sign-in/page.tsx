@@ -40,7 +40,7 @@ export default function SignInPage() {
           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
             <Building2 className="text-primary" size={32} />
           </div>
-          <h1 className="text-2xl font-bold">PropManager</h1>
+          <h1 className="text-2xl font-bold">BhoomiQ</h1>
           <p className="text-muted-foreground text-sm mt-2">
             Sign in to your portfolio dashboard
           </p>

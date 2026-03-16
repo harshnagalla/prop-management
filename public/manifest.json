@@ -1,7 +1,7 @@
 {
-  "name": "PropManager",
-  "short_name": "PropManager",
-  "description": "Property Portfolio Dashboard",
+  "name": "BhoomiQ",
+  "short_name": "BhoomiQ",
+  "description": "AI-Powered Property Intelligence",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#09090b",

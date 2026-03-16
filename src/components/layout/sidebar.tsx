@@ -60,7 +60,7 @@ export function Sidebar() {
         <div className="p-6 border-b border-border">
           <h1 className="text-xl font-bold flex items-center gap-2">
             <Building2 className="text-primary" size={24} />
-            PropManager
+            BhoomiQ
           </h1>
         </div>
 

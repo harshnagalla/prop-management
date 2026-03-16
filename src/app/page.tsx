@@ -209,7 +209,7 @@ export default function LandingPage() {
             <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center animate-pulse-glow">
               <Building2 size={18} className="text-white" />
             </div>
-            <span className="text-lg font-bold">PropManager</span>
+            <span className="text-lg font-bold">BhoomiQ</span>
           </div>
           <div className="flex items-center gap-3">
             <Link href="/auth/sign-in" className="text-sm font-medium text-slate-400 hover:text-white transition-colors px-4 py-2">
@@ -420,7 +420,7 @@ export default function LandingPage() {
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center">
               <Building2 size={14} className="text-white" />
             </div>
-            <span className="font-bold">PropManager</span>
+            <span className="font-bold">BhoomiQ</span>
           </div>
           <p className="text-slate-600 text-sm">Built for Indian families managing property portfolios.</p>
           <div className="flex gap-6 text-sm text-slate-500">
