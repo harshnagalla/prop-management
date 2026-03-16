@@ -113,6 +113,8 @@ function getStatusBadgeVariant(status: string) {
       return "warning" as const;
     case "for_sale":
       return "outline" as const;
+    case "sold":
+      return "destructive" as const;
     default:
       return "secondary" as const;
   }
@@ -183,6 +185,15 @@ export default function PropertyDetailPage() {
   const [showAddBill, setShowAddBill] = useState(false);
   const [showAddIncome, setShowAddIncome] = useState(false);
   const [showAddDoc, setShowAddDoc] = useState(false);
+  const [showSale, setShowSale] = useState(false);
+
+  // Sale form state
+  const [saleForm, setSaleForm] = useState({
+    salePrice: "",
+    saleDate: new Date().toISOString().split("T")[0],
+    buyer: "",
+  });
+  const [submittingSale, setSubmittingSale] = useState(false);
 
   // Bill form state
   const [billForm, setBillForm] = useState({
@@ -370,6 +381,32 @@ export default function PropertyDetailPage() {
     }
   };
 
+  const handleMarkAsSold = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmittingSale(true);
+    try {
+      const res = await fetch(`/api/properties/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: "sold",
+          salePrice: saleForm.salePrice,
+          saleDate: saleForm.saleDate || null,
+          buyer: saleForm.buyer || null,
+        }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success("Property marked as sold");
+      setShowSale(false);
+      setSaleForm({ salePrice: "", saleDate: new Date().toISOString().split("T")[0], buyer: "" });
+      loadData();
+    } catch {
+      toast.error("Failed to record sale");
+    } finally {
+      setSubmittingSale(false);
+    }
+  };
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -473,18 +510,25 @@ export default function PropertyDetailPage() {
           )}
         </div>
         <div className="flex gap-2 flex-wrap">
-          <Button variant="outline" size="sm" onClick={() => { resetBillForm(); setShowAddBill(true); }}>
-            <Receipt size={14} className="mr-1.5" />
-            Add Bill
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => { resetIncomeForm(property); setShowAddIncome(true); }}>
-            <IndianRupee size={14} className="mr-1.5" />
-            Record Payment
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => { resetDocForm(); setShowAddDoc(true); }}>
-            <Upload size={14} className="mr-1.5" />
-            Upload Document
-          </Button>
+          {property.status !== "sold" && (
+            <>
+              <Button variant="outline" size="sm" onClick={() => { resetBillForm(); setShowAddBill(true); }}>
+                <Receipt size={14} className="mr-1.5" />
+                Add Bill
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => { resetIncomeForm(property); setShowAddIncome(true); }}>
+                <IndianRupee size={14} className="mr-1.5" />
+                Record Payment
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => { resetDocForm(); setShowAddDoc(true); }}>
+                <Upload size={14} className="mr-1.5" />
+                Upload Document
+              </Button>
+              <Button variant="destructive" size="sm" onClick={() => setShowSale(true)}>
+                Mark as Sold
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -525,6 +569,39 @@ export default function PropertyDetailPage() {
 
         {/* Overview Tab */}
         <Tabs.Content value="overview" className="pt-6 space-y-6">
+          {/* Sale summary when sold */}
+          {property.status === "sold" && (() => {
+            const totalCost = parseFloat(property.purchasePrice || "0") + parseFloat(property.stampDuty || "0") + parseFloat(property.registrationCharges || "0");
+            const profitLoss = parseFloat(property.salePrice || "0") - totalCost;
+            return (
+              <Card className="border-destructive/30 bg-destructive/5">
+                <CardContent className="p-5">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-destructive mb-3">Sold</p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Sale Price</p>
+                      <p className="text-lg font-semibold">{formatCurrency(property.salePrice)}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Sale Date</p>
+                      <p className="text-sm font-medium">{formatDate(property.saleDate)}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Buyer</p>
+                      <p className="text-sm font-medium">{property.buyer || "\u2014"}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Profit / Loss</p>
+                      <p className={cn("text-lg font-semibold", profitLoss >= 0 ? "text-success" : "text-destructive")}>
+                        {profitLoss >= 0 ? "+" : ""}{formatCurrency(profitLoss)}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })()}
+
           {/* Stat cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Card>
@@ -1343,6 +1420,55 @@ export default function PropertyDetailPage() {
             </Button>
             <Button type="submit" variant="default">
               Record Payment
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Mark as Sold Modal */}
+      <Modal open={showSale} onClose={() => setShowSale(false)} title="Mark Property as Sold">
+        <form onSubmit={handleMarkAsSold} className="space-y-5">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Sale Details</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <label className="text-sm font-medium">Sale Price (&#8377;) *</label>
+                <Input
+                  type="number"
+                  required
+                  value={saleForm.salePrice}
+                  onChange={(e) => setSaleForm((f) => ({ ...f, salePrice: e.target.value }))}
+                  className="mt-1"
+                  placeholder="e.g. 5000000"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Sale Date</label>
+                <Input
+                  type="date"
+                  value={saleForm.saleDate}
+                  onChange={(e) => setSaleForm((f) => ({ ...f, saleDate: e.target.value }))}
+                  className="mt-1"
+                />
+              </div>
+              <div className="col-span-1 sm:col-span-2">
+                <label className="text-sm font-medium">Buyer</label>
+                <Input
+                  value={saleForm.buyer}
+                  onChange={(e) => setSaleForm((f) => ({ ...f, buyer: e.target.value }))}
+                  className="mt-1"
+                  placeholder="Name of the buyer (optional)"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-3 justify-end pt-3">
+            <Button type="button" variant="outline" onClick={() => setShowSale(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="destructive" disabled={submittingSale}>
+              {submittingSale ? "Saving..." : "Mark as Sold"}
             </Button>
           </div>
         </form>

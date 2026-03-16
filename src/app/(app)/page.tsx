@@ -75,6 +75,10 @@ function getStatusBadgeVariant(status: string) {
       return "secondary" as const;
     case "under_renovation":
       return "warning" as const;
+    case "for_sale":
+      return "outline" as const;
+    case "sold":
+      return "destructive" as const;
     default:
       return "secondary" as const;
   }

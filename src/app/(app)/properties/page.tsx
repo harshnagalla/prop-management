@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import type { Property } from "@/lib/db/schema";
 
 const PROPERTY_TYPES = ["residential", "commercial", "industrial", "land", "mixed"] as const;
-const STATUSES = ["occupied", "vacant", "under_renovation", "for_sale"] as const;
+const STATUSES = ["occupied", "vacant", "under_renovation", "for_sale", "sold"] as const;
 
 const selectClassName =
   "mt-1 w-full bg-transparent border border-border rounded-[var(--radius)] h-9 px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
@@ -33,6 +33,8 @@ function getStatusBadgeVariant(status: string) {
       return "warning" as const;
     case "for_sale":
       return "outline" as const;
+    case "sold":
+      return "destructive" as const;
     default:
       return "secondary" as const;
   }
