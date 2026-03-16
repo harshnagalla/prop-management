@@ -67,7 +67,7 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 13-01: TBD
+- [x] 13-01: Per-property chart data API + recharts in detail page Overview tab
 
 #### Phase 14: Property Actions
 
@@ -95,5 +95,5 @@ Plans:
 | 10. Dashboard Charts | v1.3 | 1/1 | Complete | 2026-03-15 |
 | 11. Search & Filters | v1.3 | 2/2 | Complete | 2026-03-15 |
 | 12. Property Detail Page | v1.4 | 1/1 | Complete | 2026-03-16 |
-| 13. Property Analytics | v1.4 | 0/? | Not started | - |
+| 13. Property Analytics | v1.4 | 1/1 | Complete | 2026-03-16 |
 | 14. Property Actions | v1.4 | 0/? | Not started | - |
