@@ -63,6 +63,13 @@ function PropertyForm({
     monthlyRent: initial?.monthlyRent || "",
     tenantName: initial?.tenantName || "",
     notes: initial?.notes || "",
+    dastavejNo: initial?.dastavejNo || "",
+    registrationDate: initial?.registrationDate
+      ? new Date(initial.registrationDate).toISOString().split("T")[0]
+      : "",
+    stampDuty: initial?.stampDuty || "",
+    registrationCharges: initial?.registrationCharges || "",
+    ownership: initial?.ownership || "",
   });
 
   const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
@@ -80,6 +87,11 @@ function PropertyForm({
           purchaseDate: form.purchaseDate || null,
           tenantName: form.tenantName || null,
           notes: form.notes || null,
+          dastavejNo: form.dastavejNo || null,
+          registrationDate: form.registrationDate || null,
+          stampDuty: form.stampDuty || null,
+          registrationCharges: form.registrationCharges || null,
+          ownership: form.ownership || null,
         });
       }}
       className="space-y-5"
@@ -203,6 +215,58 @@ function PropertyForm({
               value={form.monthlyRent}
               onChange={(e) => set("monthlyRent", e.target.value)}
               className="mt-1"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Registration & Legal */}
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Registration & Legal</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <label className="text-sm font-medium">Dastavej No.</label>
+            <Input
+              value={form.dastavejNo}
+              onChange={(e) => set("dastavejNo", e.target.value)}
+              className="mt-1"
+              placeholder="e.g. 1870/2006"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">Registration Date</label>
+            <Input
+              type="date"
+              value={form.registrationDate}
+              onChange={(e) => set("registrationDate", e.target.value)}
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">Stamp Duty (&#8377;)</label>
+            <Input
+              type="number"
+              value={form.stampDuty}
+              onChange={(e) => set("stampDuty", e.target.value)}
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">Registration Charges (&#8377;)</label>
+            <Input
+              type="number"
+              value={form.registrationCharges}
+              onChange={(e) => set("registrationCharges", e.target.value)}
+              className="mt-1"
+            />
+          </div>
+          <div className="col-span-1 sm:col-span-2">
+            <label className="text-sm font-medium">Ownership</label>
+            <Input
+              value={form.ownership}
+              onChange={(e) => set("ownership", e.target.value)}
+              className="mt-1"
+              placeholder="e.g. 50% Siva, 50% NMP"
             />
           </div>
         </div>
@@ -481,11 +545,18 @@ export default function PropertiesPage() {
                     </Badge>
                   </div>
 
-                  {p.type && (
-                    <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
-                      {p.type}
-                    </Badge>
-                  )}
+                  <div className="flex gap-1.5 flex-wrap">
+                    {p.type && (
+                      <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
+                        {p.type}
+                      </Badge>
+                    )}
+                    {p.ownership && (
+                      <Badge variant="outline" className="text-[10px]">
+                        {p.ownership}
+                      </Badge>
+                    )}
+                  </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>

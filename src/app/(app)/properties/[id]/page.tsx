@@ -456,6 +456,11 @@ export default function PropertyDetailPage() {
               {property.city ? `, ${property.city}` : ""}
             </p>
           )}
+          {property.ownership && (
+            <p className="text-sm text-muted-foreground">
+              Ownership: {property.ownership}
+            </p>
+          )}
         </div>
         <div className="flex gap-2 flex-wrap">
           <Button variant="outline" size="sm" onClick={() => { resetBillForm(); setShowAddBill(true); }}>
@@ -541,6 +546,42 @@ export default function PropertyDetailPage() {
             </Card>
           </div>
 
+          {/* Registration Details */}
+          {(property.stampDuty || property.registrationCharges) && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {property.stampDuty && (
+                <Card>
+                  <CardContent className="p-5">
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Stamp Duty</p>
+                    <p className="text-lg font-semibold mt-1">{formatCurrency(property.stampDuty)}</p>
+                  </CardContent>
+                </Card>
+              )}
+              {property.registrationCharges && (
+                <Card>
+                  <CardContent className="p-5">
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Registration Charges</p>
+                    <p className="text-lg font-semibold mt-1">{formatCurrency(property.registrationCharges)}</p>
+                  </CardContent>
+                </Card>
+              )}
+              {property.purchasePrice && (
+                <Card>
+                  <CardContent className="p-5">
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Total Cost</p>
+                    <p className="text-lg font-semibold mt-1">
+                      {formatCurrency(
+                        parseFloat(property.purchasePrice || "0") +
+                        parseFloat(property.stampDuty || "0") +
+                        parseFloat(property.registrationCharges || "0")
+                      )}
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+
           {/* Additional info */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {property.area && (
@@ -561,6 +602,18 @@ export default function PropertyDetailPage() {
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Calendar size={14} />
                 <span>Purchased: {formatDate(property.purchaseDate)}</span>
+              </div>
+            )}
+            {property.dastavejNo && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <FileText size={14} />
+                <span>Dastavej No: {property.dastavejNo}</span>
+              </div>
+            )}
+            {property.registrationDate && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Calendar size={14} />
+                <span>Registered: {formatDate(property.registrationDate)}</span>
               </div>
             )}
           </div>
