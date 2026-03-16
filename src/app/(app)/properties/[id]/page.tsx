@@ -15,6 +15,8 @@ import {
   Ruler,
   AlertCircle,
   Upload,
+  MessageSquare,
+  Trash2,
 } from "lucide-react";
 import * as Tabs from "@radix-ui/react-tabs";
 import {
@@ -39,7 +41,7 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Modal } from "@/components/ui/modal";
 import { toast } from "@/lib/utils/toast";
-import type { Property, Bill, RentalIncome } from "@/lib/db/schema";
+import type { Property, Bill, RentalIncome, PropertyRemark } from "@/lib/db/schema";
 
 type BillWithProperty = Bill & { propertyName: string | null };
 type IncomeWithProperty = RentalIncome & { propertyName: string | null };
@@ -168,9 +170,14 @@ export default function PropertyDetailPage() {
   const [bills, setBills] = useState<BillWithProperty[]>([]);
   const [income, setIncome] = useState<IncomeWithProperty[]>([]);
   const [documents, setDocuments] = useState<DocumentMeta[]>([]);
+  const [remarks, setRemarks] = useState<PropertyRemark[]>([]);
   const [chartData, setChartData] = useState<PropertyChartData | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+
+  // Remarks form state
+  const [remarkContent, setRemarkContent] = useState("");
+  const [addingRemark, setAddingRemark] = useState(false);
 
   // Modal states
   const [showAddBill, setShowAddBill] = useState(false);
@@ -218,8 +225,9 @@ export default function PropertyDetailPage() {
       fetch(`/api/rental-income?propertyId=${id}`),
       fetch(`/api/documents?propertyId=${id}`),
       fetch(`/api/properties/${id}/charts`),
+      fetch(`/api/properties/${id}/remarks`),
     ])
-      .then(async ([propRes, billsRes, incomeRes, docsRes, chartsRes]) => {
+      .then(async ([propRes, billsRes, incomeRes, docsRes, chartsRes, remarksRes]) => {
         if (!propRes.ok) {
           if (propRes.status === 404) {
             setNotFound(true);
@@ -227,18 +235,20 @@ export default function PropertyDetailPage() {
           }
           throw new Error("Failed to load property");
         }
-        const [propData, billsData, incomeData, docsData, chartsData] = await Promise.all([
+        const [propData, billsData, incomeData, docsData, chartsData, remarksData] = await Promise.all([
           propRes.json(),
           billsRes.ok ? billsRes.json() : [],
           incomeRes.ok ? incomeRes.json() : [],
           docsRes.ok ? docsRes.json() : [],
           chartsRes.ok ? chartsRes.json() : null,
+          remarksRes.ok ? remarksRes.json() : [],
         ]);
         setProperty(propData);
         setBills(billsData);
         setIncome(incomeData);
         setDocuments(docsData);
         setChartData(chartsData);
+        setRemarks(remarksData);
       })
       .catch(() => {
         setNotFound(true);
@@ -504,6 +514,12 @@ export default function PropertyDetailPage() {
             className="px-4 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary transition-colors whitespace-nowrap"
           >
             Documents ({documents.length})
+          </Tabs.Trigger>
+          <Tabs.Trigger
+            value="remarks"
+            className="px-4 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary transition-colors whitespace-nowrap"
+          >
+            Remarks ({remarks.length})
           </Tabs.Trigger>
         </Tabs.List>
 
@@ -1019,6 +1035,106 @@ export default function PropertyDetailPage() {
                         Download
                       </a>
                     </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </Tabs.Content>
+
+        {/* Remarks Tab */}
+        <Tabs.Content value="remarks" className="pt-6 space-y-6">
+          {/* Add remark form */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <textarea
+              value={remarkContent}
+              onChange={(e) => setRemarkContent(e.target.value)}
+              rows={3}
+              placeholder="Add a remark... (value update, construction note, event)"
+              className={cn(textareaClassName, "mt-0 flex-1")}
+            />
+            <div className="flex sm:items-end">
+              <Button
+                variant="default"
+                size="sm"
+                disabled={!remarkContent.trim() || addingRemark}
+                onClick={async () => {
+                  setAddingRemark(true);
+                  try {
+                    const res = await fetch(`/api/properties/${id}/remarks`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ content: remarkContent.trim() }),
+                    });
+                    if (!res.ok) throw new Error();
+                    toast.success("Remark added");
+                    setRemarkContent("");
+                    loadData();
+                  } catch {
+                    toast.error("Failed to add remark");
+                  } finally {
+                    setAddingRemark(false);
+                  }
+                }}
+              >
+                {addingRemark ? "Adding..." : "Add Remark"}
+              </Button>
+            </div>
+          </div>
+
+          {/* Timeline */}
+          {remarks.length === 0 ? (
+            <EmptyState
+              icon={MessageSquare}
+              title="No remarks yet"
+              description="Add notes about value changes, construction, events, or anything worth tracking."
+            />
+          ) : (
+            <div className="border-l-2 border-border ml-4 pl-4 space-y-4">
+              {remarks.map((remark) => (
+                <Card key={remark.id}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm text-foreground whitespace-pre-wrap">
+                          {remark.content}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          {new Date(remark.createdAt).toLocaleDateString("en-IN", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })}{" "}
+                          at{" "}
+                          {new Date(remark.createdAt).toLocaleTimeString("en-IN", {
+                            hour: "numeric",
+                            minute: "2-digit",
+                            hour12: true,
+                          })}
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-muted-foreground hover:text-destructive shrink-0"
+                        onClick={async () => {
+                          if (!confirm("Delete this remark?")) return;
+                          try {
+                            const res = await fetch(
+                              `/api/properties/${id}/remarks?remarkId=${remark.id}`,
+                              { method: "DELETE" }
+                            );
+                            if (!res.ok) throw new Error();
+                            toast.success("Remark deleted");
+                            loadData();
+                          } catch {
+                            toast.error("Failed to delete remark");
+                          }
+                        }}
+                      >
+                        <Trash2 size={14} />
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
