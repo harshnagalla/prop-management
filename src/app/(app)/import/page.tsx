@@ -25,8 +25,11 @@ export default function ImportPage() {
   const [extracted, setExtracted] = useState<ExtractedProperty[]>([]);
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [results, setResults] = useState({ success: 0, failed: 0 });
+  const [error, setError] = useState("");
+  const [dragOver, setDragOver] = useState(false);
 
   const handleFile = async (file: File) => {
+    setError("");
     setExtracting(true);
     const reader = new FileReader();
     reader.onload = async () => {
@@ -37,17 +40,22 @@ export default function ImportPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             file: base64,
-            mimeType: file.type,
+            mimeType: file.type || "application/octet-stream",
             mode: "spreadsheet",
           }),
         });
         const data = await res.json();
+        if (!res.ok) {
+          setError(data.error || "Failed to extract data");
+          setExtracting(false);
+          return;
+        }
         const props = data.properties || [];
         setExtracted(props);
         setSelected(new Set(props.map((_: unknown, i: number) => i)));
         setStep("review");
-      } catch {
-        alert("Failed to extract data. Please try a clearer image or different format.");
+      } catch (err) {
+        setError("Failed to extract data. Please try a clearer image or different format.");
       } finally {
         setExtracting(false);
       }
@@ -150,12 +158,25 @@ export default function ImportPage() {
       </div>
 
       {step === "upload" && (
+        <>
+        {error && (
+          <div className="flex items-center gap-2 text-destructive bg-destructive/10 border border-destructive/20 rounded-xl px-4 py-3 text-sm">
+            <AlertCircle size={16} />
+            {error}
+          </div>
+        )}
         <label
           className={`block relative rounded-2xl cursor-pointer transition-all overflow-hidden ${
-            extracting
-              ? ""
-              : "hover:shadow-lg"
+            extracting ? "" : dragOver ? "shadow-xl ring-2 ring-primary" : "hover:shadow-lg"
           }`}
+          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragOver(false);
+            const file = e.dataTransfer.files?.[0];
+            if (file) handleFile(file);
+          }}
         >
           {/* Animated gradient border for scanning state */}
           <div className={`absolute inset-0 rounded-2xl ${
@@ -222,6 +243,7 @@ export default function ImportPage() {
             disabled={extracting}
           />
         </label>
+        </>
       )}
 
       {step === "review" && (
