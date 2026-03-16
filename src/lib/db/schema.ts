@@ -22,6 +22,7 @@ export const propertyStatusEnum = pgEnum("property_status", [
   "vacant",
   "under_renovation",
   "for_sale",
+  "sold",
 ]);
 
 export const billCategoryEnum = pgEnum("bill_category", [
@@ -70,6 +71,11 @@ export const properties = pgTable("properties", {
 
   // Ownership
   ownership: text("ownership"),
+
+  // Sale tracking
+  salePrice: numeric("sale_price", { precision: 15, scale: 2 }),
+  saleDate: timestamp("sale_date"),
+  buyer: text("buyer"),
 
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
