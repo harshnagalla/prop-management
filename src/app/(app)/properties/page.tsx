@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Building2, Plus, Pencil, Trash2, Search, Home, Factory, Landmark, TreePine, Layers, LayoutGrid, List } from "lucide-react";
+import { Building2, Plus, Pencil, Trash2, Search, Home, Factory, Landmark, TreePine, Layers, LayoutGrid, List, Upload, FileSpreadsheet, Check, AlertCircle } from "lucide-react";
 import { formatCurrency, formatPercent, calcRentalYield } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/utils/toast";
@@ -458,9 +458,14 @@ export default function PropertiesPage() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <h1 className="text-3xl font-bold tracking-tight">Properties</h1>
-        <Button onClick={() => setShowAdd(true)} className="gap-2">
-          <Plus size={16} /> Add a property
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => window.location.href = "/import"} className="gap-2">
+            <Upload size={16} /> Import
+          </Button>
+          <Button onClick={() => setShowAdd(true)} className="gap-2">
+            <Plus size={16} /> Add Property
+          </Button>
+        </div>
       </div>
 
       {/* Filter bar */}
@@ -531,17 +536,27 @@ export default function PropertiesPage() {
 
       {/* Property cards */}
       {properties.length === 0 ? (
-        <div className="py-8">
-          <EmptyState
-            icon={Building2}
-            title="No properties yet"
-            description="Add your first property to start tracking your portfolio"
-            action={
-              <Button onClick={() => setShowAdd(true)}>
-                Add Property
-              </Button>
-            }
-          />
+        <div className="py-4 space-y-6">
+          {/* Import section */}
+          <Card>
+            <CardContent className="p-8 text-center">
+              <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto mb-5">
+                <FileSpreadsheet size={28} className="text-blue-600" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900">Import your property sheet</h3>
+              <p className="text-slate-500 text-sm mt-2 max-w-md mx-auto">
+                Drop your CSV or Excel file and we&apos;ll import all properties instantly. Detects multi-unit buildings automatically.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
+                <Button onClick={() => window.location.href = "/import"} className="gap-2">
+                  <Upload size={16} /> Import from CSV / Excel
+                </Button>
+                <Button variant="outline" onClick={() => setShowAdd(true)} className="gap-2">
+                  <Plus size={16} /> Add Manually
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       ) : filtered.length === 0 ? (
         <div className="py-8">
