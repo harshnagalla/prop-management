@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { IndianRupee, Plus, Pencil, Trash2 } from "lucide-react";
+import { IndianRupee, Plus, Pencil, Trash2, ChevronDown } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/format";
 import { toast } from "@/lib/utils/toast";
 import { Modal } from "@/components/ui/modal";
@@ -22,6 +22,9 @@ const selectClassName =
 
 const textareaClassName =
   "mt-1 w-full bg-transparent border border-border rounded-[var(--radius)] px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+
+const filterSelectClassName =
+  "appearance-none bg-transparent border border-border rounded-full h-9 pl-3 pr-8 text-sm text-foreground cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
 interface IncomeEntry {
   id: string;
@@ -210,6 +213,38 @@ function IncomeForm({
   );
 }
 
+function StatusTab({
+  label,
+  count,
+  active,
+  onClick,
+}: {
+  label: string;
+  count: number;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-all ${
+        active
+          ? "bg-primary text-primary-foreground shadow-sm"
+          : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+      }`}
+    >
+      {label}
+      <span
+        className={`text-xs tabular-nums ${
+          active ? "text-primary-foreground/80" : "text-muted-foreground/70"
+        }`}
+      >
+        ({count})
+      </span>
+    </button>
+  );
+}
+
 export default function IncomePage() {
   const [income, setIncome] = useState<IncomeEntry[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
@@ -302,24 +337,53 @@ export default function IncomePage() {
 
   if (loading) {
     return (
-      <div className="space-y-8 pt-12 md:pt-0 animate-pulse">
+      <div className="space-y-6 pt-12 md:pt-0 animate-pulse">
+        {/* Header skeleton */}
         <div className="flex items-center justify-between">
-          <div><div className="h-9 w-44 bg-muted rounded-[var(--radius)]" /><div className="h-4 w-52 bg-muted rounded mt-3" /></div>
+          <div>
+            <div className="h-9 w-44 bg-muted rounded-[var(--radius)]" />
+            <div className="h-4 w-56 bg-muted rounded mt-2" />
+          </div>
           <div className="h-10 w-40 bg-muted rounded-[var(--radius)]" />
         </div>
+        {/* Summary pills skeleton */}
+        <div className="flex gap-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-9 w-36 bg-muted rounded-full" />
+          ))}
+        </div>
+        {/* Filter bar skeleton */}
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex gap-3 flex-wrap">
+              <div className="h-9 w-24 bg-muted rounded-full" />
+              <div className="h-9 w-28 bg-muted rounded-full" />
+              <div className="h-9 w-28 bg-muted rounded-full" />
+              <div className="ml-auto h-9 w-36 bg-muted rounded-full" />
+              <div className="h-9 w-28 bg-muted rounded-full" />
+            </div>
+          </CardContent>
+        </Card>
+        {/* Month group skeletons */}
         {[1, 2].map((g) => (
           <Card key={g}>
             <CardHeader className="pb-0">
-              <div className="flex justify-between">
-                <div className="h-5 w-32 bg-muted rounded" />
-                <div className="h-5 w-20 bg-muted rounded" />
+              <div className="flex justify-between items-center">
+                <div className="h-5 w-36 bg-muted rounded" />
+                <div className="h-5 w-24 bg-muted rounded" />
               </div>
             </CardHeader>
-            <CardContent>
-              {[1, 2].map((i) => (
-                <div key={i} className="py-3 border-b border-border/50 flex justify-between">
-                  <div><div className="h-4 w-32 bg-muted rounded" /><div className="h-3 w-24 bg-muted rounded mt-1" /></div>
-                  <div className="h-4 w-20 bg-muted rounded" />
+            <CardContent className="p-6 pt-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="py-3.5 border-b border-border/40 last:border-0 flex justify-between items-center">
+                  <div>
+                    <div className="h-4 w-36 bg-muted rounded" />
+                    <div className="h-3 w-24 bg-muted rounded mt-1.5" />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="h-5 w-20 bg-muted rounded" />
+                    <div className="h-5 w-16 bg-muted rounded-full" />
+                  </div>
                 </div>
               ))}
             </CardContent>
@@ -328,6 +392,23 @@ export default function IncomePage() {
       </div>
     );
   }
+
+  // Compute counts for status tabs
+  const allCount = income.filter((e) => {
+    const matchesProperty = filterProperty === "all" || e.propertyId === filterProperty;
+    const matchesYear = filterYear === "all" || String(e.year) === filterYear;
+    return matchesProperty && matchesYear;
+  }).length;
+  const receivedCount = income.filter((e) => {
+    const matchesProperty = filterProperty === "all" || e.propertyId === filterProperty;
+    const matchesYear = filterYear === "all" || String(e.year) === filterYear;
+    return matchesProperty && matchesYear && e.isReceived;
+  }).length;
+  const pendingCount = income.filter((e) => {
+    const matchesProperty = filterProperty === "all" || e.propertyId === filterProperty;
+    const matchesYear = filterYear === "all" || String(e.year) === filterYear;
+    return matchesProperty && matchesYear && !e.isReceived;
+  }).length;
 
   // Filter income entries
   const filtered = income.filter((entry) => {
@@ -340,13 +421,29 @@ export default function IncomePage() {
 
   const years = [...new Set(income.map((e) => e.year))].sort((a, b) => b - a);
   const filtersActive = filterProperty !== "all" || filterYear !== "all" || filterReceived !== "all";
-  const filteredTotal = filtered.reduce((sum, e) => sum + parseFloat(e.amount), 0);
 
   const clearFilters = () => {
     setFilterProperty("all");
     setFilterYear("all");
     setFilterReceived("all");
   };
+
+  // Compute summary stats
+  const totalReceived = income
+    .filter((e) => e.isReceived)
+    .reduce((sum, e) => sum + parseFloat(e.amount), 0);
+  const now = new Date();
+  const thisMonthReceived = income
+    .filter(
+      (e) =>
+        e.isReceived &&
+        e.month === now.getMonth() + 1 &&
+        e.year === now.getFullYear()
+    )
+    .reduce((sum, e) => sum + parseFloat(e.amount), 0);
+  const totalPending = income
+    .filter((e) => !e.isReceived)
+    .reduce((sum, e) => sum + parseFloat(e.amount), 0);
 
   // Group by month/year
   const grouped = filtered.reduce(
@@ -361,14 +458,13 @@ export default function IncomePage() {
   );
 
   return (
-    <div className="space-y-8 pt-12 md:pt-0">
+    <div className="space-y-6 pt-12 md:pt-0">
+      {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Rental Income</h1>
-          <p className="text-muted-foreground text-sm mt-2">
-            {filtersActive
-              ? `${filtered.length} records · ${formatCurrency(filteredTotal)}`
-              : "Track rent payments by property"}
+          <p className="text-muted-foreground text-sm mt-1">
+            Track rent payments by property
           </p>
         </div>
         <Button variant="default" onClick={() => setShowAdd(true)}>
@@ -376,49 +472,97 @@ export default function IncomePage() {
         </Button>
       </div>
 
+      {/* Summary stats */}
       {income.length > 0 && (
-        <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
-          <select
-            value={filterProperty}
-            onChange={(e) => setFilterProperty(e.target.value)}
-            className={`${selectClassName} mt-0 sm:w-44`}
-          >
-            <option value="all">All Properties</option>
-            {properties.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
-          <select
-            value={filterYear}
-            onChange={(e) => setFilterYear(e.target.value)}
-            className={`${selectClassName} mt-0 sm:w-32`}
-          >
-            <option value="all">All Years</option>
-            {years.map((y) => (
-              <option key={y} value={String(y)}>
-                {y}
-              </option>
-            ))}
-          </select>
-          <select
-            value={filterReceived}
-            onChange={(e) => setFilterReceived(e.target.value)}
-            className={`${selectClassName} mt-0 sm:w-32`}
-          >
-            <option value="all">All</option>
-            <option value="received">Received</option>
-            <option value="pending">Pending</option>
-          </select>
-          {filtersActive && (
-            <Button variant="ghost" size="sm" onClick={clearFilters} className="self-center">
-              Clear
-            </Button>
+        <div className="flex flex-wrap gap-2.5">
+          <div className="inline-flex items-center gap-2 rounded-full bg-success/10 px-4 py-2">
+            <span className="text-xs font-medium text-success/80">Total Received</span>
+            <span className="text-sm font-bold tabular-nums text-success">{formatCurrency(totalReceived)}</span>
+          </div>
+          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2">
+            <span className="text-xs font-medium text-primary/80">This Month</span>
+            <span className="text-sm font-bold tabular-nums text-primary">{formatCurrency(thisMonthReceived)}</span>
+          </div>
+          {totalPending > 0 && (
+            <div className="inline-flex items-center gap-2 rounded-full bg-warning/10 px-4 py-2">
+              <span className="text-xs font-medium text-warning/80">Pending</span>
+              <span className="text-sm font-bold tabular-nums text-warning">{formatCurrency(totalPending)}</span>
+            </div>
           )}
         </div>
       )}
 
+      {/* Filter bar */}
+      {income.length > 0 && (
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              {/* Status tabs */}
+              <div className="flex gap-1.5 flex-wrap">
+                <StatusTab
+                  label="All"
+                  count={allCount}
+                  active={filterReceived === "all"}
+                  onClick={() => setFilterReceived("all")}
+                />
+                <StatusTab
+                  label="Received"
+                  count={receivedCount}
+                  active={filterReceived === "received"}
+                  onClick={() => setFilterReceived("received")}
+                />
+                <StatusTab
+                  label="Pending"
+                  count={pendingCount}
+                  active={filterReceived === "pending"}
+                  onClick={() => setFilterReceived("pending")}
+                />
+              </div>
+
+              {/* Property & Year dropdowns */}
+              <div className="flex gap-2.5 sm:ml-auto flex-wrap">
+                <div className="relative">
+                  <select
+                    value={filterProperty}
+                    onChange={(e) => setFilterProperty(e.target.value)}
+                    className={filterSelectClassName}
+                  >
+                    <option value="all">All Properties</option>
+                    {properties.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground" />
+                </div>
+                <div className="relative">
+                  <select
+                    value={filterYear}
+                    onChange={(e) => setFilterYear(e.target.value)}
+                    className={filterSelectClassName}
+                  >
+                    <option value="all">All Years</option>
+                    {years.map((y) => (
+                      <option key={y} value={String(y)}>
+                        {y}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground" />
+                </div>
+                {filtersActive && (
+                  <Button variant="ghost" size="sm" onClick={clearFilters} className="rounded-full text-xs">
+                    Clear filters
+                  </Button>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Content */}
       {income.length === 0 ? (
         <div className="py-8">
           <EmptyState
@@ -446,60 +590,68 @@ export default function IncomePage() {
           />
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-5">
           {Object.entries(grouped)
             .sort(([a], [b]) => b.localeCompare(a))
             .map(([key, group]) => {
               const [year, month] = key.split("-");
               return (
                 <Card key={key}>
-                  <CardHeader className="flex-row items-center justify-between">
-                    <CardTitle>
+                  <CardHeader className="flex-row items-center justify-between pb-2">
+                    <CardTitle className="text-base font-semibold">
                       {MONTHS[parseInt(month) - 1]} {year}
                     </CardTitle>
-                    <span className="text-sm font-semibold text-accent tabular-nums">
+                    <span className="text-sm font-bold text-accent tabular-nums">
                       {formatCurrency(group.total)}
                     </span>
                   </CardHeader>
                   <CardContent className="p-6 pt-0">
-                    <div className="divide-y divide-border/50">
+                    <div className="divide-y divide-border/40">
                       {group.entries.map((entry) => (
-                        <div key={entry.id} className="py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                          <div className="min-w-0">
-                            <p className="font-medium text-sm">{entry.propertyName}</p>
+                        <div
+                          key={entry.id}
+                          className="py-3.5 first:pt-0 last:pb-0 flex items-center justify-between gap-3 group/row"
+                        >
+                          {/* Left: property & tenant */}
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-sm truncate">
+                              {entry.propertyName}
+                            </p>
                             {entry.tenantName && (
-                              <p className="text-xs text-muted-foreground mt-1">
+                              <p className="text-xs text-muted-foreground mt-0.5 truncate">
                                 {entry.tenantName}
                               </p>
                             )}
                           </div>
-                          <div className="flex items-center gap-4">
-                            <div className="sm:text-right">
-                              <p className="font-semibold text-sm tabular-nums">
+
+                          {/* Right: amount, badge, actions */}
+                          <div className="flex items-center gap-3 shrink-0">
+                            <div className="text-right">
+                              <p className="font-bold text-sm tabular-nums">
                                 {formatCurrency(entry.amount)}
                               </p>
-                              {entry.isReceived ? (
-                                <Badge variant="success" className="mt-1">Received</Badge>
-                              ) : (
-                                <Badge variant="warning" className="mt-1">Pending</Badge>
-                              )}
                             </div>
-                            <div className="flex gap-1">
+                            {entry.isReceived ? (
+                              <Badge variant="success">Received</Badge>
+                            ) : (
+                              <Badge variant="warning">Pending</Badge>
+                            )}
+                            <div className="flex gap-0.5 opacity-0 group-hover/row:opacity-100 transition-opacity">
                               <Button
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => setEditing(entry)}
-                                className="h-8 w-8 min-h-[32px] min-w-[32px]"
+                                className="h-7 w-7 min-h-[28px] min-w-[28px]"
                               >
-                                <Pencil size={14} />
+                                <Pencil size={13} />
                               </Button>
                               <Button
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => handleDelete(entry.id)}
-                                className="h-8 w-8 min-h-[32px] min-w-[32px] text-muted-foreground hover:text-destructive"
+                                className="h-7 w-7 min-h-[28px] min-w-[28px] text-muted-foreground hover:text-destructive"
                               >
-                                <Trash2 size={14} />
+                                <Trash2 size={13} />
                               </Button>
                             </div>
                           </div>
