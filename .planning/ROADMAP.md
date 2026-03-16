@@ -67,7 +67,7 @@
 **Plans**: TBD
 
 Plans:
-- [ ] 15-01: TBD
+- [x] 15-01: Schema migration + UI updates for registration details, ownership, total cost
 
 #### Phase 16: Remarks Timeline
 
@@ -107,6 +107,6 @@ Plans:
 | 12. Property Detail Page | v1.4 | 1/1 | Complete | 2026-03-16 |
 | 13. Property Analytics | v1.4 | 1/1 | Complete | 2026-03-16 |
 | 14. Property Actions | v1.4 | 1/1 | Complete | 2026-03-16 |
-| 15. Extended Property Fields | v1.5 | 0/? | Not started | - |
+| 15. Extended Property Fields | v1.5 | 1/1 | Complete | 2026-03-16 |
 | 16. Remarks Timeline | v1.5 | 0/? | Not started | - |
 | 17. Sale Tracking | v1.5 | 0/? | Not started | - |
