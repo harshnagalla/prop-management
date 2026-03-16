@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Receipt, Plus, Upload, Pencil, Trash2, Search } from "lucide-react";
+import { Receipt, Plus, Upload, Pencil, Trash2, Search, LayoutGrid, List, Zap, Droplets, Landmark, Wrench, Shield, Hammer, Scale, MoreHorizontal } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/utils/toast";
@@ -43,6 +43,45 @@ interface BillWithProperty {
   notes: string | null;
   propertyName: string | null;
   createdAt: string;
+}
+
+function getCategoryIcon(category: string) {
+  switch (category) {
+    case "electricity": return Zap;
+    case "water": return Droplets;
+    case "municipal_tax": return Landmark;
+    case "maintenance": return Wrench;
+    case "insurance": return Shield;
+    case "repair": return Hammer;
+    case "legal": return Scale;
+    default: return MoreHorizontal;
+  }
+}
+
+function getCategoryColor(category: string) {
+  switch (category) {
+    case "electricity": return "bg-amber-400";
+    case "water": return "bg-blue-400";
+    case "municipal_tax": return "bg-purple-400";
+    case "maintenance": return "bg-slate-400";
+    case "insurance": return "bg-emerald-400";
+    case "repair": return "bg-orange-400";
+    case "legal": return "bg-rose-400";
+    default: return "bg-gray-400";
+  }
+}
+
+function getCategoryIconColor(category: string) {
+  switch (category) {
+    case "electricity": return "bg-amber-50 text-amber-600";
+    case "water": return "bg-blue-50 text-blue-600";
+    case "municipal_tax": return "bg-purple-50 text-purple-600";
+    case "maintenance": return "bg-slate-100 text-slate-600";
+    case "insurance": return "bg-emerald-50 text-emerald-600";
+    case "repair": return "bg-orange-50 text-orange-600";
+    case "legal": return "bg-rose-50 text-rose-600";
+    default: return "bg-gray-50 text-gray-600";
+  }
 }
 
 function BillForm({
@@ -244,7 +283,7 @@ function SortHeader({ label, sortKey: key, currentKey, currentDir, onSort, class
     >
       <span className="inline-flex items-center gap-1">
         {label}
-        {active && (currentDir === "asc" ? " ↑" : " ↓")}
+        {active && (currentDir === "asc" ? " \u2191" : " \u2193")}
       </span>
     </th>
   );
@@ -266,6 +305,7 @@ export default function BillsPage() {
   const [filterProperty, setFilterProperty] = useState<string>("all");
   const [sortKey, setSortKey] = useState<string>("");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   const filtered = bills.filter((b) => {
     const matchesSearch = search === "" ||
@@ -311,6 +351,13 @@ export default function BillsPage() {
     if (aVal > bVal) return sortDir === "asc" ? 1 : -1;
     return 0;
   });
+
+  // Status counts
+  const statusCounts = {
+    all: bills.length,
+    paid: bills.filter((b) => b.isPaid).length,
+    unpaid: bills.filter((b) => !b.isPaid).length,
+  };
 
   const load = () => {
     Promise.all([
@@ -433,45 +480,58 @@ export default function BillsPage() {
 
   if (loading) {
     return (
-      <div className="space-y-8 pt-12 md:pt-0 animate-pulse">
+      <div className="space-y-6 pt-12 md:pt-0 animate-pulse">
         <div className="flex items-center justify-between">
-          <div><div className="h-9 w-28 bg-muted rounded-[var(--radius)]" /><div className="h-4 w-52 bg-muted rounded mt-3" /></div>
-          <div className="flex gap-2"><div className="h-10 w-28 bg-muted rounded-[var(--radius)]" /><div className="h-10 w-28 bg-muted rounded-[var(--radius)]" /></div>
+          <div>
+            <div className="h-9 w-28 bg-muted rounded-[var(--radius)]" />
+            <div className="h-4 w-52 bg-muted rounded mt-3" />
+          </div>
+          <div className="flex gap-2">
+            <div className="h-10 w-28 bg-muted rounded-[var(--radius)]" />
+            <div className="h-10 w-28 bg-muted rounded-[var(--radius)]" />
+          </div>
         </div>
-        <Card>
-          <CardContent className="p-0">
-            <div className="p-4 border-b border-border flex gap-4">
-              {["w-28","w-24","w-28","w-20","w-24","w-16","w-20"].map((w, i) => (
-                <div key={i} className={`h-4 ${w} bg-muted rounded`} />
-              ))}
-            </div>
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="p-4 border-b border-border/50 flex gap-4">
-                {["w-28","w-24","w-28","w-20","w-24","w-16","w-20"].map((w, j) => (
-                  <div key={j} className={`h-4 ${w} bg-muted rounded`} />
-                ))}
+        <div className="h-16 bg-muted rounded-[var(--radius)]" />
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="bg-card border border-border rounded-[var(--radius)] overflow-hidden">
+              <div className="h-1.5 bg-muted" />
+              <div className="p-5 space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-muted rounded-[var(--radius)]" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 w-32 bg-muted rounded" />
+                    <div className="h-3 w-24 bg-muted rounded" />
+                  </div>
+                </div>
+                <div className="h-7 w-28 bg-muted rounded" />
+                <div className="flex gap-4">
+                  <div className="h-3 w-20 bg-muted rounded" />
+                  <div className="h-3 w-20 bg-muted rounded" />
+                </div>
               </div>
-            ))}
-          </CardContent>
-        </Card>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 pt-12 md:pt-0">
+    <div className="space-y-6 pt-12 md:pt-0">
+      {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Bills</h1>
-          <p className="text-muted-foreground text-sm mt-2">
+          <p className="text-muted-foreground text-sm mt-1">
             {filtersActive
               ? `${filtered.length} of ${bills.length} bills`
               : "Track expenses across properties"}
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setShowScan(true)}>
-            <Upload size={16} className="mr-2" /> Scan Bill
+          <Button variant="outline" onClick={() => setShowScan(true)} className="gap-2">
+            <Upload size={16} /> Scan Bill
           </Button>
           <Button
             variant="default"
@@ -479,62 +539,106 @@ export default function BillsPage() {
               setAddFormData({});
               setShowAdd(true);
             }}
+            className="gap-2"
           >
-            <Plus size={16} className="mr-2" /> Add Bill
+            <Plus size={16} /> Add Bill
           </Button>
         </div>
       </div>
 
+      {/* Filter bar in card */}
       {bills.length > 0 && (
-        <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
-          <div className="relative sm:max-w-xs w-full">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-            <Input
-              placeholder="Search vendor, reference..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-          <select
-            value={filterCategory}
-            onChange={(e) => setFilterCategory(e.target.value)}
-            className={`${selectClassName} mt-0 sm:w-40`}
-          >
-            <option value="all">All Categories</option>
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {c.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
-              </option>
-            ))}
-          </select>
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className={`${selectClassName} mt-0 sm:w-32`}
-          >
-            <option value="all">All</option>
-            <option value="paid">Paid</option>
-            <option value="unpaid">Unpaid</option>
-          </select>
-          <select
-            value={filterProperty}
-            onChange={(e) => setFilterProperty(e.target.value)}
-            className={`${selectClassName} mt-0 sm:w-44`}
-          >
-            <option value="all">All Properties</option>
-            {properties.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
-          {filtersActive && (
-            <Button variant="ghost" size="sm" onClick={clearFilters} className="self-center">
-              Clear
-            </Button>
-          )}
-        </div>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex flex-col gap-4">
+              {/* Status tabs row */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex gap-1 overflow-x-auto">
+                  {[
+                    { key: "all", label: "All" },
+                    { key: "paid", label: "Paid" },
+                    { key: "unpaid", label: "Unpaid" },
+                  ].map((tab) => (
+                    <button
+                      key={tab.key}
+                      onClick={() => setFilterStatus(tab.key)}
+                      className={cn(
+                        "px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors",
+                        filterStatus === tab.key
+                          ? "bg-primary text-primary-foreground"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                      )}
+                    >
+                      {tab.label} ({statusCounts[tab.key as keyof typeof statusCounts]})
+                    </button>
+                  ))}
+                </div>
+
+                {/* Search + dropdowns + view toggle */}
+                <div className="flex flex-wrap gap-2 items-center">
+                  <div className="relative w-full sm:w-56">
+                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                    <Input
+                      placeholder="Search vendor, property..."
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      className="pl-9"
+                    />
+                  </div>
+                  <select
+                    value={filterCategory}
+                    onChange={(e) => setFilterCategory(e.target.value)}
+                    className={`${selectClassName} mt-0 w-full sm:w-40`}
+                  >
+                    <option value="all">All Categories</option>
+                    {CATEGORIES.map((c) => (
+                      <option key={c} value={c}>
+                        {c.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={filterProperty}
+                    onChange={(e) => setFilterProperty(e.target.value)}
+                    className={`${selectClassName} mt-0 w-full sm:w-44`}
+                  >
+                    <option value="all">All Properties</option>
+                    {properties.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </select>
+                  {filtersActive && (
+                    <Button variant="ghost" size="sm" onClick={clearFilters} className="shrink-0">
+                      Clear
+                    </Button>
+                  )}
+                  <div className="flex border border-border rounded-[var(--radius)] overflow-hidden shrink-0 ml-auto">
+                    <button
+                      onClick={() => setViewMode("grid")}
+                      className={cn(
+                        "p-2 transition-colors",
+                        viewMode === "grid" ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      <LayoutGrid size={18} />
+                    </button>
+                    <button
+                      onClick={() => setViewMode("list")}
+                      className={cn(
+                        "p-2 transition-colors",
+                        viewMode === "list" ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      <List size={18} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {bills.length === 0 ? (
@@ -563,136 +667,202 @@ export default function BillsPage() {
             }
           />
         </div>
+      ) : viewMode === "grid" ? (
+        /* Grid view - bill cards */
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {sorted.map((b) => {
+            const Icon = getCategoryIcon(b.category);
+            const iconColor = getCategoryIconColor(b.category);
+            const barColor = getCategoryColor(b.category);
+            return (
+              <Card key={b.id} className="overflow-hidden transition-shadow hover:shadow-[var(--shadow-card-hover)]">
+                {/* Category color bar */}
+                <div className={cn("h-1.5", barColor)} />
+
+                <CardContent className="p-5 space-y-4">
+                  {/* Header: icon + property + badge */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={cn("w-10 h-10 rounded-[var(--radius)] flex items-center justify-center shrink-0", iconColor)}>
+                        <Icon size={20} strokeWidth={1.5} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm truncate">{b.propertyName || "\u2014"}</p>
+                        <p className="text-xs text-muted-foreground capitalize mt-0.5">
+                          {b.category.replace("_", " ")}
+                        </p>
+                      </div>
+                    </div>
+                    {b.isPaid ? (
+                      <Badge variant="success" className="shrink-0">Paid</Badge>
+                    ) : (
+                      <Badge variant="destructive" className="shrink-0">Unpaid</Badge>
+                    )}
+                  </div>
+
+                  {/* Amount */}
+                  <p className="text-2xl font-bold tabular-nums tracking-tight">
+                    {formatCurrency(b.amount)}
+                  </p>
+
+                  {/* Details */}
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    {b.vendor && (
+                      <span className="truncate">{b.vendor}</span>
+                    )}
+                    {b.vendor && b.dueDate && (
+                      <span className="shrink-0">&middot;</span>
+                    )}
+                    {b.dueDate && (
+                      <span className="tabular-nums shrink-0">{formatDate(b.dueDate)}</span>
+                    )}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-1 pt-2 border-t border-border">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setEditing(b)}
+                      className="h-8 w-8"
+                    >
+                      <Pencil size={14} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDelete(b.id)}
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                    >
+                      <Trash2 size={14} />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
       ) : (
         <>
-        {/* Desktop table */}
-        <Card className="hidden md:block">
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border bg-muted/50">
-                    <SortHeader label="Property" sortKey="propertyName" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} />
-                    <SortHeader label="Category" sortKey="category" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} />
-                    <th className="text-left p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Vendor</th>
-                    <SortHeader label="Amount" sortKey="amount" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} className="text-right" />
-                    <SortHeader label="Due Date" sortKey="dueDate" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} />
-                    <SortHeader label="Status" sortKey="isPaid" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} className="text-center" />
-                    <th className="text-right p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sorted.map((b, idx) => (
-                    <tr
-                      key={b.id}
-                      className={cn(
-                        "border-b border-border/50 hover:bg-muted/40 transition-colors",
-                        idx % 2 === 1 && "bg-muted/20"
-                      )}
-                    >
-                      <td className="p-4 font-medium">
-                        {b.propertyName || "\u2014"}
-                      </td>
-                      <td className="p-4 capitalize">
-                        {b.category.replace("_", " ")}
-                      </td>
-                      <td className="p-4 text-muted-foreground">
-                        {b.vendor || "\u2014"}
-                      </td>
-                      <td className="p-4 text-right font-medium tabular-nums">
-                        {formatCurrency(b.amount)}
-                      </td>
-                      <td className="p-4 tabular-nums">{formatDate(b.dueDate)}</td>
-                      <td className="p-4 text-center">
-                        {b.isPaid ? (
-                          <Badge variant="success">Paid</Badge>
-                        ) : (
-                          <Badge variant="destructive">Unpaid</Badge>
-                        )}
-                      </td>
-                      <td className="p-4 text-right">
-                        <div className="flex gap-1 justify-end">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setEditing(b)}
-                            className="h-8 w-8"
-                          >
-                            <Pencil size={14} />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDelete(b.id)}
-                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                          >
-                            <Trash2 size={14} />
-                          </Button>
-                        </div>
-                      </td>
+          {/* Desktop table (list view) */}
+          <Card className="hidden md:block">
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border bg-muted/50">
+                      <SortHeader label="Property" sortKey="propertyName" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} />
+                      <SortHeader label="Category" sortKey="category" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} />
+                      <th className="text-left p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Vendor</th>
+                      <SortHeader label="Amount" sortKey="amount" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} className="text-right" />
+                      <SortHeader label="Due Date" sortKey="dueDate" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} />
+                      <SortHeader label="Status" sortKey="isPaid" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} className="text-center" />
+                      <th className="text-right p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
+                  </thead>
+                  <tbody>
+                    {sorted.map((b, idx) => (
+                      <tr
+                        key={b.id}
+                        className={cn(
+                          "border-b border-border/50 hover:bg-muted/40 transition-colors",
+                          idx % 2 === 1 && "bg-muted/20"
+                        )}
+                      >
+                        <td className="p-4 font-medium">
+                          <div className="flex items-center gap-2">
+                            <div className={cn("w-2 h-2 rounded-full shrink-0", getCategoryColor(b.category))} />
+                            {b.propertyName || "\u2014"}
+                          </div>
+                        </td>
+                        <td className="p-4 capitalize">
+                          {b.category.replace("_", " ")}
+                        </td>
+                        <td className="p-4 text-muted-foreground">
+                          {b.vendor || "\u2014"}
+                        </td>
+                        <td className="p-4 text-right font-medium tabular-nums">
+                          {formatCurrency(b.amount)}
+                        </td>
+                        <td className="p-4 tabular-nums">{formatDate(b.dueDate)}</td>
+                        <td className="p-4 text-center">
+                          {b.isPaid ? (
+                            <Badge variant="success">Paid</Badge>
+                          ) : (
+                            <Badge variant="destructive">Unpaid</Badge>
+                          )}
+                        </td>
+                        <td className="p-4 text-right">
+                          <div className="flex gap-1 justify-end">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setEditing(b)}
+                              className="h-8 w-8"
+                            >
+                              <Pencil size={14} />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDelete(b.id)}
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                            >
+                              <Trash2 size={14} />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
 
-        {/* Mobile card list */}
-        <div className="md:hidden space-y-4">
-          {filtered.map((b) => (
-            <Card key={b.id}>
-              <CardContent className="p-6 space-y-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="font-medium text-sm truncate">{b.propertyName || "\u2014"}</p>
-                    <p className="text-xs text-muted-foreground capitalize mt-1">
-                      {b.category.replace("_", " ")}
-                    </p>
-                  </div>
-                  {b.isPaid ? (
-                    <Badge variant="success" className="shrink-0">Paid</Badge>
-                  ) : (
-                    <Badge variant="destructive" className="shrink-0">Unpaid</Badge>
-                  )}
-                </div>
-                <p className="text-lg font-semibold tabular-nums">{formatCurrency(b.amount)}</p>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  {b.vendor && (
-                    <div>
-                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Vendor</p>
-                      <p className="text-sm mt-0.5">{b.vendor}</p>
+          {/* Mobile card list (list view on mobile) */}
+          <div className="md:hidden space-y-3">
+            {sorted.map((b) => {
+              const Icon = getCategoryIcon(b.category);
+              const iconColor = getCategoryIconColor(b.category);
+              return (
+                <Card key={b.id}>
+                  <CardContent className="p-4 flex items-center gap-4">
+                    <div className={cn("w-10 h-10 rounded-[var(--radius)] flex items-center justify-center shrink-0", iconColor)}>
+                      <Icon size={20} strokeWidth={1.5} />
                     </div>
-                  )}
-                  {b.dueDate && (
-                    <div>
-                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Due Date</p>
-                      <p className="text-sm tabular-nums mt-0.5">{formatDate(b.dueDate)}</p>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-sm truncate">{b.propertyName || "\u2014"}</p>
+                        {b.isPaid ? (
+                          <Badge variant="success" className="shrink-0">Paid</Badge>
+                        ) : (
+                          <Badge variant="destructive" className="shrink-0">Unpaid</Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground capitalize mt-0.5">
+                        {b.category.replace("_", " ")}{b.vendor ? ` \u00b7 ${b.vendor}` : ""}
+                      </p>
                     </div>
-                  )}
-                </div>
-                <div className="flex gap-1 pt-4 mt-4 border-t border-border">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setEditing(b)}
-                    className="h-8 w-8"
-                  >
-                    <Pencil size={14} />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDelete(b.id)}
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                  >
-                    <Trash2 size={14} />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                    <div className="text-right shrink-0">
+                      <p className="font-semibold tabular-nums">{formatCurrency(b.amount)}</p>
+                      {b.dueDate && (
+                        <p className="text-xs text-muted-foreground tabular-nums mt-0.5">{formatDate(b.dueDate)}</p>
+                      )}
+                    </div>
+                    <div className="flex gap-1 shrink-0">
+                      <Button variant="ghost" size="icon" onClick={() => setEditing(b)} className="h-8 w-8">
+                        <Pencil size={14} />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => handleDelete(b.id)} className="h-8 w-8 text-muted-foreground hover:text-destructive">
+                        <Trash2 size={14} />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
         </>
       )}
 
