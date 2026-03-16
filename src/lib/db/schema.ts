@@ -61,6 +61,16 @@ export const properties = pgTable("properties", {
   monthlyRent: numeric("monthly_rent", { precision: 12, scale: 2 }),
   tenantName: text("tenant_name"),
   notes: text("notes"),
+
+  // Registration details
+  dastavejNo: text("dastavej_no"),
+  registrationDate: timestamp("registration_date"),
+  stampDuty: numeric("stamp_duty", { precision: 12, scale: 2 }),
+  registrationCharges: numeric("registration_charges", { precision: 12, scale: 2 }),
+
+  // Ownership
+  ownership: text("ownership"),
+
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
