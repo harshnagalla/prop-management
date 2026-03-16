@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FileText, Upload, Download, Trash2 } from "lucide-react";
+import { FileText, Upload, Download, Trash2, Image, Receipt, Search, Filter } from "lucide-react";
 import { formatDate } from "@/lib/utils/format";
 import { toast } from "@/lib/utils/toast";
 import { Modal } from "@/components/ui/modal";
@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import type { Property } from "@/lib/db/schema";
 
 const DOC_TYPES = [
@@ -25,6 +26,26 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 const selectClassName =
   "mt-1 w-full bg-transparent border border-border rounded-[var(--radius)] h-9 px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+
+const TYPE_CONFIG: Record<string, { color: string; bg: string; icon: typeof FileText }> = {
+  sale_deed: { color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-100 dark:bg-blue-900/40", icon: FileText },
+  agreement: { color: "text-indigo-600 dark:text-indigo-400", bg: "bg-indigo-100 dark:bg-indigo-900/40", icon: FileText },
+  registration: { color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-100 dark:bg-purple-900/40", icon: FileText },
+  tax_receipt: { color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-100 dark:bg-amber-900/40", icon: Receipt },
+  bill: { color: "text-slate-600 dark:text-slate-400", bg: "bg-slate-100 dark:bg-slate-800/60", icon: Receipt },
+  photo: { color: "text-green-600 dark:text-green-400", bg: "bg-green-100 dark:bg-green-900/40", icon: Image },
+  other: { color: "text-gray-600 dark:text-gray-400", bg: "bg-gray-100 dark:bg-gray-800/60", icon: FileText },
+};
+
+const TYPE_BADGE_VARIANT: Record<string, "default" | "secondary" | "success" | "warning" | "outline"> = {
+  sale_deed: "default",
+  agreement: "default",
+  registration: "default",
+  tax_receipt: "warning",
+  bill: "secondary",
+  photo: "success",
+  other: "outline",
+};
 
 interface DocEntry {
   id: string;
@@ -43,6 +64,10 @@ function formatFileSize(bytes: number | null): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function getTypeConfig(type: string) {
+  return TYPE_CONFIG[type] || TYPE_CONFIG.other;
+}
+
 export default function DocumentsPage() {
   const [docs, setDocs] = useState<DocEntry[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
@@ -50,6 +75,7 @@ export default function DocumentsPage() {
   const [showUpload, setShowUpload] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [filterProperty, setFilterProperty] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [fileError, setFileError] = useState("");
 
   const [form, setForm] = useState({
@@ -152,9 +178,9 @@ export default function DocumentsPage() {
     }
   };
 
-  const filtered = filterProperty
-    ? docs.filter((d) => d.propertyId === filterProperty)
-    : docs;
+  const filtered = docs
+    .filter((d) => !filterProperty || d.propertyId === filterProperty)
+    .filter((d) => !searchQuery || d.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const getPropertyName = (propertyId: string) => {
     const prop = properties.find((p) => p.id === propertyId);
@@ -165,19 +191,31 @@ export default function DocumentsPage() {
     return (
       <div className="space-y-8 pt-12 md:pt-0 animate-pulse">
         <div className="flex items-center justify-between">
-          <div><div className="h-9 w-44 bg-muted rounded-[var(--radius)]" /><div className="h-4 w-56 bg-muted rounded mt-3" /></div>
+          <div>
+            <div className="h-9 w-44 bg-muted rounded-[var(--radius)]" />
+            <div className="h-4 w-56 bg-muted rounded mt-3" />
+          </div>
           <div className="h-10 w-28 bg-muted rounded-[var(--radius)]" />
         </div>
-        <div className="h-9 w-40 bg-muted rounded-[var(--radius)]" />
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex gap-3">
+              <div className="h-9 flex-1 bg-muted rounded-[var(--radius)]" />
+              <div className="h-9 w-40 bg-muted rounded-[var(--radius)]" />
+            </div>
+          </CardContent>
+        </Card>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3].map((i) => (
-            <Card key={i}>
-              <CardContent className="p-6 space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-muted rounded-full" />
-                  <div><div className="h-4 w-28 bg-muted rounded" /><div className="h-3 w-20 bg-muted rounded mt-1.5" /></div>
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <Card key={i} className="overflow-hidden">
+              <div className="h-16 bg-muted" />
+              <CardContent className="p-5 space-y-3">
+                <div className="h-4 w-3/4 bg-muted rounded" />
+                <div className="h-3 w-1/2 bg-muted rounded" />
+                <div className="flex justify-between pt-2">
+                  <div className="h-5 w-20 bg-muted rounded-full" />
+                  <div className="h-3 w-16 bg-muted rounded" />
                 </div>
-                <div className="flex justify-between"><div className="h-3 w-24 bg-muted rounded" /><div className="h-3 w-16 bg-muted rounded" /></div>
               </CardContent>
             </Card>
           ))}
@@ -188,11 +226,12 @@ export default function DocumentsPage() {
 
   return (
     <div className="space-y-8 pt-12 md:pt-0">
+      {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Documents</h1>
           <p className="text-muted-foreground text-sm mt-2">
-            Property papers and records
+            Your property document vault
           </p>
         </div>
         <Button variant="default" size="lg" className="shadow-sm" onClick={() => setShowUpload(true)}>
@@ -200,18 +239,36 @@ export default function DocumentsPage() {
         </Button>
       </div>
 
-      {/* Filter */}
+      {/* Search & Filter Bar */}
       {properties.length > 0 && (
-        <select
-          value={filterProperty}
-          onChange={(e) => setFilterProperty(e.target.value)}
-          className="bg-transparent border border-border rounded-[var(--radius)] h-9 px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-        >
-          <option value="">All Properties</option>
-          {properties.map((p) => (
-            <option key={p.id} value={p.id}>{p.name}</option>
-          ))}
-        </select>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Search documents..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <div className="relative">
+                <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                <select
+                  value={filterProperty}
+                  onChange={(e) => setFilterProperty(e.target.value)}
+                  className="bg-transparent border border-border rounded-[var(--radius)] h-9 pl-9 pr-4 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background min-w-[180px]"
+                >
+                  <option value="">All Properties</option>
+                  {properties.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {filtered.length === 0 ? (
@@ -227,49 +284,67 @@ export default function DocumentsPage() {
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((doc) => (
-            <Card key={doc.id}>
-              <CardContent className="p-6 space-y-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <FileText size={18} className="text-primary" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold truncate">{doc.name}</p>
-                      <p className="text-xs text-muted-foreground capitalize mt-0.5">
-                        {doc.type.replace("_", " ")}
+          {filtered.map((doc) => {
+            const config = getTypeConfig(doc.type);
+            const IconComponent = config.icon;
+            const badgeVariant = TYPE_BADGE_VARIANT[doc.type] || "outline";
+
+            return (
+              <Card key={doc.id} className="overflow-hidden group hover:shadow-md transition-shadow">
+                {/* Colored header strip */}
+                <div className={`${config.bg} px-5 py-4 flex items-center gap-3`}>
+                  <div className={`w-10 h-10 rounded-xl bg-white/80 dark:bg-white/10 flex items-center justify-center shrink-0 shadow-sm`}>
+                    <IconComponent size={20} className={config.color} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold truncate" title={doc.name}>
+                      {doc.name}
+                    </p>
+                    {getPropertyName(doc.propertyId) && (
+                      <p className="text-xs text-muted-foreground truncate mt-0.5">
+                        {getPropertyName(doc.propertyId)}
                       </p>
+                    )}
+                  </div>
+                </div>
+
+                <CardContent className="p-5 space-y-4">
+                  {/* Badge + meta row */}
+                  <div className="flex items-center justify-between">
+                    <Badge variant={badgeVariant}>
+                      {doc.type.replace("_", " ").replace(/\b\w/g, (c) => c.toUpperCase())}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">
+                      {formatFileSize(doc.fileSize)}
+                    </span>
+                  </div>
+
+                  {/* Date + actions */}
+                  <div className="flex items-center justify-between pt-3 border-t border-border">
+                    <span className="text-xs text-muted-foreground">
+                      {formatDate(doc.createdAt)}
+                    </span>
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                        <a href={`/api/documents/${doc.id}?download=true`} title="Download">
+                          <Download size={14} />
+                        </a>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDelete(doc.id)}
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                        title="Delete"
+                      >
+                        <Trash2 size={14} />
+                      </Button>
                     </div>
                   </div>
-                </div>
-                <div className="space-y-2">
-                  {getPropertyName(doc.propertyId) && (
-                    <p className="text-xs font-medium text-muted-foreground">{getPropertyName(doc.propertyId)}</p>
-                  )}
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{formatDate(doc.createdAt)}</span>
-                    <span className="text-xs font-medium text-muted-foreground">{formatFileSize(doc.fileSize)}</span>
-                  </div>
-                </div>
-                <div className="flex gap-1 pt-4 mt-4 border-t border-border">
-                  <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-                    <a href={`/api/documents/${doc.id}?download=true`}>
-                      <Download size={14} />
-                    </a>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDelete(doc.id)}
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                  >
-                    <Trash2 size={14} />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
 
