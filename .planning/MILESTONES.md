@@ -1,5 +1,30 @@
 # Project Milestones: PropManager
 
+## v1.4 Property Detail Pages (Shipped: 2026-03-16)
+
+**Delivered:** Property deep-dive pages with tabbed layout (overview, bills, income, documents), per-property analytics charts, and quick action modals for adding bills, recording payments, and uploading documents.
+
+**Phases completed:** 12-14 (3 plans total)
+
+**Key accomplishments:**
+
+- Property detail page at `/properties/[id]` with 4-tab layout and parallel data fetching
+- Per-property income vs expenses area chart + expense breakdown pie chart + net income summary
+- Quick action modals: add bill, record payment, upload document — all with property pre-selected
+- Clickable property names linking from list to detail view
+- Data auto-refreshes after any action
+
+**Stats:**
+
+- 27 files modified, 1,632 lines added
+- 6,413 lines of TypeScript (total codebase)
+- 3 phases, 3 plans, 6 tasks
+- 1 day
+
+**Git range:** `feat(12-01)` → `feat(14-01)`
+
+---
+
 ## v1.3 Analytics & Intelligence (Shipped: 2026-03-15)
 
 **Delivered:** Type-safe AI extraction with Zod schemas, dashboard charts with recharts, and search/filter/sort across all data pages.

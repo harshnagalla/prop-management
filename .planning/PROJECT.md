@@ -31,9 +31,13 @@ Know exactly how much money each property is making and whether it's worth holdi
 - ✓ Dashboard charts — income vs expenses area chart, expense breakdown pie chart with recharts — v1.3
 - ✓ Search & filters — search properties/bills, filter by category/status/property, sortable table columns — v1.3
 
+- ✓ Property detail pages — deep-dive view at /properties/[id] with tabbed layout for overview, bills, income, documents — v1.4
+- ✓ Per-property analytics — income vs expenses chart, expense breakdown, net income summary per property — v1.4
+- ✓ Quick actions from property — add bill, record payment, upload document with property pre-selected — v1.4
+
 ### Active
 
-(None — all v1.3 requirements validated)
+(None — all v1.4 requirements validated)
 
 ### Out of Scope
 
@@ -46,19 +50,19 @@ Know exactly how much money each property is making and whether it's worth holdi
 ## Context
 
 - Family portfolio of 30+ properties in Ahmedabad, Gujarat
-- v1.3 shipped with 4,874 LOC TypeScript
-- Tech stack: Next.js 15, Tailwind CSS 4, Drizzle ORM, Neon Postgres, NextAuth v5, Vercel AI SDK + Gemini 2.0 Flash, @serwist/next
+- v1.4 shipped with 6,413 LOC TypeScript
+- Tech stack: Next.js 16, Tailwind CSS 4, Drizzle ORM, Neon Postgres, Neon Auth (Better Auth), Vercel AI SDK + Gemini 2.0 Flash, @serwist/next, recharts
 - Deployed to Vercel: https://prop-management-one.vercel.app
 - Documents stored as base64 in Postgres (no external file storage)
 - User has Zoho Books (potential future integration)
 
 ## Constraints
 
-- **Tech stack**: Next.js 15 (web), PWA for mobile — single codebase serves both
+- **Tech stack**: Next.js 16 (web), PWA for mobile — single codebase serves both
 - **AI provider**: Vercel AI SDK with Google Gemini for OCR and document processing
 - **Language**: English UI (property names/addresses may be in Gujarati/Hindi)
 - **Locale**: Indian currency (₹), Indian date formats, Ahmedabad-specific bill formats
-- **Next.js version**: Pinned to 15.x (16.x incompatible with @serwist/next webpack plugin)
+- **Next.js version**: 16.x with --webpack build flag (serwist needs webpack, Turbopack for dev)
 
 ## Key Decisions
 
@@ -71,12 +75,13 @@ Know exactly how much money each property is making and whether it's worth holdi
 | Client-side filtering (no API changes) | Data already fetched, instant filtering experience | ✓ Good |
 | No tenant management in v1 | Keep scope focused on financial tracking and portfolio health | ✓ Good |
 | AI-powered Excel import + manual entry | Bulk migration for existing data, manual for ongoing corrections | ✓ Good |
-| NextAuth v5 over Stack Auth | Simpler integration, better Next.js 15 support | ✓ Good |
+| NextAuth v5 → Neon Auth | Migrated to Neon Auth (Better Auth) for database-native auth with Next.js 16 | ✓ Good |
+| Radix Tabs for property detail | Direct usage, no wrapper — keeps pages self-contained | ✓ Good |
 | Neon serverless with Drizzle ORM | HTTP adapter for serverless, schema push for dev, free tier | ✓ Good |
 | Base64 documents in Postgres | Simple for v1, no external storage needed | ⚠️ Revisit at scale |
 | @serwist/next for PWA | Modern maintained fork of next-pwa, works with Next.js 15 | ✓ Good |
 | Event-based Radix Toast | Lightweight, no state management library needed | ✓ Good |
-| Next.js pinned to 15.x | 16.x defaults to Turbopack, incompatible with serwist webpack | ⚠️ Revisit when serwist supports Turbopack |
+| Next.js 16 + serwist --webpack | Upgraded to Next.js 16, build uses --webpack flag for serwist compatibility | ✓ Good |
 
 ---
-*Last updated: 2026-03-15 after v1.3 milestone*
+*Last updated: 2026-03-16 after v1.4 milestone*

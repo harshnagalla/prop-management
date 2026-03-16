@@ -6,7 +6,7 @@
 - ✅ **v1.1 UI/UX Redesign** — Phases 5-7 (shipped 2026-03-15) — [Archive](milestones/v1.1-ROADMAP.md)
 - ✅ **v1.2 AI SDK Migration** — Phase 8 (shipped 2026-03-15) — [Archive](milestones/v1.2-ROADMAP.md)
 - ✅ **v1.3 Analytics & Intelligence** — Phases 9-11 (shipped 2026-03-15) — [Archive](milestones/v1.3-ROADMAP.md)
-- 🚧 **v1.4 Property Detail Pages** — Phases 12-14 (in progress)
+- ✅ **v1.4 Property Detail Pages** — Phases 12-14 (shipped 2026-03-16) — [Archive](milestones/v1.4-ROADMAP.md)
 
 ## Completed Milestones
 
@@ -45,39 +45,14 @@
 
 </details>
 
-### 🚧 v1.4 Property Detail Pages (In Progress)
+<details>
+<summary>✅ v1.4 Property Detail Pages (Phases 12-14) — SHIPPED 2026-03-16</summary>
 
-**Milestone Goal:** Click any property to see a full deep-dive view with its bills, income, documents, and analytics in one place
+- [x] Phase 12: Property Detail Page (1/1 plans) — completed 2026-03-16
+- [x] Phase 13: Property Analytics (1/1 plans) — completed 2026-03-16
+- [x] Phase 14: Property Actions (1/1 plans) — completed 2026-03-16
 
-#### Phase 12: Property Detail Page
-
-**Goal**: Create dynamic route `/properties/[id]` with tabbed layout showing property overview, bills, income, and documents for a single property
-**Depends on**: Previous milestone complete
-**Research**: Unlikely (internal patterns)
-**Plans**: TBD
-
-Plans:
-- [x] 12-01: Property detail page with tabbed layout (overview, bills, income, documents)
-
-#### Phase 13: Property Analytics
-
-**Goal**: Per-property charts embedded in detail page — income trend, expense breakdown by category, and key financial metrics
-**Depends on**: Phase 12
-**Research**: Unlikely (recharts patterns established in Phase 10)
-**Plans**: TBD
-
-Plans:
-- [x] 13-01: Per-property chart data API + recharts in detail page Overview tab
-
-#### Phase 14: Property Actions
-
-**Goal**: Quick actions from detail page — add bill, record payment, upload document with property pre-selected, inline editing
-**Depends on**: Phase 13
-**Research**: Unlikely (CRUD patterns established)
-**Plans**: TBD
-
-Plans:
-- [x] 14-01: Bill, income, and document action modals with property pre-selected
+</details>
 
 ## Progress
 

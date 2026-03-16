@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-03-15)
 
 **Core value:** Know exactly how much money each property is making and whether it's worth holding — at a glance, always up to date.
-**Current focus:** v1.4 Property Detail Pages — deep-dive per-property view
+**Current focus:** v1.4 complete — Planning next milestone
 
 ## Current Position
 
-Phase: 14 of 14 (Property Actions)
-Plan: 1 of 1 in current phase
-Status: Phase complete
-Last activity: 2026-03-16 — Completed 14-01-PLAN.md
+Phase: All complete (v1.4 shipped)
+Plan: N/A
+Status: Milestone complete
+Last activity: 2026-03-16 — v1.4 milestone archived
 
 Progress: ██████████ 100%
 
@@ -83,5 +83,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-16
-Stopped at: Completed 14-01-PLAN.md (Phase 14 complete — Milestone v1.4 complete)
+Stopped at: v1.4 milestone archived and tagged
 Resume file: None
