@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Building2, Plus, Pencil, Trash2, Search } from "lucide-react";
+import { Building2, Plus, Pencil, Trash2, Search, Home, Factory, Landmark, TreePine, Layers, LayoutGrid, List } from "lucide-react";
 import { formatCurrency, formatPercent, calcRentalYield } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/utils/toast";
@@ -395,46 +395,56 @@ export default function PropertiesPage() {
     }
   };
 
+  // Status tab counts
+  const statusCounts = {
+    all: properties.length,
+    occupied: properties.filter((p) => p.status === "occupied").length,
+    vacant: properties.filter((p) => p.status === "vacant").length,
+    for_sale: properties.filter((p) => p.status === "for_sale").length,
+    sold: properties.filter((p) => p.status === "sold").length,
+  };
+
+  // View mode
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+
+  function getPropertyIcon(type: string | null) {
+    switch (type) {
+      case "residential": return Home;
+      case "commercial": return Factory;
+      case "industrial": return Factory;
+      case "land": return TreePine;
+      case "mixed": return Layers;
+      default: return Building2;
+    }
+  }
+
+  function getPropertyColor(type: string | null) {
+    switch (type) {
+      case "residential": return "bg-blue-50 text-blue-600";
+      case "commercial": return "bg-amber-50 text-amber-600";
+      case "industrial": return "bg-slate-100 text-slate-600";
+      case "land": return "bg-green-50 text-green-600";
+      case "mixed": return "bg-purple-50 text-purple-600";
+      default: return "bg-primary/5 text-primary";
+    }
+  }
+
   if (loading) {
     return (
-      <div className="space-y-8 pt-12 md:pt-0 animate-pulse">
+      <div className="space-y-6 pt-12 md:pt-0 animate-pulse">
         <div className="flex items-center justify-between">
-          <div><div className="h-9 w-44 bg-muted rounded-[var(--radius)]" /><div className="h-4 w-60 bg-muted rounded mt-3" /></div>
-          <div className="h-10 w-40 bg-muted rounded-[var(--radius)]" />
+          <div className="h-9 w-44 bg-muted rounded-[var(--radius)]" />
+          <div className="h-10 w-44 bg-muted rounded-[var(--radius)]" />
         </div>
+        <div className="h-12 bg-muted rounded-[var(--radius)]" />
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-card border border-border rounded-[var(--radius)] p-6 space-y-5">
-              <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                  <div className="h-5 w-36 bg-muted rounded" />
-                  <div className="h-3 w-52 bg-muted rounded" />
-                </div>
-                <div className="h-5 w-16 bg-muted rounded-full" />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <div className="h-3 w-12 bg-muted rounded" />
-                  <div className="h-4 w-20 bg-muted rounded" />
-                </div>
-                <div className="space-y-1.5">
-                  <div className="h-3 w-14 bg-muted rounded" />
-                  <div className="h-4 w-20 bg-muted rounded" />
-                </div>
-                <div className="space-y-1.5">
-                  <div className="h-3 w-12 bg-muted rounded" />
-                  <div className="h-4 w-16 bg-muted rounded" />
-                </div>
-                <div className="space-y-1.5">
-                  <div className="h-3 w-10 bg-muted rounded" />
-                  <div className="h-4 w-14 bg-muted rounded" />
-                </div>
-              </div>
-              <div className="border-t border-border pt-4 mt-4">
-                <div className="flex gap-2">
-                  <div className="h-8 w-8 bg-muted rounded" />
-                  <div className="h-8 w-8 bg-muted rounded" />
-                </div>
+            <div key={i} className="bg-card border border-border rounded-[var(--radius)] overflow-hidden">
+              <div className="h-40 bg-muted" />
+              <div className="p-5 space-y-3">
+                <div className="h-5 w-40 bg-muted rounded" />
+                <div className="h-3 w-56 bg-muted rounded" />
+                <div className="h-5 w-20 bg-muted rounded-full" />
               </div>
             </div>
           ))}
@@ -444,64 +454,82 @@ export default function PropertiesPage() {
   }
 
   return (
-    <div className="space-y-8 pt-12 md:pt-0">
+    <div className="space-y-6 pt-12 md:pt-0">
+      {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Properties</h1>
-          <p className="text-muted-foreground text-sm mt-2">
-            {filtersActive
-              ? `${filtered.length} of ${properties.length} properties`
-              : `${properties.length} properties in portfolio`}
-          </p>
-        </div>
-        <Button onClick={() => setShowAdd(true)} variant="default" size="lg" className="shadow-sm">
-          <Plus size={18} className="mr-2" /> Add Property
+        <h1 className="text-3xl font-bold tracking-tight">Properties</h1>
+        <Button onClick={() => setShowAdd(true)} className="gap-2">
+          <Plus size={16} /> Add a property
         </Button>
       </div>
 
+      {/* Filter bar */}
       {properties.length > 0 && (
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative sm:max-w-xs w-full">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-            <Input
-              placeholder="Search properties..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-          <select
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
-            className={`${selectClassName} mt-0 sm:w-40`}
-          >
-            <option value="all">All Types</option>
-            {PROPERTY_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t.charAt(0).toUpperCase() + t.slice(1)}
-              </option>
-            ))}
-          </select>
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className={`${selectClassName} mt-0 sm:w-40`}
-          >
-            <option value="all">All Statuses</option>
-            {STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {s.replace("_", " ").replace(/\b\w/g, (c) => c.toUpperCase())}
-              </option>
-            ))}
-          </select>
-          {filtersActive && (
-            <Button variant="ghost" size="sm" onClick={clearFilters} className="self-center">
-              Clear
-            </Button>
-          )}
-        </div>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              {/* Status tabs */}
+              <div className="flex gap-1 overflow-x-auto">
+                {[
+                  { key: "all", label: "All" },
+                  { key: "occupied", label: "Occupied" },
+                  { key: "vacant", label: "Vacant" },
+                  { key: "for_sale", label: "For Sale" },
+                  { key: "sold", label: "Sold" },
+                ].map((tab) => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setFilterStatus(tab.key)}
+                    className={cn(
+                      "px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors",
+                      filterStatus === tab.key
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    )}
+                  >
+                    {tab.label} ({statusCounts[tab.key as keyof typeof statusCounts] || 0})
+                  </button>
+                ))}
+              </div>
+
+              {/* Search + view toggle */}
+              <div className="flex gap-2 items-center">
+                <div className="relative w-full md:w-64">
+                  <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                  <Input
+                    placeholder="Search by name, address..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+                <div className="flex border border-border rounded-[var(--radius)] overflow-hidden shrink-0">
+                  <button
+                    onClick={() => setViewMode("list")}
+                    className={cn(
+                      "p-2 transition-colors",
+                      viewMode === "list" ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    <List size={18} />
+                  </button>
+                  <button
+                    onClick={() => setViewMode("grid")}
+                    className={cn(
+                      "p-2 transition-colors",
+                      viewMode === "grid" ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    <LayoutGrid size={18} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
+      {/* Property cards */}
       {properties.length === 0 ? (
         <div className="py-8">
           <EmptyState
@@ -509,7 +537,7 @@ export default function PropertiesPage() {
             title="No properties yet"
             description="Add your first property to start tracking your portfolio"
             action={
-              <Button onClick={() => setShowAdd(true)} variant="default" size="lg">
+              <Button onClick={() => setShowAdd(true)}>
                 Add Property
               </Button>
             }
@@ -528,87 +556,70 @@ export default function PropertiesPage() {
             }
           />
         </div>
-      ) : (
+      ) : viewMode === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {filtered.map((p) => {
+            const Icon = getPropertyIcon(p.type);
+            const colorClass = getPropertyColor(p.type);
             const yld = calcRentalYield(p.monthlyRent, p.currentValue);
             return (
-              <Card key={p.id}>
-                <CardContent className="p-6 space-y-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <Link href={`/properties/${p.id}`} className="text-lg font-semibold truncate text-primary hover:underline block">{p.name}</Link>
-                      <p className="text-xs text-muted-foreground mt-1.5">
-                        {p.address}
-                      </p>
-                    </div>
-                    <Badge variant={getStatusBadgeVariant(p.status || "vacant")} className="shrink-0">
-                      {p.status?.replace("_", " ")}
-                    </Badge>
+              <Link key={p.id} href={`/properties/${p.id}`} className="group">
+                <Card className="overflow-hidden transition-shadow hover:shadow-[var(--shadow-card-hover)]">
+                  {/* Image placeholder */}
+                  <div className={cn("h-40 flex items-center justify-center", colorClass)}>
+                    <Icon size={56} strokeWidth={1.2} className="opacity-60" />
                   </div>
 
-                  <div className="flex gap-1.5 flex-wrap">
-                    {p.type && (
-                      <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
-                        {p.type}
-                      </Badge>
-                    )}
-                    {p.ownership && (
-                      <Badge variant="outline" className="text-[10px]">
-                        {p.ownership}
-                      </Badge>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Value</p>
-                      <p className="text-sm font-semibold mt-0.5">
-                        {formatCurrency(p.currentValue)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Purchased</p>
-                      <p className="text-sm font-semibold mt-0.5">
-                        {formatCurrency(p.purchasePrice)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Rent/mo</p>
-                      <p className="text-sm font-semibold mt-0.5">
-                        {p.monthlyRent
-                          ? formatCurrency(p.monthlyRent)
-                          : "\u2014"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Yield</p>
-                      <p
-                        className={cn(
-                          "text-sm font-semibold mt-0.5",
-                          yld > 5
-                            ? "text-success"
-                            : yld > 3
-                            ? "text-foreground"
-                            : "text-warning"
-                        )}
-                      >
-                        {yld > 0 ? formatPercent(yld) : "\u2014"}
-                      </p>
-                    </div>
-                  </div>
-
-                  {p.tenantName && (
-                    <p className="text-xs text-muted-foreground">
-                      Tenant: {p.tenantName}
+                  {/* Card content */}
+                  <CardContent className="p-5 space-y-2">
+                    <h3 className="font-semibold text-lg group-hover:text-primary transition-colors truncate">
+                      {p.name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground truncate">
+                      {p.address}{p.city ? `, ${p.city}` : ""}
                     </p>
-                  )}
 
-                  <div className="flex gap-1 pt-4 mt-4 border-t border-border">
+                    <div className="flex items-center gap-2 flex-wrap pt-1">
+                      <Badge variant={getStatusBadgeVariant(p.status || "vacant")}>
+                        {p.status?.replace("_", " ")}
+                      </Badge>
+                      {p.type && (
+                        <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
+                          {p.type}
+                        </Badge>
+                      )}
+                      {p.ownership && (
+                        <Badge variant="outline" className="text-[10px]">
+                          {p.ownership}
+                        </Badge>
+                      )}
+                    </div>
+
+                    {/* Key metrics */}
+                    <div className="flex items-center gap-4 pt-2 text-sm">
+                      {p.currentValue && (
+                        <span className="font-semibold">{formatCurrency(p.currentValue)}</span>
+                      )}
+                      {p.monthlyRent && (
+                        <span className="text-muted-foreground">{formatCurrency(p.monthlyRent)}/mo</span>
+                      )}
+                      {yld > 0 && (
+                        <span className={cn(
+                          "font-medium",
+                          yld > 5 ? "text-success" : yld > 3 ? "text-foreground" : "text-warning"
+                        )}>
+                          {formatPercent(yld)} yield
+                        </span>
+                      )}
+                    </div>
+                  </CardContent>
+
+                  {/* Actions bar */}
+                  <div className="px-5 pb-4 flex gap-1">
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => setEditing(p)}
+                      onClick={(e) => { e.preventDefault(); setEditing(p); }}
                       className="h-8 w-8"
                     >
                       <Pencil size={14} />
@@ -616,14 +627,75 @@ export default function PropertiesPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleDelete(p.id)}
+                      onClick={(e) => { e.preventDefault(); handleDelete(p.id); }}
                       className="h-8 w-8 text-muted-foreground hover:text-destructive"
                     >
                       <Trash2 size={14} />
                     </Button>
                   </div>
-                </CardContent>
-              </Card>
+                </Card>
+              </Link>
+            );
+          })}
+        </div>
+      ) : (
+        /* List view */
+        <div className="space-y-3">
+          {filtered.map((p) => {
+            const yld = calcRentalYield(p.monthlyRent, p.currentValue);
+            const Icon = getPropertyIcon(p.type);
+            const colorClass = getPropertyColor(p.type);
+            return (
+              <Link key={p.id} href={`/properties/${p.id}`} className="group block">
+                <Card className="transition-shadow hover:shadow-[var(--shadow-card-hover)]">
+                  <CardContent className="p-4 flex items-center gap-4">
+                    <div className={cn("w-14 h-14 rounded-[var(--radius)] flex items-center justify-center shrink-0", colorClass)}>
+                      <Icon size={24} strokeWidth={1.5} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold group-hover:text-primary transition-colors truncate">{p.name}</h3>
+                        <Badge variant={getStatusBadgeVariant(p.status || "vacant")} className="shrink-0">
+                          {p.status?.replace("_", " ")}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground truncate mt-0.5">
+                        {p.address}{p.city ? `, ${p.city}` : ""}
+                      </p>
+                    </div>
+                    <div className="hidden sm:flex items-center gap-6 text-sm shrink-0">
+                      {p.currentValue && (
+                        <div className="text-right">
+                          <p className="text-xs text-muted-foreground">Value</p>
+                          <p className="font-semibold">{formatCurrency(p.currentValue)}</p>
+                        </div>
+                      )}
+                      {p.monthlyRent && (
+                        <div className="text-right">
+                          <p className="text-xs text-muted-foreground">Rent/mo</p>
+                          <p className="font-semibold">{formatCurrency(p.monthlyRent)}</p>
+                        </div>
+                      )}
+                      {yld > 0 && (
+                        <div className="text-right">
+                          <p className="text-xs text-muted-foreground">Yield</p>
+                          <p className={cn("font-semibold", yld > 5 ? "text-success" : yld > 3 ? "text-foreground" : "text-warning")}>
+                            {formatPercent(yld)}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex gap-1 shrink-0">
+                      <Button variant="ghost" size="icon" onClick={(e) => { e.preventDefault(); setEditing(p); }} className="h-8 w-8">
+                        <Pencil size={14} />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={(e) => { e.preventDefault(); handleDelete(p.id); }} className="h-8 w-8 text-muted-foreground hover:text-destructive">
+                        <Trash2 size={14} />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
             );
           })}
         </div>
