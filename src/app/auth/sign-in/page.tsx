@@ -24,13 +24,13 @@ export default function SignInPage() {
       setError(error.message || "Invalid email or password");
       setLoading(false);
     } else {
-      router.push("/");
+      router.push("/dashboard");
       router.refresh();
     }
   };
 
   const handleGoogle = async () => {
-    await authClient.signIn.social({ provider: "google", callbackURL: "/" });
+    await authClient.signIn.social({ provider: "google", callbackURL: "/dashboard" });
   };
 
   return (

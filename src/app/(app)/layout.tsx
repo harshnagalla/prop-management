@@ -11,7 +11,7 @@ export default async function AppLayout({
   children: React.ReactNode;
 }) {
   const { data: session } = await auth.getSession();
-  if (!session?.user) redirect("/auth/sign-in");
+  if (!session?.user) redirect("/");
 
   return (
     <div className="min-h-screen flex">

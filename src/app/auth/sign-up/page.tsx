@@ -25,13 +25,13 @@ export default function SignUpPage() {
       setError(error.message || "Failed to create account");
       setLoading(false);
     } else {
-      router.push("/");
+      router.push("/dashboard");
       router.refresh();
     }
   };
 
   const handleGoogle = async () => {
-    await authClient.signIn.social({ provider: "google", callbackURL: "/" });
+    await authClient.signIn.social({ provider: "google", callbackURL: "/dashboard" });
   };
 
   return (

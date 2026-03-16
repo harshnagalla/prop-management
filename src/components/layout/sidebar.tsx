@@ -19,7 +19,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
 const nav = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/properties", label: "Properties", icon: Building2 },
   { href: "/bills", label: "Bills", icon: Receipt },
   { href: "/income", label: "Rental Income", icon: IndianRupee },
@@ -103,7 +103,7 @@ export function Sidebar() {
               size="icon"
               onClick={async () => {
                 await authClient.signOut();
-                window.location.href = "/auth/sign-in";
+                window.location.href = "/";
               }}
               className="h-8 w-8"
             >
