@@ -14,6 +14,7 @@ import {
   User,
   Ruler,
   AlertCircle,
+  Upload,
 } from "lucide-react";
 import * as Tabs from "@radix-ui/react-tabs";
 import {
@@ -32,9 +33,12 @@ import {
 import { formatCurrency, formatPercent, formatDate, calcRentalYield } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Modal } from "@/components/ui/modal";
+import { toast } from "@/lib/utils/toast";
 import type { Property, Bill, RentalIncome } from "@/lib/db/schema";
 
 type BillWithProperty = Bill & { propertyName: string | null };
@@ -56,6 +60,25 @@ interface PropertyChartData {
   expenseByCategory: Array<{ category: string; amount: number }>;
   summary: { totalIncome: number; totalExpenses: number; netIncome: number };
 }
+
+const CATEGORIES = [
+  "electricity", "water", "municipal_tax", "maintenance", "insurance", "repair", "legal", "other",
+] as const;
+
+const MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+const DOC_TYPES = [
+  "sale_deed", "agreement", "registration", "tax_receipt", "bill", "photo", "other",
+] as const;
+
+const selectClassName =
+  "mt-1 w-full bg-transparent border border-border rounded-[var(--radius)] h-9 px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+
+const textareaClassName =
+  "mt-1 w-full bg-transparent border border-border rounded-[var(--radius)] px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
 function formatCompactCurrency(value: number): string {
   if (value >= 100000) return `\u20B9${(value / 100000).toFixed(1)}L`;
@@ -149,9 +172,46 @@ export default function PropertyDetailPage() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
-  useEffect(() => {
-    if (!id) return;
+  // Modal states
+  const [showAddBill, setShowAddBill] = useState(false);
+  const [showAddIncome, setShowAddIncome] = useState(false);
+  const [showAddDoc, setShowAddDoc] = useState(false);
 
+  // Bill form state
+  const [billForm, setBillForm] = useState({
+    category: "electricity" as string,
+    amount: "",
+    vendor: "",
+    referenceNumber: "",
+    dueDate: "",
+    paidDate: "",
+    isPaid: false,
+    notes: "",
+  });
+
+  // Income form state
+  const now = new Date();
+  const [incomeForm, setIncomeForm] = useState({
+    month: String(now.getMonth() + 1),
+    year: String(now.getFullYear()),
+    amount: "",
+    tenantName: "",
+    receivedDate: now.toISOString().split("T")[0],
+    isReceived: true,
+    notes: "",
+  });
+
+  // Document form state
+  const [docForm, setDocForm] = useState({
+    name: "",
+    type: "other" as string,
+  });
+  const [docFile, setDocFile] = useState<{ dataUri: string; mimeType: string; fileSize: number } | null>(null);
+  const [docFileName, setDocFileName] = useState("");
+  const [uploading, setUploading] = useState(false);
+
+  const loadData = (isInitial = false) => {
+    if (!id) return;
     Promise.all([
       fetch(`/api/properties/${id}`),
       fetch(`/api/bills?propertyId=${id}`),
@@ -183,8 +243,142 @@ export default function PropertyDetailPage() {
       .catch(() => {
         setNotFound(true);
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (isInitial) setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    loadData(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  const resetBillForm = () => {
+    setBillForm({ category: "electricity", amount: "", vendor: "", referenceNumber: "", dueDate: "", paidDate: "", isPaid: false, notes: "" });
+  };
+
+  const resetIncomeForm = (prop?: Property | null) => {
+    const n = new Date();
+    setIncomeForm({
+      month: String(n.getMonth() + 1),
+      year: String(n.getFullYear()),
+      amount: prop?.monthlyRent || "",
+      tenantName: prop?.tenantName || "",
+      receivedDate: n.toISOString().split("T")[0],
+      isReceived: true,
+      notes: "",
+    });
+  };
+
+  const resetDocForm = () => {
+    setDocForm({ name: "", type: "other" });
+    setDocFile(null);
+    setDocFileName("");
+  };
+
+  const handleAddBill = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch("/api/bills", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          propertyId: id,
+          category: billForm.category,
+          amount: billForm.amount,
+          dueDate: billForm.dueDate || null,
+          paidDate: billForm.paidDate || null,
+          isPaid: billForm.isPaid,
+          vendor: billForm.vendor || null,
+          referenceNumber: billForm.referenceNumber || null,
+          notes: billForm.notes || null,
+        }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success("Bill added");
+      setShowAddBill(false);
+      resetBillForm();
+      loadData();
+    } catch {
+      toast.error("Failed to save bill");
+    }
+  };
+
+  const handleAddIncome = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch("/api/rental-income", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          propertyId: id,
+          amount: incomeForm.amount,
+          month: parseInt(incomeForm.month),
+          year: parseInt(incomeForm.year),
+          receivedDate: incomeForm.receivedDate || null,
+          isReceived: incomeForm.isReceived,
+          tenantName: incomeForm.tenantName || null,
+          notes: incomeForm.notes || null,
+        }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success("Payment recorded");
+      setShowAddIncome(false);
+      resetIncomeForm(property);
+      loadData();
+    } catch {
+      toast.error("Failed to record payment");
+    }
+  };
+
+  const handleAddDoc = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!docFile) return;
+    setUploading(true);
+    try {
+      const res = await fetch("/api/documents", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          propertyId: id,
+          name: docForm.name,
+          type: docForm.type,
+          file: docFile.dataUri,
+          mimeType: docFile.mimeType,
+          fileSize: docFile.fileSize,
+        }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success("Document uploaded");
+      setShowAddDoc(false);
+      resetDocForm();
+      loadData();
+    } catch {
+      toast.error("Failed to upload document");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File size must be less than 10MB");
+      e.target.value = "";
+      return;
+    }
+    setDocFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setDocFile({
+        dataUri: reader.result as string,
+        mimeType: file.type,
+        fileSize: file.size,
+      });
+    };
+    reader.readAsDataURL(file);
+  };
 
   if (loading) return <LoadingSkeleton />;
 
@@ -243,24 +437,40 @@ export default function PropertyDetailPage() {
       </div>
 
       {/* Page header */}
-      <div className="space-y-1">
-        <div className="flex items-center gap-3 flex-wrap">
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{property.name}</h1>
-          <Badge variant={getStatusBadgeVariant(property.status || "vacant")}>
-            {property.status?.replace("_", " ")}
-          </Badge>
-          {property.type && (
-            <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
-              {property.type}
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="space-y-1">
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{property.name}</h1>
+            <Badge variant={getStatusBadgeVariant(property.status || "vacant")}>
+              {property.status?.replace("_", " ")}
             </Badge>
+            {property.type && (
+              <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
+                {property.type}
+              </Badge>
+            )}
+          </div>
+          {(property.address || property.city) && (
+            <p className="text-sm text-muted-foreground">
+              {property.address}
+              {property.city ? `, ${property.city}` : ""}
+            </p>
           )}
         </div>
-        {(property.address || property.city) && (
-          <p className="text-sm text-muted-foreground">
-            {property.address}
-            {property.city ? `, ${property.city}` : ""}
-          </p>
-        )}
+        <div className="flex gap-2 flex-wrap">
+          <Button variant="outline" size="sm" onClick={() => { resetBillForm(); setShowAddBill(true); }}>
+            <Receipt size={14} className="mr-1.5" />
+            Add Bill
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => { resetIncomeForm(property); setShowAddIncome(true); }}>
+            <IndianRupee size={14} className="mr-1.5" />
+            Record Payment
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => { resetDocForm(); setShowAddDoc(true); }}>
+            <Upload size={14} className="mr-1.5" />
+            Upload Document
+          </Button>
+        </div>
       </div>
 
       {/* Tabs */}
@@ -721,6 +931,12 @@ export default function PropertyDetailPage() {
 
         {/* Documents Tab */}
         <Tabs.Content value="documents" className="pt-6 space-y-4">
+          <div className="flex justify-end">
+            <Button variant="outline" size="sm" onClick={() => { resetDocForm(); setShowAddDoc(true); }}>
+              <Upload size={14} className="mr-1.5" />
+              Upload Document
+            </Button>
+          </div>
           {documents.length === 0 ? (
             <EmptyState
               icon={FileText}
@@ -757,6 +973,271 @@ export default function PropertyDetailPage() {
           )}
         </Tabs.Content>
       </Tabs.Root>
+
+      {/* Add Bill Modal */}
+      <Modal open={showAddBill} onClose={() => setShowAddBill(false)} title="Add Bill">
+        <form onSubmit={handleAddBill} className="space-y-5">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Bill Details</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <label className="text-sm font-medium">Category</label>
+                <select
+                  value={billForm.category}
+                  onChange={(e) => setBillForm((f) => ({ ...f, category: e.target.value }))}
+                  className={selectClassName}
+                >
+                  {CATEGORIES.map((c) => (
+                    <option key={c} value={c}>
+                      {c.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Amount *</label>
+                <Input
+                  type="number"
+                  required
+                  value={billForm.amount}
+                  onChange={(e) => setBillForm((f) => ({ ...f, amount: e.target.value }))}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5">
+              <div>
+                <label className="text-sm font-medium">Vendor</label>
+                <Input
+                  value={billForm.vendor}
+                  onChange={(e) => setBillForm((f) => ({ ...f, vendor: e.target.value }))}
+                  className="mt-1"
+                  placeholder="e.g. Torrent Power"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Reference #</label>
+                <Input
+                  value={billForm.referenceNumber}
+                  onChange={(e) => setBillForm((f) => ({ ...f, referenceNumber: e.target.value }))}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Dates & Status</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <label className="text-sm font-medium">Due Date</label>
+                <Input
+                  type="date"
+                  value={billForm.dueDate}
+                  onChange={(e) => setBillForm((f) => ({ ...f, dueDate: e.target.value }))}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Paid Date</label>
+                <Input
+                  type="date"
+                  value={billForm.paidDate}
+                  onChange={(e) => setBillForm((f) => ({ ...f, paidDate: e.target.value }))}
+                  className="mt-1"
+                />
+              </div>
+              <div className="flex items-end pb-2">
+                <label className="flex items-center gap-2 text-sm font-medium">
+                  <input
+                    type="checkbox"
+                    checked={billForm.isPaid}
+                    onChange={(e) => setBillForm((f) => ({ ...f, isPaid: e.target.checked }))}
+                    className="rounded"
+                  />
+                  Paid
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Notes</p>
+            <textarea
+              value={billForm.notes}
+              onChange={(e) => setBillForm((f) => ({ ...f, notes: e.target.value }))}
+              rows={2}
+              className={textareaClassName}
+            />
+          </div>
+
+          <div className="flex gap-3 justify-end pt-3">
+            <Button type="button" variant="outline" onClick={() => setShowAddBill(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="default">
+              Add Bill
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Record Income Modal */}
+      <Modal open={showAddIncome} onClose={() => setShowAddIncome(false)} title="Record Rental Payment">
+        <form onSubmit={handleAddIncome} className="space-y-5">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Payment Details</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <label className="text-sm font-medium">Month</label>
+                <select
+                  value={incomeForm.month}
+                  onChange={(e) => setIncomeForm((f) => ({ ...f, month: e.target.value }))}
+                  className={selectClassName}
+                >
+                  {MONTHS.map((m, i) => (
+                    <option key={i} value={i + 1}>{m}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Year</label>
+                <Input
+                  type="number"
+                  value={incomeForm.year}
+                  onChange={(e) => setIncomeForm((f) => ({ ...f, year: e.target.value }))}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5">
+              <div>
+                <label className="text-sm font-medium">Amount *</label>
+                <Input
+                  type="number"
+                  required
+                  value={incomeForm.amount}
+                  onChange={(e) => setIncomeForm((f) => ({ ...f, amount: e.target.value }))}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Tenant</label>
+                <Input
+                  value={incomeForm.tenantName}
+                  onChange={(e) => setIncomeForm((f) => ({ ...f, tenantName: e.target.value }))}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Date & Status</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <label className="text-sm font-medium">Received Date</label>
+                <Input
+                  type="date"
+                  value={incomeForm.receivedDate}
+                  onChange={(e) => setIncomeForm((f) => ({ ...f, receivedDate: e.target.value }))}
+                  className="mt-1"
+                />
+              </div>
+              <div className="flex items-end pb-2">
+                <label className="flex items-center gap-2 text-sm font-medium">
+                  <input
+                    type="checkbox"
+                    checked={incomeForm.isReceived}
+                    onChange={(e) => setIncomeForm((f) => ({ ...f, isReceived: e.target.checked }))}
+                    className="rounded"
+                  />
+                  Received
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Notes</p>
+            <textarea
+              value={incomeForm.notes}
+              onChange={(e) => setIncomeForm((f) => ({ ...f, notes: e.target.value }))}
+              rows={2}
+              className={textareaClassName}
+            />
+          </div>
+
+          <div className="flex gap-3 justify-end pt-3">
+            <Button type="button" variant="outline" onClick={() => setShowAddIncome(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="default">
+              Record Payment
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Upload Document Modal */}
+      <Modal open={showAddDoc} onClose={() => setShowAddDoc(false)} title="Upload Document">
+        <form onSubmit={handleAddDoc} className="space-y-5">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Document Details</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <label className="text-sm font-medium">Document Name *</label>
+                <Input
+                  required
+                  value={docForm.name}
+                  onChange={(e) => setDocForm((f) => ({ ...f, name: e.target.value }))}
+                  className="mt-1"
+                  placeholder="e.g. Sale Deed 2024"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Document Type</label>
+                <select
+                  value={docForm.type}
+                  onChange={(e) => setDocForm((f) => ({ ...f, type: e.target.value }))}
+                  className={selectClassName}
+                >
+                  {DOC_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {t.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="mt-5">
+              <label className="text-sm font-medium">File *</label>
+              <Input
+                type="file"
+                required
+                accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
+                onChange={handleFileSelect}
+                className="mt-1"
+              />
+              {docFileName && docFile && (
+                <p className="text-xs text-muted-foreground mt-1.5">
+                  {docFileName} ({formatFileSize(docFile.fileSize)})
+                </p>
+              )}
+              <p className="text-xs text-muted-foreground mt-1">Max 10MB. Images, PDFs, and documents accepted.</p>
+            </div>
+          </div>
+
+          <div className="flex gap-3 justify-end pt-3">
+            <Button type="button" variant="outline" onClick={() => setShowAddDoc(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="default" disabled={uploading || !docFile}>
+              {uploading ? "Uploading..." : "Upload Document"}
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }
