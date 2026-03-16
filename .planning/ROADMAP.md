@@ -77,7 +77,7 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 16-01: TBD
+- [x] 16-01: property_remarks table, CRUD API, timeline tab on detail page
 
 #### Phase 17: Sale Tracking
 
@@ -108,5 +108,5 @@ Plans:
 | 13. Property Analytics | v1.4 | 1/1 | Complete | 2026-03-16 |
 | 14. Property Actions | v1.4 | 1/1 | Complete | 2026-03-16 |
 | 15. Extended Property Fields | v1.5 | 1/1 | Complete | 2026-03-16 |
-| 16. Remarks Timeline | v1.5 | 0/? | Not started | - |
+| 16. Remarks Timeline | v1.5 | 1/1 | Complete | 2026-03-16 |
 | 17. Sale Tracking | v1.5 | 0/? | Not started | - |

@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-03-15)
 
 ## Current Position
 
-Phase: 15 of 17 (Extended Property Fields)
+Phase: 16 of 17 (Remarks Timeline)
 Plan: 1 of 1 in current phase
 Status: Phase complete
-Last activity: 2026-03-16 — Completed 15-01-PLAN.md
+Last activity: 2026-03-16 — Completed 16-01-PLAN.md
 
-Progress: ███░░░░░░░ 33%
+Progress: ██████░░░░ 66%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18
-- Average duration: 22 min
-- Total execution time: 6.3 hours
+- Total plans completed: 19
+- Average duration: 21 min
+- Total execution time: 6.4 hours
 
 **By Phase:**
 
@@ -42,6 +42,7 @@ Progress: ███░░░░░░░ 33%
 | 13-property-analytics | 1 | 4 min | 4 min |
 | 14-property-actions | 1 | 4 min | 4 min |
 | 15-extended-property-fields | 1 | 3 min | 3 min |
+| 16-remarks-timeline | 1 | 3 min | 3 min |
 
 ## Accumulated Context
 
