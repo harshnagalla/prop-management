@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Upload, FileSpreadsheet, Check, AlertCircle } from "lucide-react";
+import { Upload, FileSpreadsheet, Check, AlertCircle, Sparkles, FileImage, FileText } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/format";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 interface ExtractedProperty {
   name: string;
@@ -100,10 +101,11 @@ export default function ImportPage() {
 
   return (
     <div className="space-y-8 pt-12 md:pt-0 max-w-4xl">
+      {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">AI Import</h1>
         <p className="text-muted-foreground text-sm mt-2">
-          Upload a spreadsheet or photo — AI extracts property data automatically
+          Scan bills and import spreadsheets with AI
         </p>
       </div>
 
@@ -148,28 +150,67 @@ export default function ImportPage() {
       </div>
 
       {step === "upload" && (
-        <label className="block border-2 border-dashed border-border rounded-[var(--radius)] p-8 sm:p-16 text-center cursor-pointer hover:border-primary/50 hover:bg-muted/30 transition-colors">
-          {extracting ? (
-            <div className="space-y-4">
-              <div className="w-14 h-14 rounded-full border-4 border-primary border-t-transparent animate-spin mx-auto" />
-              <p className="text-sm font-medium text-muted-foreground">
-                AI is analyzing your file...
-              </p>
-            </div>
-          ) : (
-            <>
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                <FileSpreadsheet
-                  className="text-primary"
-                  size={28}
-                />
+        <label
+          className={`block relative rounded-2xl cursor-pointer transition-all overflow-hidden ${
+            extracting
+              ? ""
+              : "hover:shadow-lg"
+          }`}
+        >
+          {/* Animated gradient border for scanning state */}
+          <div className={`absolute inset-0 rounded-2xl ${
+            extracting
+              ? "bg-gradient-to-r from-primary via-blue-400 to-primary bg-[length:200%_100%] animate-[shimmer_2s_linear_infinite] p-[2px]"
+              : "border-2 border-dashed border-border hover:border-primary/50"
+          }`}>
+            {extracting && <div className="absolute inset-[2px] rounded-[14px] bg-background" />}
+          </div>
+
+          <div className={`relative bg-gradient-to-b from-blue-50/50 to-transparent dark:from-blue-950/20 dark:to-transparent rounded-2xl p-8 sm:p-16`}>
+            {extracting ? (
+              <div className="space-y-5 text-center">
+                <div className="relative mx-auto w-20 h-20">
+                  <div className="absolute inset-0 rounded-full border-4 border-primary/20" />
+                  <div className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Sparkles size={24} className="text-primary animate-pulse" />
+                  </div>
+                </div>
+                <div>
+                  <p className="text-base font-semibold">
+                    AI is analyzing your file...
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Extracting property data with Gemini
+                  </p>
+                </div>
               </div>
-              <p className="text-base font-semibold mb-1.5">Drop your file here or click to browse</p>
-              <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                Supports images of spreadsheets, PDFs, Excel files, or photos of written records
-              </p>
-            </>
-          )}
+            ) : (
+              <div className="text-center">
+                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-5 shadow-sm">
+                  <Upload size={32} className="text-primary" />
+                </div>
+                <p className="text-lg font-semibold mb-2">
+                  Drag & drop or click to upload
+                </p>
+                <p className="text-sm text-muted-foreground max-w-md mx-auto mb-6">
+                  Our AI will automatically extract property data from your files
+                </p>
+                <div className="flex flex-wrap items-center justify-center gap-2">
+                  <Badge variant="secondary" className="gap-1.5 px-3 py-1">
+                    <FileImage size={12} /> Images
+                  </Badge>
+                  <Badge variant="secondary" className="gap-1.5 px-3 py-1">
+                    <FileText size={12} /> PDF
+                  </Badge>
+                  <Badge variant="secondary" className="gap-1.5 px-3 py-1">
+                    <FileSpreadsheet size={12} /> Excel / CSV
+                  </Badge>
+                </div>
+              </div>
+            )}
+          </div>
+
           <input
             type="file"
             accept="image/*,.pdf,.xlsx,.xls,.csv"
@@ -212,16 +253,16 @@ export default function ImportPage() {
               <Card
                 key={idx}
                 onClick={() => toggleSelect(idx)}
-                className={`cursor-pointer transition-colors ${
+                className={`cursor-pointer transition-all ${
                   selected.has(idx)
-                    ? "border-primary/50 bg-primary/5"
-                    : ""
+                    ? "border-primary/50 bg-primary/5 shadow-sm"
+                    : "hover:shadow-sm"
                 }`}
               >
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
                     <div
-                      className={`w-5 h-5 rounded border-2 flex items-center justify-center mt-0.5 shrink-0 ${
+                      className={`w-5 h-5 rounded border-2 flex items-center justify-center mt-0.5 shrink-0 transition-colors ${
                         selected.has(idx)
                           ? "border-primary bg-primary"
                           : "border-border"
@@ -232,13 +273,20 @@ export default function ImportPage() {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold">{prop.name}</p>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-sm font-semibold">{prop.name}</p>
+                        {prop.type && (
+                          <Badge variant="secondary" className="text-[10px]">
+                            {prop.type}
+                          </Badge>
+                        )}
+                      </div>
                       {prop.address && (
                         <p className="text-xs text-muted-foreground mt-1">
                           {prop.address}
                         </p>
                       )}
-                      <div className="flex flex-wrap gap-4 mt-3">
+                      <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3">
                         {prop.purchasePrice && (
                           <div>
                             <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Bought</p>
@@ -274,35 +322,37 @@ export default function ImportPage() {
       )}
 
       {step === "done" && (
-        <Card>
-          <CardContent className="p-10 text-center space-y-5">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-              <Check size={32} className="text-primary" />
-            </div>
-            <h2 className="text-xl font-semibold">Import Complete</h2>
-            <p className="text-muted-foreground">
-              <span className="font-semibold text-foreground">{results.success}</span> properties imported successfully
-              {results.failed > 0 && (
-                <span className="text-destructive">
-                  , {results.failed} failed
-                </span>
-              )}
-            </p>
-            <div className="flex gap-3 justify-center pt-4">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setStep("upload");
-                  setExtracted([]);
-                }}
-              >
-                Import More
-              </Button>
-              <Button variant="default" size="lg" className="shadow-sm" asChild>
-                <a href="/properties">View Properties</a>
-              </Button>
-            </div>
-          </CardContent>
+        <Card className="overflow-hidden">
+          <div className="bg-gradient-to-b from-primary/5 to-transparent">
+            <CardContent className="p-10 text-center space-y-5">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                <Check size={32} className="text-primary" />
+              </div>
+              <h2 className="text-xl font-semibold">Import Complete</h2>
+              <p className="text-muted-foreground">
+                <span className="font-semibold text-foreground">{results.success}</span> properties imported successfully
+                {results.failed > 0 && (
+                  <span className="text-destructive">
+                    , {results.failed} failed
+                  </span>
+                )}
+              </p>
+              <div className="flex gap-3 justify-center pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setStep("upload");
+                    setExtracted([]);
+                  }}
+                >
+                  Import More
+                </Button>
+                <Button variant="default" size="lg" className="shadow-sm" asChild>
+                  <a href="/properties">View Properties</a>
+                </Button>
+              </div>
+            </CardContent>
+          </div>
         </Card>
       )}
     </div>
