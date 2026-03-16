@@ -13,12 +13,26 @@ import {
   Calendar,
   User,
   Ruler,
+  AlertCircle,
 } from "lucide-react";
 import * as Tabs from "@radix-ui/react-tabs";
+import {
+  AreaChart,
+  Area,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 import { formatCurrency, formatPercent, formatDate, calcRentalYield } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { Property, Bill, RentalIncome } from "@/lib/db/schema";
@@ -35,6 +49,34 @@ type DocumentMeta = {
   mimeType: string | null;
   createdAt: string;
 };
+
+interface PropertyChartData {
+  monthlyIncome: Array<{ month: string; amount: number }>;
+  monthlyExpenses: Array<{ month: string; amount: number }>;
+  expenseByCategory: Array<{ category: string; amount: number }>;
+  summary: { totalIncome: number; totalExpenses: number; netIncome: number };
+}
+
+function formatCompactCurrency(value: number): string {
+  if (value >= 100000) return `\u20B9${(value / 100000).toFixed(1)}L`;
+  if (value >= 1000) return `\u20B9${(value / 1000).toFixed(0)}K`;
+  return `\u20B9${value}`;
+}
+
+function formatCategoryLabel(category: string): string {
+  return category
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+const PIE_COLORS = [
+  "var(--color-primary)",
+  "var(--color-success)",
+  "var(--color-warning)",
+  "var(--color-destructive)",
+  "var(--color-info)",
+  "var(--color-accent)",
+];
 
 function getStatusBadgeVariant(status: string) {
   switch (status) {
@@ -103,6 +145,7 @@ export default function PropertyDetailPage() {
   const [bills, setBills] = useState<BillWithProperty[]>([]);
   const [income, setIncome] = useState<IncomeWithProperty[]>([]);
   const [documents, setDocuments] = useState<DocumentMeta[]>([]);
+  const [chartData, setChartData] = useState<PropertyChartData | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -114,8 +157,9 @@ export default function PropertyDetailPage() {
       fetch(`/api/bills?propertyId=${id}`),
       fetch(`/api/rental-income?propertyId=${id}`),
       fetch(`/api/documents?propertyId=${id}`),
+      fetch(`/api/properties/${id}/charts`),
     ])
-      .then(async ([propRes, billsRes, incomeRes, docsRes]) => {
+      .then(async ([propRes, billsRes, incomeRes, docsRes, chartsRes]) => {
         if (!propRes.ok) {
           if (propRes.status === 404) {
             setNotFound(true);
@@ -123,16 +167,18 @@ export default function PropertyDetailPage() {
           }
           throw new Error("Failed to load property");
         }
-        const [propData, billsData, incomeData, docsData] = await Promise.all([
+        const [propData, billsData, incomeData, docsData, chartsData] = await Promise.all([
           propRes.json(),
           billsRes.ok ? billsRes.json() : [],
           incomeRes.ok ? incomeRes.json() : [],
           docsRes.ok ? docsRes.json() : [],
+          chartsRes.ok ? chartsRes.json() : null,
         ]);
         setProperty(propData);
         setBills(billsData);
         setIncome(incomeData);
         setDocuments(docsData);
+        setChartData(chartsData);
       })
       .catch(() => {
         setNotFound(true);
@@ -308,6 +354,183 @@ export default function PropertyDetailPage() {
               </div>
             )}
           </div>
+
+          {/* Net Income Summary */}
+          {chartData && (
+            <Card>
+              <CardContent className="p-5">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Total Income
+                    </p>
+                    <p className={cn("text-lg font-semibold mt-1", chartData.summary.totalIncome > 0 && "text-success")}>
+                      {formatCurrency(chartData.summary.totalIncome)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Total Expenses
+                    </p>
+                    <p className="text-lg font-semibold mt-1">
+                      {formatCurrency(chartData.summary.totalExpenses)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Net Income
+                    </p>
+                    <p
+                      className={cn(
+                        "text-lg font-semibold mt-1",
+                        chartData.summary.netIncome >= 0 ? "text-success" : "text-destructive"
+                      )}
+                    >
+                      {formatCurrency(chartData.summary.netIncome)}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Income vs Expenses Chart */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Income vs Expenses</CardTitle>
+              <CardDescription>Monthly trends over last 12 months</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {(() => {
+                const areaData = chartData
+                  ? chartData.monthlyIncome.map((inc, i) => ({
+                      month: inc.month,
+                      income: inc.amount,
+                      expenses: chartData.monthlyExpenses[i]?.amount ?? 0,
+                    }))
+                  : [];
+                const hasData = areaData.some((d) => d.income > 0 || d.expenses > 0);
+
+                if (!hasData) {
+                  return (
+                    <div className="p-8 text-center text-muted-foreground">
+                      <AlertCircle className="mx-auto mb-2" size={24} />
+                      <p>No data yet. Add income and bills to see trends.</p>
+                    </div>
+                  );
+                }
+
+                return (
+                  <ResponsiveContainer width="100%" height={280}>
+                    <AreaChart data={areaData} margin={{ top: 5, right: 10, left: 10, bottom: 20 }}>
+                      <defs>
+                        <linearGradient id="propIncomeGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="var(--color-success)" stopOpacity={0.15} />
+                          <stop offset="95%" stopColor="var(--color-success)" stopOpacity={0} />
+                        </linearGradient>
+                        <linearGradient id="propExpenseGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="var(--color-destructive)" stopOpacity={0.15} />
+                          <stop offset="95%" stopColor="var(--color-destructive)" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                      <XAxis
+                        dataKey="month"
+                        tick={{ fontSize: 12 }}
+                        interval="preserveStartEnd"
+                        angle={-45}
+                        textAnchor="end"
+                        height={50}
+                      />
+                      <YAxis
+                        tickFormatter={formatCompactCurrency}
+                        tick={{ fontSize: 12 }}
+                        width={60}
+                      />
+                      <Tooltip
+                        formatter={(value: number, name: string) => [
+                          formatCurrency(value),
+                          name === "income" ? "Income" : "Expenses",
+                        ]}
+                        labelStyle={{ fontWeight: 600 }}
+                        contentStyle={{
+                          borderRadius: "var(--radius)",
+                          border: "1px solid var(--color-border)",
+                          background: "var(--color-card)",
+                        }}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="income"
+                        stroke="var(--color-success)"
+                        fill="url(#propIncomeGrad)"
+                        strokeWidth={2}
+                        name="income"
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="expenses"
+                        stroke="var(--color-destructive)"
+                        fill="url(#propExpenseGrad)"
+                        strokeWidth={2}
+                        name="expenses"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                );
+              })()}
+            </CardContent>
+          </Card>
+
+          {/* Expense Breakdown Pie Chart */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Expense Breakdown</CardTitle>
+              <CardDescription>Total spending by category</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {!chartData?.expenseByCategory || chartData.expenseByCategory.length === 0 ? (
+                <div className="p-8 text-center text-muted-foreground">
+                  <AlertCircle className="mx-auto mb-2" size={24} />
+                  <p>No expenses recorded yet. Add bills to see breakdown.</p>
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height={280}>
+                  <PieChart>
+                    <Pie
+                      data={chartData.expenseByCategory}
+                      dataKey="amount"
+                      nameKey="category"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={100}
+                      innerRadius={50}
+                      paddingAngle={2}
+                    >
+                      {chartData.expenseByCategory.map((_, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={PIE_COLORS[index % PIE_COLORS.length]}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value: number) => [formatCurrency(value), "Amount"]}
+                      contentStyle={{
+                        borderRadius: "var(--radius)",
+                        border: "1px solid var(--color-border)",
+                        background: "var(--color-card)",
+                      }}
+                    />
+                    <Legend
+                      verticalAlign="bottom"
+                      formatter={(value: string) => formatCategoryLabel(value)}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              )}
+            </CardContent>
+          </Card>
 
           {/* Notes */}
           {property.notes && (
