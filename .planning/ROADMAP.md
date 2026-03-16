@@ -7,7 +7,7 @@
 - ✅ **v1.2 AI SDK Migration** — Phase 8 (shipped 2026-03-15) — [Archive](milestones/v1.2-ROADMAP.md)
 - ✅ **v1.3 Analytics & Intelligence** — Phases 9-11 (shipped 2026-03-15) — [Archive](milestones/v1.3-ROADMAP.md)
 - ✅ **v1.4 Property Detail Pages** — Phases 12-14 (shipped 2026-03-16) — [Archive](milestones/v1.4-ROADMAP.md)
-- 🚧 **v1.5 Property Intelligence** — Phases 15-17 (in progress)
+- ✅ **v1.5 Property Intelligence** — Phases 15-17 (shipped 2026-03-16) — [Archive](milestones/v1.5-ROADMAP.md)
 
 ## Completed Milestones
 
@@ -55,39 +55,14 @@
 
 </details>
 
-### 🚧 v1.5 Property Intelligence (In Progress)
+<details>
+<summary>✅ v1.5 Property Intelligence (Phases 15-17) — SHIPPED 2026-03-16</summary>
 
-**Milestone Goal:** Match the family spreadsheet — registration details, ownership splits, growing remarks log, and sale tracking with profit/loss
+- [x] Phase 15: Extended Property Fields (1/1 plans) — completed 2026-03-16
+- [x] Phase 16: Remarks Timeline (1/1 plans) — completed 2026-03-16
+- [x] Phase 17: Sale Tracking (1/1 plans) — completed 2026-03-16
 
-#### Phase 15: Extended Property Fields
-
-**Goal**: Add registration details (dastavej no, registration date, stamp duty, registration charges), ownership split tracking, and total cost calculation to the property schema and UI
-**Depends on**: Previous milestone complete
-**Research**: Unlikely (Drizzle schema + internal patterns)
-**Plans**: TBD
-
-Plans:
-- [x] 15-01: Schema migration + UI updates for registration details, ownership, total cost
-
-#### Phase 16: Remarks Timeline
-
-**Goal**: Replace single notes field with a timestamped remarks/activity log per property — add remarks over time, view as a growing timeline
-**Depends on**: Phase 15
-**Research**: Unlikely (new table + internal UI patterns)
-**Plans**: TBD
-
-Plans:
-- [x] 16-01: property_remarks table, CRUD API, timeline tab on detail page
-
-#### Phase 17: Sale Tracking
-
-**Goal**: Mark property as sold with sale price, sale date, buyer info. Calculate profit/loss (sale price minus total cost). Update property status and dashboard stats
-**Depends on**: Phase 16
-**Research**: Unlikely (internal patterns)
-**Plans**: TBD
-
-Plans:
-- [ ] 17-01: TBD
+</details>
 
 ## Progress
 
@@ -109,4 +84,4 @@ Plans:
 | 14. Property Actions | v1.4 | 1/1 | Complete | 2026-03-16 |
 | 15. Extended Property Fields | v1.5 | 1/1 | Complete | 2026-03-16 |
 | 16. Remarks Timeline | v1.5 | 1/1 | Complete | 2026-03-16 |
-| 17. Sale Tracking | v1.5 | 0/? | Not started | - |
+| 17. Sale Tracking | v1.5 | 1/1 | Complete | 2026-03-16 |

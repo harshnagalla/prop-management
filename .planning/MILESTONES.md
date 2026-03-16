@@ -1,5 +1,28 @@
 # Project Milestones: PropManager
 
+## v1.5 Property Intelligence (Shipped: 2026-03-16)
+
+**Delivered:** Extended property fields matching family spreadsheet (registration details, stamp duty, ownership splits), timestamped remarks timeline, and sale tracking with profit/loss calculation.
+
+**Phases completed:** 15-17 (3 plans total)
+
+**Key accomplishments:**
+
+- 5 new property columns: dastavej no, registration date, stamp duty, registration charges, ownership
+- Computed total cost (purchase price + stamp duty + registration charges)
+- property_remarks table with CRUD API and inline timeline on detail page
+- Sale tracking: "sold" status, sale price/date/buyer, profit/loss calculation
+- Profit/loss displayed as green (profit) or red (loss)
+
+**Stats:**
+
+- 3 phases, 3 plans, 6 tasks
+- Same day as v1.4
+
+**Git range:** `feat(15-01)` → `feat(17-01)`
+
+---
+
 ## v1.4 Property Detail Pages (Shipped: 2026-03-16)
 
 **Delivered:** Property deep-dive pages with tabbed layout (overview, bills, income, documents), per-property analytics charts, and quick action modals for adding bills, recording payments, and uploading documents.

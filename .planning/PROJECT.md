@@ -35,9 +35,13 @@ Know exactly how much money each property is making and whether it's worth holdi
 - ✓ Per-property analytics — income vs expenses chart, expense breakdown, net income summary per property — v1.4
 - ✓ Quick actions from property — add bill, record payment, upload document with property pre-selected — v1.4
 
+- ✓ Extended property fields — registration details (dastavej no, stamp duty, registration charges), ownership split, total cost — v1.5
+- ✓ Remarks timeline — timestamped activity log per property replacing single notes field — v1.5
+- ✓ Sale tracking — mark sold with sale price/date/buyer, profit/loss calculation — v1.5
+
 ### Active
 
-(None — all v1.4 requirements validated)
+(None — all v1.5 requirements validated)
 
 ### Out of Scope
 
@@ -84,4 +88,4 @@ Know exactly how much money each property is making and whether it's worth holdi
 | Next.js 16 + serwist --webpack | Upgraded to Next.js 16, build uses --webpack flag for serwist compatibility | ✓ Good |
 
 ---
-*Last updated: 2026-03-16 after v1.4 milestone*
+*Last updated: 2026-03-16 after v1.5 milestone*

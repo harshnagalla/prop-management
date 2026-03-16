@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-03-15)
 
 ## Current Position
 
-Phase: 16 of 17 (Remarks Timeline)
-Plan: 1 of 1 in current phase
-Status: Phase complete
-Last activity: 2026-03-16 — Completed 16-01-PLAN.md
+Phase: All complete (v1.5 shipped)
+Plan: N/A
+Status: Milestone complete
+Last activity: 2026-03-16 — v1.5 milestone complete
 
-Progress: ██████░░░░ 66%
+Progress: ██████████ 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 19
-- Average duration: 21 min
-- Total execution time: 6.4 hours
+- Total plans completed: 20
+- Average duration: 20 min
+- Total execution time: 6.5 hours
 
 **By Phase:**
 
@@ -43,6 +43,7 @@ Progress: ██████░░░░ 66%
 | 14-property-actions | 1 | 4 min | 4 min |
 | 15-extended-property-fields | 1 | 3 min | 3 min |
 | 16-remarks-timeline | 1 | 3 min | 3 min |
+| 17-sale-tracking | 1 | 3 min | 3 min |
 
 ## Accumulated Context
 
@@ -86,5 +87,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-16
-Stopped at: Completed 15-01-PLAN.md (Phase 15 complete)
+Stopped at: v1.5 milestone complete
 Resume file: None
