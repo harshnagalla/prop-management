@@ -17,6 +17,10 @@ import {
   Upload,
   MessageSquare,
   Trash2,
+  Sparkles,
+  Camera,
+  CheckCircle2,
+  Loader2,
 } from "lucide-react";
 import * as Tabs from "@radix-ui/react-tabs";
 import {
@@ -187,6 +191,13 @@ export default function PropertyDetailPage() {
   const [showAddDoc, setShowAddDoc] = useState(false);
   const [showSale, setShowSale] = useState(false);
 
+  // AI scan states
+  const [scanning, setScanning] = useState(false);
+  const [scanComplete, setScanComplete] = useState(false);
+  const [scanPreview, setScanPreview] = useState<string | null>(null);
+  const [docScanning, setDocScanning] = useState(false);
+  const [docAiResult, setDocAiResult] = useState<string | null>(null);
+
   // Sale form state
   const [saleForm, setSaleForm] = useState({
     salePrice: "",
@@ -295,6 +306,103 @@ export default function PropertyDetailPage() {
     setDocForm({ name: "", type: "other" });
     setDocFile(null);
     setDocFileName("");
+    setDocScanning(false);
+    setDocAiResult(null);
+  };
+
+  const handleBillScan = async (file: File) => {
+    setScanning(true);
+    setScanComplete(false);
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const dataUrl = reader.result as string;
+      setScanPreview(dataUrl);
+      const base64 = dataUrl.split(",")[1];
+      try {
+        const res = await fetch("/api/ai/extract", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            file: base64,
+            mimeType: file.type,
+            mode: "bill",
+          }),
+        });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        setBillForm((f) => ({
+          ...f,
+          amount: String(data.amount || f.amount),
+          category: data.category || f.category,
+          vendor: data.vendor || f.vendor,
+          referenceNumber: data.referenceNumber || f.referenceNumber,
+          dueDate: data.date || f.dueDate,
+        }));
+        setScanComplete(true);
+        toast.success("AI extracted bill details");
+      } catch {
+        toast.error("Failed to scan bill. Please enter manually.");
+      } finally {
+        setScanning(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDocAiScan = async () => {
+    if (!docFile) return;
+    setDocScanning(true);
+    setDocAiResult(null);
+    try {
+      const base64 = docFile.dataUri.split(",")[1];
+      const res = await fetch("/api/ai/extract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          file: base64,
+          mimeType: docFile.mimeType,
+          mode: "bill",
+        }),
+      });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+
+      // Auto-fill document name from vendor + date
+      const nameParts: string[] = [];
+      if (data.vendor) nameParts.push(data.vendor);
+      if (data.category) nameParts.push(data.category.replace("_", " "));
+      if (data.date) nameParts.push(data.date);
+      if (nameParts.length > 0) {
+        setDocForm((f) => ({ ...f, name: f.name || nameParts.join(" - ") }));
+      }
+
+      // Auto-set document type based on category
+      const categoryToDocType: Record<string, string> = {
+        electricity: "bill",
+        water: "bill",
+        municipal_tax: "tax_receipt",
+        maintenance: "bill",
+        insurance: "bill",
+        repair: "bill",
+        legal: "agreement",
+      };
+      if (data.category && categoryToDocType[data.category]) {
+        setDocForm((f) => ({ ...f, type: categoryToDocType[data.category] || f.type }));
+      }
+
+      // Build display message
+      const parts: string[] = [];
+      if (data.category) parts.push(data.category.replace("_", " ").replace(/\b\w/g, (l: string) => l.toUpperCase()));
+      if (data.vendor) parts.push(`from ${data.vendor}`);
+      if (data.amount) parts.push(`- ${formatCurrency(String(data.amount))}`);
+      setDocAiResult(parts.length > 0 ? `AI detected: ${parts.join(" ")}` : "AI could not detect document details");
+      toast.success("AI analyzed document");
+    } catch {
+      toast.error("Failed to analyze document");
+      setDocAiResult(null);
+    } finally {
+      setDocScanning(false);
+    }
   };
 
   const handleAddBill = async (e: React.FormEvent) => {
@@ -1220,112 +1328,189 @@ export default function PropertyDetailPage() {
         </Tabs.Content>
       </Tabs.Root>
 
-      {/* Add Bill Modal */}
-      <Modal open={showAddBill} onClose={() => setShowAddBill(false)} title="Add Bill">
-        <form onSubmit={handleAddBill} className="space-y-5">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Bill Details</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <div>
-                <label className="text-sm font-medium">Category</label>
-                <select
-                  value={billForm.category}
-                  onChange={(e) => setBillForm((f) => ({ ...f, category: e.target.value }))}
-                  className={selectClassName}
-                >
-                  {CATEGORIES.map((c) => (
-                    <option key={c} value={c}>
-                      {c.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="text-sm font-medium">Amount *</label>
-                <Input
-                  type="number"
-                  required
-                  value={billForm.amount}
-                  onChange={(e) => setBillForm((f) => ({ ...f, amount: e.target.value }))}
-                  className="mt-1"
-                />
-              </div>
+      {/* Add Bill Modal — Split View with AI Scan */}
+      <Modal open={showAddBill} onClose={() => { setShowAddBill(false); setScanPreview(null); setScanComplete(false); }} title="Add Bill" wide>
+        <div className="flex flex-col md:flex-row gap-6">
+          {/* Left panel: Upload/Scan area */}
+          <div className="md:w-[280px] shrink-0 space-y-4">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <Sparkles size={16} className="text-primary" />
+              AI Bill Scanner
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5">
-              <div>
-                <label className="text-sm font-medium">Vendor</label>
-                <Input
-                  value={billForm.vendor}
-                  onChange={(e) => setBillForm((f) => ({ ...f, vendor: e.target.value }))}
-                  className="mt-1"
-                  placeholder="e.g. Torrent Power"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Reference #</label>
-                <Input
-                  value={billForm.referenceNumber}
-                  onChange={(e) => setBillForm((f) => ({ ...f, referenceNumber: e.target.value }))}
-                  className="mt-1"
-                />
-              </div>
-            </div>
-          </div>
+            <p className="text-xs text-muted-foreground">
+              Upload a bill photo and AI will fill the form automatically.
+            </p>
 
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Dates & Status</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <div>
-                <label className="text-sm font-medium">Due Date</label>
-                <Input
-                  type="date"
-                  value={billForm.dueDate}
-                  onChange={(e) => setBillForm((f) => ({ ...f, dueDate: e.target.value }))}
-                  className="mt-1"
+            {!scanPreview ? (
+              <label className="block border-2 border-dashed border-border rounded-[var(--radius)] p-6 text-center cursor-pointer hover:border-primary/50 transition-colors">
+                <Camera className="mx-auto mb-2 text-muted-foreground" size={28} />
+                <p className="text-sm text-muted-foreground">
+                  Click to upload bill image
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">JPG, PNG, or PDF</p>
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleBillScan(file);
+                  }}
+                  disabled={scanning}
                 />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Paid Date</label>
-                <Input
-                  type="date"
-                  value={billForm.paidDate}
-                  onChange={(e) => setBillForm((f) => ({ ...f, paidDate: e.target.value }))}
-                  className="mt-1"
-                />
-              </div>
-              <div className="flex items-end pb-2">
-                <label className="flex items-center gap-2 text-sm font-medium">
-                  <input
-                    type="checkbox"
-                    checked={billForm.isPaid}
-                    onChange={(e) => setBillForm((f) => ({ ...f, isPaid: e.target.checked }))}
-                    className="rounded"
+              </label>
+            ) : (
+              <div className="space-y-3">
+                {/* Image preview */}
+                <div className="border border-border rounded-[var(--radius)] overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={scanPreview}
+                    alt="Bill preview"
+                    className="w-full h-40 object-cover"
                   />
-                  Paid
+                </div>
+
+                {/* Status indicator */}
+                {scanning && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Loader2 size={16} className="animate-spin text-primary" />
+                    AI extracting...
+                  </div>
+                )}
+                {scanComplete && (
+                  <div className="flex items-center gap-2 text-sm text-green-600">
+                    <CheckCircle2 size={16} />
+                    Fields auto-filled
+                  </div>
+                )}
+
+                {/* Re-upload option */}
+                <label className="block text-center cursor-pointer">
+                  <p className="text-xs text-primary hover:underline">Upload different image</p>
+                  <input
+                    type="file"
+                    accept="image/*,.pdf"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleBillScan(file);
+                    }}
+                    disabled={scanning}
+                  />
                 </label>
               </div>
-            </div>
+            )}
           </div>
 
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Notes</p>
-            <textarea
-              value={billForm.notes}
-              onChange={(e) => setBillForm((f) => ({ ...f, notes: e.target.value }))}
-              rows={2}
-              className={textareaClassName}
-            />
-          </div>
+          {/* Right panel: Bill form */}
+          <div className="flex-1 min-w-0">
+            <form onSubmit={handleAddBill} className="space-y-5">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Bill Details</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div>
+                    <label className="text-sm font-medium">Category</label>
+                    <select
+                      value={billForm.category}
+                      onChange={(e) => setBillForm((f) => ({ ...f, category: e.target.value }))}
+                      className={selectClassName}
+                    >
+                      {CATEGORIES.map((c) => (
+                        <option key={c} value={c}>
+                          {c.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Amount *</label>
+                    <Input
+                      type="number"
+                      required
+                      value={billForm.amount}
+                      onChange={(e) => setBillForm((f) => ({ ...f, amount: e.target.value }))}
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5">
+                  <div>
+                    <label className="text-sm font-medium">Vendor</label>
+                    <Input
+                      value={billForm.vendor}
+                      onChange={(e) => setBillForm((f) => ({ ...f, vendor: e.target.value }))}
+                      className="mt-1"
+                      placeholder="e.g. Torrent Power"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Reference #</label>
+                    <Input
+                      value={billForm.referenceNumber}
+                      onChange={(e) => setBillForm((f) => ({ ...f, referenceNumber: e.target.value }))}
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+              </div>
 
-          <div className="flex gap-3 justify-end pt-3">
-            <Button type="button" variant="outline" onClick={() => setShowAddBill(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" variant="default">
-              Add Bill
-            </Button>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Dates & Status</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div>
+                    <label className="text-sm font-medium">Due Date</label>
+                    <Input
+                      type="date"
+                      value={billForm.dueDate}
+                      onChange={(e) => setBillForm((f) => ({ ...f, dueDate: e.target.value }))}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Paid Date</label>
+                    <Input
+                      type="date"
+                      value={billForm.paidDate}
+                      onChange={(e) => setBillForm((f) => ({ ...f, paidDate: e.target.value }))}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div className="flex items-end pb-2">
+                    <label className="flex items-center gap-2 text-sm font-medium">
+                      <input
+                        type="checkbox"
+                        checked={billForm.isPaid}
+                        onChange={(e) => setBillForm((f) => ({ ...f, isPaid: e.target.checked }))}
+                        className="rounded"
+                      />
+                      Paid
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Notes</p>
+                <textarea
+                  value={billForm.notes}
+                  onChange={(e) => setBillForm((f) => ({ ...f, notes: e.target.value }))}
+                  rows={2}
+                  className={textareaClassName}
+                />
+              </div>
+
+              <div className="flex gap-3 justify-end pt-3">
+                <Button type="button" variant="outline" onClick={() => { setShowAddBill(false); setScanPreview(null); setScanComplete(false); }}>
+                  Cancel
+                </Button>
+                <Button type="submit" variant="default">
+                  Add Bill
+                </Button>
+              </div>
+            </form>
           </div>
-        </form>
+        </div>
       </Modal>
 
       {/* Record Income Modal */}
@@ -1475,11 +1660,57 @@ export default function PropertyDetailPage() {
       </Modal>
 
       {/* Upload Document Modal */}
-      <Modal open={showAddDoc} onClose={() => setShowAddDoc(false)} title="Upload Document">
+      <Modal open={showAddDoc} onClose={() => { setShowAddDoc(false); resetDocForm(); }} title="Upload Document">
         <form onSubmit={handleAddDoc} className="space-y-5">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Document Details</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div className="mt-5">
+              <label className="text-sm font-medium">File *</label>
+              <Input
+                type="file"
+                required
+                accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
+                onChange={handleFileSelect}
+                className="mt-1"
+              />
+              {docFileName && docFile && (
+                <div className="mt-1.5 space-y-2">
+                  <p className="text-xs text-muted-foreground">
+                    {docFileName} ({formatFileSize(docFile.fileSize)})
+                  </p>
+                  {/* AI Scan option for images and PDFs */}
+                  {docFile.mimeType && (docFile.mimeType.startsWith("image/") || docFile.mimeType === "application/pdf") && (
+                    <div className="space-y-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleDocAiScan}
+                        disabled={docScanning}
+                        className="gap-2"
+                      >
+                        {docScanning ? (
+                          <>
+                            <Loader2 size={14} className="animate-spin" />
+                            Analyzing...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles size={14} />
+                            AI Scan
+                          </>
+                        )}
+                      </Button>
+                      {docAiResult && (
+                        <p className="text-xs text-primary font-medium">{docAiResult}</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground mt-1">Max 10MB. Images, PDFs, and documents accepted.</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5">
               <div>
                 <label className="text-sm font-medium">Document Name *</label>
                 <Input
@@ -1505,26 +1736,10 @@ export default function PropertyDetailPage() {
                 </select>
               </div>
             </div>
-            <div className="mt-5">
-              <label className="text-sm font-medium">File *</label>
-              <Input
-                type="file"
-                required
-                accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
-                onChange={handleFileSelect}
-                className="mt-1"
-              />
-              {docFileName && docFile && (
-                <p className="text-xs text-muted-foreground mt-1.5">
-                  {docFileName} ({formatFileSize(docFile.fileSize)})
-                </p>
-              )}
-              <p className="text-xs text-muted-foreground mt-1">Max 10MB. Images, PDFs, and documents accepted.</p>
-            </div>
           </div>
 
           <div className="flex gap-3 justify-end pt-3">
-            <Button type="button" variant="outline" onClick={() => setShowAddDoc(false)}>
+            <Button type="button" variant="outline" onClick={() => { setShowAddDoc(false); resetDocForm(); }}>
               Cancel
             </Button>
             <Button type="submit" variant="default" disabled={uploading || !docFile}>
