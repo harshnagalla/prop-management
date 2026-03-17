@@ -9,7 +9,11 @@ import {
   Home,
   BarChart3,
   AlertCircle,
+  Plus,
+  Camera,
+  Upload,
 } from "lucide-react";
+import Link from "next/link";
 import {
   AreaChart,
   Area,
@@ -182,6 +186,13 @@ export default function DashboardPage() {
           <div className="h-4 bg-muted rounded-[var(--radius)] w-80" />
         </div>
 
+        {/* Quick actions skeleton */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-14 bg-muted rounded-xl" />
+          ))}
+        </div>
+
         {/* Stat cards skeleton */}
         <div className="space-y-3">
           <div className="h-5 bg-muted rounded-[var(--radius)] w-36" />
@@ -194,8 +205,8 @@ export default function DashboardPage() {
 
         <div className="space-y-3">
           <div className="h-5 bg-muted rounded-[var(--radius)] w-32" />
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-            {[...Array(3)].map((_, i) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {[...Array(4)].map((_, i) => (
               <div key={i} className="h-36 bg-gradient-to-br from-muted to-muted/40 rounded-[var(--radius)]" />
             ))}
           </div>
@@ -254,6 +265,34 @@ export default function DashboardPage() {
         </p>
       </div>
 
+      {/* Quick Actions */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <Link href="/properties" className="group flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl hover:shadow-md hover:border-blue-200 transition-all">
+          <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+            <Plus size={16} className="text-blue-600" />
+          </div>
+          <span className="text-sm font-medium text-slate-700">Add Property</span>
+        </Link>
+        <Link href="/income" className="group flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl hover:shadow-md hover:border-green-200 transition-all">
+          <div className="w-9 h-9 rounded-lg bg-green-50 flex items-center justify-center group-hover:bg-green-100 transition-colors">
+            <IndianRupee size={16} className="text-green-600" />
+          </div>
+          <span className="text-sm font-medium text-slate-700">Record Payment</span>
+        </Link>
+        <Link href="/bills" className="group flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl hover:shadow-md hover:border-violet-200 transition-all">
+          <div className="w-9 h-9 rounded-lg bg-violet-50 flex items-center justify-center group-hover:bg-violet-100 transition-colors">
+            <Camera size={16} className="text-violet-600" />
+          </div>
+          <span className="text-sm font-medium text-slate-700">Scan Bill</span>
+        </Link>
+        <Link href="/import" className="group flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl hover:shadow-md hover:border-amber-200 transition-all">
+          <div className="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center group-hover:bg-amber-100 transition-colors">
+            <Upload size={16} className="text-amber-600" />
+          </div>
+          <span className="text-sm font-medium text-slate-700">Import Data</span>
+        </Link>
+      </div>
+
       {/* Key Metrics section */}
       <div className="space-y-4">
         <SectionHeader title="Key Metrics" subtitle="High-level portfolio performance" />
@@ -299,7 +338,7 @@ export default function DashboardPage() {
       {/* Operational Stats section */}
       <div className="space-y-4">
         <SectionHeader title="Operations" subtitle="Occupancy, billing, and monthly collections" />
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           <StatCard
             title="Occupancy Rate"
             value={formatPercent(props.occupancyRate)}
@@ -320,6 +359,13 @@ export default function DashboardPage() {
             subtitle="Received this month"
             icon={IndianRupee}
             variant="green"
+          />
+          <StatCard
+            title="Net Cash Flow"
+            value={formatCurrency(financials.totalIncomeReceived - financials.totalBills)}
+            subtitle="All-time income minus bills"
+            icon={TrendingUp}
+            variant={financials.totalIncomeReceived - financials.totalBills >= 0 ? "green" : "rose"}
           />
         </div>
       </div>
@@ -484,7 +530,11 @@ export default function DashboardPage() {
                         key={p.id}
                         className="border-b border-border/40 hover:bg-primary/[0.03] transition-colors"
                       >
-                        <td className="p-4 font-medium">{p.name}</td>
+                        <td className="p-4 font-medium">
+                          <Link href={`/properties/${p.id}`} className="text-primary hover:underline">
+                            {p.name}
+                          </Link>
+                        </td>
                         <td className="p-4">
                           <Badge variant={getStatusBadgeVariant(p.status)}>
                             {p.status.replace("_", " ")}
@@ -521,7 +571,9 @@ export default function DashboardPage() {
                 {propertyList.map((p) => (
                   <div key={p.id} className="p-4 space-y-3 hover:bg-primary/[0.03] transition-colors">
                     <div className="flex items-center justify-between">
-                      <p className="font-medium text-sm">{p.name}</p>
+                      <Link href={`/properties/${p.id}`} className="font-medium text-sm text-primary hover:underline">
+                        {p.name}
+                      </Link>
                       <Badge variant={getStatusBadgeVariant(p.status)}>
                         {p.status.replace("_", " ")}
                       </Badge>
