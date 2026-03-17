@@ -11,6 +11,7 @@ export const config = {
     "/bills/:path*",
     "/income/:path*",
     "/documents/:path*",
+    "/map/:path*",
     "/import/:path*",
   ],
 };

@@ -72,6 +72,10 @@ export const properties = pgTable("properties", {
   // Ownership
   ownership: text("ownership"),
 
+  // Geolocation
+  latitude: numeric("latitude", { precision: 10, scale: 7 }),
+  longitude: numeric("longitude", { precision: 10, scale: 7 }),
+
   // Sale tracking
   salePrice: numeric("sale_price", { precision: 15, scale: 2 }),
   saleDate: timestamp("sale_date"),

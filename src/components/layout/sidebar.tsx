@@ -13,6 +13,7 @@ import {
   LogOut,
   Menu,
   X,
+  Map,
 } from "lucide-react";
 import { authClient } from "@/lib/auth/client";
 import { useState } from "react";
@@ -24,6 +25,7 @@ const nav = [
   { href: "/bills", label: "Bills", icon: Receipt },
   { href: "/income", label: "Rental Income", icon: IndianRupee },
   { href: "/documents", label: "Documents", icon: FileText },
+  { href: "/map", label: "Map View", icon: Map },
   { href: "/import", label: "AI Import", icon: Upload },
 ];
 
