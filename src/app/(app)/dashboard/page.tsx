@@ -142,9 +142,9 @@ function SortHeader({ label, sortKey: key, currentKey, currentDir, onSort, class
 
 function SectionHeader({ title, subtitle }: { title: string; subtitle: string }) {
   return (
-    <div className="space-y-1">
-      <h2 className="text-lg font-semibold tracking-tight text-foreground">{title}</h2>
-      <p className="text-sm text-muted-foreground">{subtitle}</p>
+    <div>
+      <h2 className="text-base font-semibold tracking-tight text-foreground">{title}</h2>
+      <p className="text-sm text-muted-foreground mt-0.5">{subtitle}</p>
     </div>
   );
 }
@@ -266,30 +266,30 @@ export default function DashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Link href="/properties" className="group flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl hover:shadow-md hover:border-blue-200 transition-all min-w-0">
-          <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors shrink-0">
-            <Plus size={16} className="text-blue-600" />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+        <Link href="/properties" className="group flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-muted/50 hover:bg-muted transition-colors min-w-0">
+          <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors shrink-0">
+            <Plus size={15} className="text-blue-600" />
           </div>
-          <span className="text-sm font-medium text-slate-700 truncate">Add Property</span>
+          <span className="text-sm font-medium text-foreground/80 truncate">Add Property</span>
         </Link>
-        <Link href="/income" className="group flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl hover:shadow-md hover:border-green-200 transition-all min-w-0">
-          <div className="w-9 h-9 rounded-lg bg-green-50 flex items-center justify-center group-hover:bg-green-100 transition-colors shrink-0">
-            <IndianRupee size={16} className="text-green-600" />
+        <Link href="/income" className="group flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-muted/50 hover:bg-muted transition-colors min-w-0">
+          <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center group-hover:bg-green-100 transition-colors shrink-0">
+            <IndianRupee size={15} className="text-green-600" />
           </div>
-          <span className="text-sm font-medium text-slate-700 truncate">Record Payment</span>
+          <span className="text-sm font-medium text-foreground/80 truncate">Record Payment</span>
         </Link>
-        <Link href="/bills" className="group flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl hover:shadow-md hover:border-violet-200 transition-all min-w-0">
-          <div className="w-9 h-9 rounded-lg bg-violet-50 flex items-center justify-center group-hover:bg-violet-100 transition-colors shrink-0">
-            <Camera size={16} className="text-violet-600" />
+        <Link href="/bills" className="group flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-muted/50 hover:bg-muted transition-colors min-w-0">
+          <div className="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center group-hover:bg-violet-100 transition-colors shrink-0">
+            <Camera size={15} className="text-violet-600" />
           </div>
-          <span className="text-sm font-medium text-slate-700 truncate">Scan Bill</span>
+          <span className="text-sm font-medium text-foreground/80 truncate">Scan Bill</span>
         </Link>
-        <Link href="/import" className="group flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl hover:shadow-md hover:border-amber-200 transition-all min-w-0">
-          <div className="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center group-hover:bg-amber-100 transition-colors shrink-0">
-            <Upload size={16} className="text-amber-600" />
+        <Link href="/import" className="group flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-muted/50 hover:bg-muted transition-colors min-w-0">
+          <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center group-hover:bg-amber-100 transition-colors shrink-0">
+            <Upload size={15} className="text-amber-600" />
           </div>
-          <span className="text-sm font-medium text-slate-700 truncate">Import Data</span>
+          <span className="text-sm font-medium text-foreground/80 truncate">Import Data</span>
         </Link>
       </div>
 

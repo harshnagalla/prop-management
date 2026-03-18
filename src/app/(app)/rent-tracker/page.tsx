@@ -270,31 +270,23 @@ export default function RentTrackerPage() {
       ) : (
         <>
           {/* Summary stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <Card>
-              <CardContent className="p-4">
-                <p className="text-xs font-medium text-muted-foreground">Expected</p>
-                <p className="text-lg font-bold tabular-nums mt-1">{formatCurrency(totalExpected)}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <p className="text-xs font-medium text-success">Collected</p>
-                <p className="text-lg font-bold tabular-nums mt-1 text-success">{formatCurrency(totalCollected)}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <p className="text-xs font-medium text-warning">Pending</p>
-                <p className="text-lg font-bold tabular-nums mt-1 text-warning">{formatCurrency(totalPending)}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <p className="text-xs font-medium text-muted-foreground">Collection Rate</p>
-                <p className="text-lg font-bold tabular-nums mt-1">{Math.round(collectionRate)}%</p>
-              </CardContent>
-            </Card>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="rounded-lg bg-muted/40 p-4">
+              <p className="text-xs font-medium text-muted-foreground">Expected</p>
+              <p className="text-lg font-bold tabular-nums mt-1">{formatCurrency(totalExpected)}</p>
+            </div>
+            <div className="rounded-lg bg-success/5 p-4">
+              <p className="text-xs font-medium text-success">Collected</p>
+              <p className="text-lg font-bold tabular-nums mt-1 text-success">{formatCurrency(totalCollected)}</p>
+            </div>
+            <div className="rounded-lg bg-warning/5 p-4">
+              <p className="text-xs font-medium text-warning">Pending</p>
+              <p className="text-lg font-bold tabular-nums mt-1 text-warning">{formatCurrency(totalPending)}</p>
+            </div>
+            <div className="rounded-lg bg-muted/40 p-4">
+              <p className="text-xs font-medium text-muted-foreground">Collection Rate</p>
+              <p className="text-lg font-bold tabular-nums mt-1">{Math.round(collectionRate)}%</p>
+            </div>
           </div>
 
           {/* Progress bar */}

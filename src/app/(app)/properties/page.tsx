@@ -470,68 +470,64 @@ export default function PropertiesPage() {
 
       {/* Filter bar */}
       {properties.length > 0 && (
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              {/* Status tabs */}
-              <div className="flex gap-1 overflow-x-auto">
-                {[
-                  { key: "all", label: "All" },
-                  { key: "occupied", label: "Occupied" },
-                  { key: "vacant", label: "Vacant" },
-                  { key: "for_sale", label: "For Sale" },
-                  { key: "sold", label: "Sold" },
-                ].map((tab) => (
-                  <button
-                    key={tab.key}
-                    onClick={() => setFilterStatus(tab.key)}
-                    className={cn(
-                      "px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors",
-                      filterStatus === tab.key
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                    )}
-                  >
-                    {tab.label} ({statusCounts[tab.key as keyof typeof statusCounts] || 0})
-                  </button>
-                ))}
-              </div>
-
-              {/* Search + view toggle */}
-              <div className="flex gap-2 items-center">
-                <div className="relative w-full md:w-64">
-                  <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-                  <Input
-                    placeholder="Search by name, address..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="pl-9"
-                  />
-                </div>
-                <div className="hidden md:flex border border-border rounded-[var(--radius)] overflow-hidden shrink-0">
-                  <button
-                    onClick={() => setViewMode("list")}
-                    className={cn(
-                      "p-2 transition-colors",
-                      viewMode === "list" ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    <List size={18} />
-                  </button>
-                  <button
-                    onClick={() => setViewMode("grid")}
-                    className={cn(
-                      "p-2 transition-colors",
-                      viewMode === "grid" ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    <LayoutGrid size={18} />
-                  </button>
-                </div>
-              </div>
+        <div className="space-y-3">
+          {/* Status tabs — clean underline style */}
+          <div className="flex items-center gap-1">
+            <div className="flex gap-4 border-b border-border overflow-x-auto flex-1">
+              {[
+                { key: "all", label: "All" },
+                { key: "occupied", label: "Occupied" },
+                { key: "vacant", label: "Vacant" },
+                { key: "for_sale", label: "For Sale" },
+                { key: "sold", label: "Sold" },
+              ].map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setFilterStatus(tab.key)}
+                  className={cn(
+                    "pb-2.5 text-sm font-medium whitespace-nowrap border-b-2 transition-colors -mb-px",
+                    filterStatus === tab.key
+                      ? "border-primary text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {tab.label} ({statusCounts[tab.key as keyof typeof statusCounts] || 0})
+                </button>
+              ))}
             </div>
-          </CardContent>
-        </Card>
+            <div className="hidden md:flex border border-border rounded-[var(--radius)] overflow-hidden shrink-0 ml-2">
+              <button
+                onClick={() => setViewMode("list")}
+                className={cn(
+                  "p-2 transition-colors",
+                  viewMode === "list" ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <List size={18} />
+              </button>
+              <button
+                onClick={() => setViewMode("grid")}
+                className={cn(
+                  "p-2 transition-colors",
+                  viewMode === "grid" ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <LayoutGrid size={18} />
+              </button>
+            </div>
+          </div>
+
+          {/* Search */}
+          <div className="relative">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            <Input
+              placeholder="Search by name, address..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+        </div>
       )}
 
       {/* Property cards */}

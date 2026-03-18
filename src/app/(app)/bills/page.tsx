@@ -546,99 +546,95 @@ export default function BillsPage() {
         </div>
       </div>
 
-      {/* Filter bar in card */}
+      {/* Filter bar */}
       {bills.length > 0 && (
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex flex-col gap-4">
-              {/* Status tabs row */}
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex gap-1 overflow-x-auto">
-                  {[
-                    { key: "all", label: "All" },
-                    { key: "paid", label: "Paid" },
-                    { key: "unpaid", label: "Unpaid" },
-                  ].map((tab) => (
-                    <button
-                      key={tab.key}
-                      onClick={() => setFilterStatus(tab.key)}
-                      className={cn(
-                        "px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors",
-                        filterStatus === tab.key
-                          ? "bg-primary text-primary-foreground"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                      )}
-                    >
-                      {tab.label} ({statusCounts[tab.key as keyof typeof statusCounts]})
-                    </button>
-                  ))}
-                </div>
-
-                {/* Search + dropdowns + view toggle */}
-                <div className="flex flex-wrap gap-2 items-center">
-                  <div className="relative w-full sm:w-56">
-                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-                    <Input
-                      placeholder="Search vendor, property..."
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      className="pl-9"
-                    />
-                  </div>
-                  <select
-                    value={filterCategory}
-                    onChange={(e) => setFilterCategory(e.target.value)}
-                    className={`${selectClassName} mt-0 w-full sm:w-40`}
-                  >
-                    <option value="all">All Categories</option>
-                    {CATEGORIES.map((c) => (
-                      <option key={c} value={c}>
-                        {c.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
-                      </option>
-                    ))}
-                  </select>
-                  <select
-                    value={filterProperty}
-                    onChange={(e) => setFilterProperty(e.target.value)}
-                    className={`${selectClassName} mt-0 w-full sm:w-44`}
-                  >
-                    <option value="all">All Properties</option>
-                    {properties.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name}
-                      </option>
-                    ))}
-                  </select>
-                  {filtersActive && (
-                    <Button variant="ghost" size="sm" onClick={clearFilters} className="shrink-0">
-                      Clear
-                    </Button>
+        <div className="space-y-3">
+          {/* Status tabs — clean underline style */}
+          <div className="flex items-center gap-1">
+            <div className="flex gap-4 border-b border-border overflow-x-auto flex-1">
+              {[
+                { key: "all", label: "All" },
+                { key: "paid", label: "Paid" },
+                { key: "unpaid", label: "Unpaid" },
+              ].map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setFilterStatus(tab.key)}
+                  className={cn(
+                    "pb-2.5 text-sm font-medium whitespace-nowrap border-b-2 transition-colors -mb-px",
+                    filterStatus === tab.key
+                      ? "border-primary text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
                   )}
-                  <div className="flex border border-border rounded-[var(--radius)] overflow-hidden shrink-0 ml-auto">
-                    <button
-                      onClick={() => setViewMode("grid")}
-                      className={cn(
-                        "p-2 transition-colors",
-                        viewMode === "grid" ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      <LayoutGrid size={18} />
-                    </button>
-                    <button
-                      onClick={() => setViewMode("list")}
-                      className={cn(
-                        "p-2 transition-colors",
-                        viewMode === "list" ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      <List size={18} />
-                    </button>
-                  </div>
-                </div>
-              </div>
+                >
+                  {tab.label} ({statusCounts[tab.key as keyof typeof statusCounts]})
+                </button>
+              ))}
             </div>
-          </CardContent>
-        </Card>
+            <div className="flex border border-border rounded-[var(--radius)] overflow-hidden shrink-0 ml-2">
+              <button
+                onClick={() => setViewMode("grid")}
+                className={cn(
+                  "p-2 transition-colors",
+                  viewMode === "grid" ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <LayoutGrid size={18} />
+              </button>
+              <button
+                onClick={() => setViewMode("list")}
+                className={cn(
+                  "p-2 transition-colors",
+                  viewMode === "list" ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <List size={18} />
+              </button>
+            </div>
+          </div>
+
+          {/* Search + filters */}
+          <div className="flex flex-wrap gap-2 items-center">
+            <div className="relative w-full sm:w-56">
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+              <Input
+                placeholder="Search vendor, property..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <select
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              className={`${selectClassName} mt-0 w-full sm:w-40`}
+            >
+              <option value="all">All Categories</option>
+              {CATEGORIES.map((c) => (
+                <option key={c} value={c}>
+                  {c.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                </option>
+              ))}
+            </select>
+            <select
+              value={filterProperty}
+              onChange={(e) => setFilterProperty(e.target.value)}
+              className={`${selectClassName} mt-0 w-full sm:w-44`}
+            >
+              <option value="all">All Properties</option>
+              {properties.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+            {filtersActive && (
+              <Button variant="ghost" size="sm" onClick={clearFilters} className="shrink-0">
+                Clear
+              </Button>
+            )}
+          </div>
+        </div>
       )}
 
       {bills.length === 0 ? (

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { IndianRupee, Plus, Pencil, Trash2, ChevronDown } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/format";
+import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/utils/toast";
 import { Modal } from "@/components/ui/modal";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -227,20 +228,14 @@ function StatusTab({
   return (
     <button
       onClick={onClick}
-      className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-all ${
+      className={cn(
+        "pb-2.5 text-sm font-medium whitespace-nowrap border-b-2 transition-colors -mb-px",
         active
-          ? "bg-primary text-primary-foreground shadow-sm"
-          : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
-      }`}
+          ? "border-primary text-primary"
+          : "border-transparent text-muted-foreground hover:text-foreground"
+      )}
     >
-      {label}
-      <span
-        className={`text-xs tabular-nums ${
-          active ? "text-primary-foreground/80" : "text-muted-foreground/70"
-        }`}
-      >
-        ({count})
-      </span>
+      {label} ({count})
     </button>
   );
 }
@@ -353,17 +348,17 @@ export default function IncomePage() {
           ))}
         </div>
         {/* Filter bar skeleton */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex gap-3 flex-wrap">
-              <div className="h-9 w-24 bg-muted rounded-full" />
-              <div className="h-9 w-28 bg-muted rounded-full" />
-              <div className="h-9 w-28 bg-muted rounded-full" />
-              <div className="ml-auto h-9 w-36 bg-muted rounded-full" />
-              <div className="h-9 w-28 bg-muted rounded-full" />
-            </div>
-          </CardContent>
-        </Card>
+        <div className="space-y-3">
+          <div className="flex gap-4 border-b border-border pb-2">
+            <div className="h-5 w-16 bg-muted rounded" />
+            <div className="h-5 w-24 bg-muted rounded" />
+            <div className="h-5 w-20 bg-muted rounded" />
+          </div>
+          <div className="flex gap-3 flex-wrap">
+            <div className="h-9 w-36 bg-muted rounded-full" />
+            <div className="h-9 w-28 bg-muted rounded-full" />
+          </div>
+        </div>
         {/* Month group skeletons */}
         {[1, 2].map((g) => (
           <Card key={g}>
@@ -494,72 +489,68 @@ export default function IncomePage() {
 
       {/* Filter bar */}
       {income.length > 0 && (
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-              {/* Status tabs */}
-              <div className="flex gap-1.5 flex-wrap">
-                <StatusTab
-                  label="All"
-                  count={allCount}
-                  active={filterReceived === "all"}
-                  onClick={() => setFilterReceived("all")}
-                />
-                <StatusTab
-                  label="Received"
-                  count={receivedCount}
-                  active={filterReceived === "received"}
-                  onClick={() => setFilterReceived("received")}
-                />
-                <StatusTab
-                  label="Pending"
-                  count={pendingCount}
-                  active={filterReceived === "pending"}
-                  onClick={() => setFilterReceived("pending")}
-                />
-              </div>
+        <div className="space-y-3">
+          {/* Status tabs — clean underline style */}
+          <div className="flex gap-4 border-b border-border overflow-x-auto">
+            <StatusTab
+              label="All"
+              count={allCount}
+              active={filterReceived === "all"}
+              onClick={() => setFilterReceived("all")}
+            />
+            <StatusTab
+              label="Received"
+              count={receivedCount}
+              active={filterReceived === "received"}
+              onClick={() => setFilterReceived("received")}
+            />
+            <StatusTab
+              label="Pending"
+              count={pendingCount}
+              active={filterReceived === "pending"}
+              onClick={() => setFilterReceived("pending")}
+            />
+          </div>
 
-              {/* Property & Year dropdowns */}
-              <div className="flex gap-2.5 sm:ml-auto flex-wrap">
-                <div className="relative">
-                  <select
-                    value={filterProperty}
-                    onChange={(e) => setFilterProperty(e.target.value)}
-                    className={filterSelectClassName}
-                  >
-                    <option value="all">All Properties</option>
-                    {properties.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground" />
-                </div>
-                <div className="relative">
-                  <select
-                    value={filterYear}
-                    onChange={(e) => setFilterYear(e.target.value)}
-                    className={filterSelectClassName}
-                  >
-                    <option value="all">All Years</option>
-                    {years.map((y) => (
-                      <option key={y} value={String(y)}>
-                        {y}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground" />
-                </div>
-                {filtersActive && (
-                  <Button variant="ghost" size="sm" onClick={clearFilters} className="rounded-full text-xs">
-                    Clear filters
-                  </Button>
-                )}
-              </div>
+          {/* Property & Year dropdowns */}
+          <div className="flex gap-2.5 flex-wrap">
+            <div className="relative">
+              <select
+                value={filterProperty}
+                onChange={(e) => setFilterProperty(e.target.value)}
+                className={filterSelectClassName}
+              >
+                <option value="all">All Properties</option>
+                {properties.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground" />
             </div>
-          </CardContent>
-        </Card>
+            <div className="relative">
+              <select
+                value={filterYear}
+                onChange={(e) => setFilterYear(e.target.value)}
+                className={filterSelectClassName}
+              >
+                <option value="all">All Years</option>
+                {years.map((y) => (
+                  <option key={y} value={String(y)}>
+                    {y}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground" />
+            </div>
+            {filtersActive && (
+              <Button variant="ghost" size="sm" onClick={clearFilters} className="rounded-full text-xs">
+                Clear filters
+              </Button>
+            )}
+          </div>
+        </div>
       )}
 
       {/* Content */}
