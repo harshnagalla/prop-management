@@ -13,6 +13,8 @@ export const config = {
     "/rent-tracker/:path*",
     "/documents/:path*",
     "/map/:path*",
+    "/tenants/:path*",
+    "/compare/:path*",
     "/import/:path*",
   ],
 };

@@ -15,6 +15,8 @@ import {
   Menu,
   X,
   Map,
+  Users,
+  ArrowLeftRight,
 } from "lucide-react";
 import { authClient } from "@/lib/auth/client";
 import { useState } from "react";
@@ -26,8 +28,10 @@ const nav = [
   { href: "/bills", label: "Bills", icon: Receipt },
   { href: "/income", label: "Rental Income", icon: IndianRupee },
   { href: "/rent-tracker", label: "Rent Tracker", icon: Wallet },
+  { href: "/tenants", label: "Tenants", icon: Users },
   { href: "/documents", label: "Documents", icon: FileText },
   { href: "/map", label: "Map View", icon: Map },
+  { href: "/compare", label: "Compare", icon: ArrowLeftRight },
   { href: "/import", label: "AI Import", icon: Upload },
 ];
 
