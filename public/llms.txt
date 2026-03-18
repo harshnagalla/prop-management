@@ -1,0 +1,36 @@
+# BhoomiQ
+> AI-powered property portfolio management for Indian families
+
+BhoomiQ is a free SaaS platform that helps Indian families manage 5 to 100+ properties from a single dashboard. It replaces Excel spreadsheets and paper records with an intelligent, AI-powered system designed specifically for Indian property owners.
+
+## Features
+- AI-powered utility bill scanning (UGVCL, Torrent Power, AMC, Adani Gas, GWSSB)
+- Rental income tracking by property, tenant, and month
+- Property analytics with rental yield and ROI calculations
+- Excel/CSV import with automatic multi-unit building detection and field mapping
+- Bank statement import with AI transaction extraction and property matching
+- Property document vault with digital storage
+- Interactive property map with geocoding
+- Registration details tracking (stamp duty, dastavej number, ownership splits)
+- Sale tracking with profit/loss calculation
+- Remarks/activity timeline per property
+- Rent collection tracker with bulk recording
+- Property comparison (side-by-side metrics)
+- Tenant directory
+
+## Key Facts
+- Free to start, web-based progressive web app (works on any device)
+- Built with Next.js, deployed on Vercel
+- AI powered by Google Gemini 2.0 Flash via Vercel AI SDK
+- Supports Indian utility providers: UGVCL, Torrent Power, AMC, Adani Gas, GWSSB
+- Handles Indian number formats (lakhs, crores), dates (DD/MM/YYYY), and currency (₹)
+- Excel import migrates existing property portfolios in under 5 minutes
+- Tracks portfolio value, rental yields, and per-property profitability
+- Designed for families in Ahmedabad, Gujarat and across India
+
+## Links
+- Homepage: https://prop-management-one.vercel.app
+- Sign Up: https://prop-management-one.vercel.app/auth/sign-up
+- Sign In: https://prop-management-one.vercel.app/auth/sign-in
+- Privacy Policy: https://prop-management-one.vercel.app/privacy
+- Terms of Service: https://prop-management-one.vercel.app/terms
