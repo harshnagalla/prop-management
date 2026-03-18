@@ -275,9 +275,14 @@ export default function ImportPage() {
   };
 
   const handleFile = (file: File) => {
-    if (mode === "ai") { handleAI(file); return; }
-    if (file.name.match(/\.(csv|xlsx?|xls)$/i)) { handleSpreadsheet(file); }
-    else { handleAI(file); }
+    // CSV/Excel files ALWAYS go through spreadsheet parsing (field mapping)
+    // regardless of mode — it's more accurate than AI for structured data
+    if (file.name.match(/\.(csv|xlsx?|xls)$/i)) {
+      handleSpreadsheet(file);
+      return;
+    }
+    // Images/PDFs go through AI
+    handleAI(file);
   };
 
   /* ─── Apply mapping ─── */
