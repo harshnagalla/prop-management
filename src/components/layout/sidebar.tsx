@@ -18,10 +18,12 @@ import {
   Users,
   ArrowLeftRight,
   Landmark,
+  FileBarChart,
 } from "lucide-react";
 import { authClient } from "@/lib/auth/client";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { NotificationBell } from "@/components/layout/notification-bell";
 
 const navSections = [
   {
@@ -46,6 +48,7 @@ const navSections = [
       { href: "/map", label: "Map View", icon: Map },
       { href: "/tenants", label: "Tenants", icon: Users },
       { href: "/compare", label: "Compare", icon: ArrowLeftRight },
+      { href: "/reports", label: "Reports", icon: FileBarChart },
     ],
   },
   {
@@ -94,10 +97,14 @@ export function Sidebar() {
           </h1>
         </div>
 
+        <div className="px-4 py-2 border-b border-border">
+          <NotificationBell />
+        </div>
+
         <nav className="flex-1 p-4 space-y-4 overflow-y-auto">
           {navSections.map((section) => (
             <div key={section.label}>
-              <p className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+              <p className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/80">
                 {section.label}
               </p>
               <div className="space-y-0.5">
@@ -132,7 +139,7 @@ export function Sidebar() {
             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
               {session?.user?.name?.[0] || session?.user?.email?.[0] || "U"}
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 max-w-[140px]">
               <p className="text-sm font-medium truncate">
                 {session?.user?.name || session?.user?.email || "User"}
               </p>
@@ -144,7 +151,7 @@ export function Sidebar() {
                 await authClient.signOut();
                 window.location.href = "/";
               }}
-              className="h-8 w-8"
+              className="h-10 w-10 min-h-[44px] min-w-[44px]"
             >
               <LogOut size={16} />
             </Button>

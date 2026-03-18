@@ -323,7 +323,7 @@ export default function ComparePage() {
                     onClick={() => toggleProperty(p.id)}
                     disabled={disabled}
                     className={cn(
-                      "flex items-center gap-3 p-3 rounded-[var(--radius)] border text-left text-sm transition-colors",
+                      "flex items-center gap-3 p-3.5 rounded-[var(--radius)] border text-left text-sm transition-colors min-h-[44px]",
                       isSelected
                         ? "border-primary bg-primary/5 text-foreground"
                         : "border-border hover:border-primary/50 text-foreground",
@@ -332,7 +332,7 @@ export default function ComparePage() {
                   >
                     <div
                       className={cn(
-                        "w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors",
+                        "w-6 h-6 rounded border-2 flex items-center justify-center shrink-0 transition-colors",
                         isSelected
                           ? "border-primary bg-primary"
                           : "border-muted-foreground/30"

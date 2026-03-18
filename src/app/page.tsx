@@ -85,7 +85,7 @@ export default function LandingPage() {
             <span className="text-xl font-extrabold text-slate-900 tracking-tight">BhoomiQ</span>
           </Link>
           <div className="flex items-center gap-2">
-            <Link href="/blog" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors px-4 py-2 hidden sm:block">
+            <Link href="/blog" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors px-4 py-2">
               Blog
             </Link>
             <Link href="/auth/sign-in" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors px-4 py-2 hidden sm:block">
@@ -172,10 +172,10 @@ export default function LandingPage() {
                       { label: "Properties", value: "32", change: "28 occupied", color: "text-blue-600", bg: "bg-violet-50" },
                       { label: "Avg Yield", value: "5.8%", change: "Above avg", color: "text-amber-600", bg: "bg-amber-50" },
                     ].map((s) => (
-                      <div key={s.label} className={`${s.bg} rounded-xl p-3.5 border border-slate-100`}>
-                        <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">{s.label}</p>
-                        <p className="text-lg font-extrabold text-slate-900 mt-0.5">{s.value}</p>
-                        <p className={`text-[10px] font-semibold ${s.color} mt-0.5`}>{s.change}</p>
+                      <div key={s.label} className={`${s.bg} rounded-xl p-3.5 border border-slate-100 overflow-hidden`}>
+                        <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider truncate">{s.label}</p>
+                        <p className="text-base sm:text-lg font-extrabold text-slate-900 mt-0.5 truncate">{s.value}</p>
+                        <p className={`text-[10px] font-semibold ${s.color} mt-0.5 truncate`}>{s.change}</p>
                       </div>
                     ))}
                   </div>

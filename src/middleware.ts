@@ -17,5 +17,6 @@ export const config = {
     "/compare/:path*",
     "/import/:path*",
     "/bank-import/:path*",
+    "/reports/:path*",
   ],
 };

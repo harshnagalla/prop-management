@@ -325,19 +325,19 @@ export default function DocumentsPage() {
                       {formatDate(doc.createdAt)}
                     </span>
                     <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                      <Button variant="ghost" size="icon" className="h-9 w-9 min-h-[44px] min-w-[44px]" asChild>
                         <a href={`/api/documents/${doc.id}?download=true`} title="Download">
-                          <Download size={14} />
+                          <Download size={16} />
                         </a>
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => handleDelete(doc.id)}
-                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                        className="h-9 w-9 min-h-[44px] min-w-[44px] text-muted-foreground hover:text-destructive"
                         title="Delete"
                       >
-                        <Trash2 size={14} />
+                        <Trash2 size={16} />
                       </Button>
                     </div>
                   </div>

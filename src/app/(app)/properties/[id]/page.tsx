@@ -642,7 +642,7 @@ export default function PropertyDetailPage() {
 
       {/* Tabs */}
       <Tabs.Root defaultValue="overview">
-        <Tabs.List className="flex border-b border-border gap-0 overflow-x-auto">
+        <Tabs.List className="flex border-b border-border gap-0 overflow-x-auto" style={{ WebkitOverflowScrolling: "touch" }}>
           <Tabs.Trigger
             value="overview"
             className="px-4 py-3 text-sm font-medium text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary transition-colors whitespace-nowrap min-h-[44px]"

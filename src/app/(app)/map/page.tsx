@@ -296,11 +296,11 @@ export default function MapPage() {
       </div>
 
       {/* Mobile property list */}
-      <div className="md:hidden mt-4 space-y-2">
+      <div className="md:hidden mt-4 space-y-2 pb-4">
         {properties.map((p) => (
           <Link key={p.id} href={`/properties/${p.id}`}>
             <Card className="hover:shadow-md transition-shadow">
-              <CardContent className="p-3 flex items-center gap-3">
+              <CardContent className="p-4 flex items-center gap-3">
                 <div className={cn("w-2 h-8 rounded-full shrink-0", getStatusDot(p.status))} />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold truncate">{p.name}</p>

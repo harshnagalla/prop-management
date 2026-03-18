@@ -38,7 +38,7 @@ export function Toaster() {
               open ? prev : prev.filter((x) => x.id !== t.id)
             )
           }
-          className={`border rounded-lg px-4 py-3 flex items-center justify-between gap-3 shadow-lg ${TYPE_STYLES[t.type] || TYPE_STYLES.info}`}
+          className={`border rounded-[var(--radius)] px-4 py-3 flex items-center justify-between gap-3 shadow-lg ${TYPE_STYLES[t.type] || TYPE_STYLES.info}`}
         >
           <Toast.Title className="text-sm font-medium">
             {t.message}
@@ -48,7 +48,7 @@ export function Toaster() {
           </Toast.Close>
         </Toast.Root>
       ))}
-      <Toast.Viewport className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 w-80" />
+      <Toast.Viewport className="fixed bottom-4 right-4 left-4 sm:left-auto z-50 flex flex-col gap-2 w-auto sm:w-80 max-w-[calc(100vw-2rem)]" />
     </Toast.Provider>
   );
 }
