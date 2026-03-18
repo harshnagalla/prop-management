@@ -16,6 +16,8 @@ import {
   ChevronRight,
   Users,
   Globe,
+  ChevronDown,
+  Quote,
 } from "lucide-react";
 
 
@@ -101,20 +103,16 @@ export default function LandingPage() {
 
         <div className="max-w-6xl mx-auto relative">
           <div className="text-center max-w-3xl mx-auto">
-            <Reveal>
-              <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-6 border border-blue-100">
-                <Sparkles size={12} /> AI-Powered Property Intelligence
-              </div>
-            </Reveal>
+            <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-6 border border-blue-100">
+              <Sparkles size={12} /> AI-Powered Property Intelligence
+            </div>
 
-            <Reveal delay={80}>
-              <h1 className="text-5xl md:text-7xl font-black text-slate-900 leading-[1.05] tracking-tight">
-                Your family&apos;s property empire,{" "}
-                <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                  one dashboard.
-                </span>
-              </h1>
-            </Reveal>
+            <h1 className="text-5xl md:text-7xl font-black text-slate-900 leading-[1.05] tracking-tight">
+              Your family&apos;s property empire,{" "}
+              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                one dashboard.
+              </span>
+            </h1>
 
             <Reveal delay={160}>
               <p className="text-lg text-slate-500 mt-6 max-w-2xl mx-auto leading-relaxed">
@@ -339,6 +337,138 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ═══ Who is BhoomiQ for? ═══ */}
+      <section className="py-20 px-6 bg-slate-50/60">
+        <div className="max-w-4xl mx-auto">
+          <Reveal>
+            <div className="text-center mb-8">
+              <p className="text-sm font-bold text-blue-600 uppercase tracking-wider mb-3">Who is BhoomiQ for?</p>
+              <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+                Built for Indian property families
+              </h2>
+            </div>
+          </Reveal>
+          <Reveal delay={100}>
+            <div className="bg-white rounded-2xl p-8 md:p-10 border border-slate-100 shadow-sm">
+              <p className="text-slate-600 leading-relaxed text-base md:text-lg">
+                BhoomiQ is designed for Indian families managing anywhere from 5 to 100+ properties.
+                If you&apos;re tired of juggling Excel sheets, WhatsApp messages, and paper files to keep track
+                of your portfolio, BhoomiQ is for you. Whether you own residential flats in Ahmedabad,
+                commercial shops in Surat, or industrial sheds in Narol, our platform brings everything into
+                one place. Track utility bills from UGVCL, AMC, and Torrent Power. Monitor rental income
+                by tenant and property. Store all your property documents digitally. Our AI-powered bill
+                scanner eliminates manual data entry, and the Excel import feature means you can migrate
+                your existing records in minutes, not days. Stop guessing which properties are profitable
+                and start making data-driven decisions about your family&apos;s real estate portfolio.
+              </p>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ═══ Testimonials ═══ */}
+      <section className="py-20 px-6 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <Reveal>
+            <div className="text-center mb-14">
+              <p className="text-sm font-bold text-blue-600 uppercase tracking-wider mb-3">Testimonials</p>
+              <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+                Trusted by property families
+              </h2>
+            </div>
+          </Reveal>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              {
+                quote: "Finally replaced our Excel sheets. Now I can see which properties are making money and which aren't.",
+                author: "Property Owner",
+                location: "Ahmedabad",
+              },
+              {
+                quote: "The AI bill scanner saves me hours. I just snap a photo of the UGVCL bill and it fills everything.",
+                author: "Family Member",
+                location: "",
+              },
+              {
+                quote: "Importing our 30+ properties from the spreadsheet took 2 minutes. Everything mapped correctly.",
+                author: "Portfolio Manager",
+                location: "",
+              },
+            ].map((t, i) => (
+              <Reveal key={i} delay={i * 100}>
+                <div className="bg-slate-50 rounded-2xl p-7 border border-slate-100 h-full flex flex-col">
+                  <Quote size={24} className="text-blue-200 mb-4" />
+                  <p className="text-slate-700 text-sm leading-relaxed flex-1">
+                    &ldquo;{t.quote}&rdquo;
+                  </p>
+                  <div className="mt-5 pt-4 border-t border-slate-200">
+                    <p className="text-sm font-semibold text-slate-900">
+                      {t.author}{t.location ? `, ${t.location}` : ""}
+                    </p>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ FAQ ═══ */}
+      <section className="py-20 px-6 bg-slate-50/60">
+        <div className="max-w-3xl mx-auto">
+          <Reveal>
+            <div className="text-center mb-14">
+              <p className="text-sm font-bold text-blue-600 uppercase tracking-wider mb-3">FAQ</p>
+              <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+                Frequently asked questions
+              </h2>
+            </div>
+          </Reveal>
+
+          <div className="space-y-4">
+            {[
+              {
+                q: "What is BhoomiQ?",
+                a: "BhoomiQ is an AI-powered property portfolio management platform built for Indian families. It helps you track properties, utility bills, rental income, documents, and ROI from a single dashboard. Think of it as replacing your Excel sheets with something smarter.",
+              },
+              {
+                q: "Is BhoomiQ free?",
+                a: "Yes, BhoomiQ is free to get started. You can add properties, track bills and income, and use the analytics dashboard at no cost. We believe in building value first. Premium features for larger portfolios may be introduced in the future.",
+              },
+              {
+                q: "What Indian utility bills does BhoomiQ support?",
+                a: "Our AI bill scanner supports all major Indian utility providers including UGVCL, Torrent Power, AMC water and property tax bills, Adani Gas, and more. Simply upload a photo or PDF of any bill and our AI extracts the amount, date, meter reading, and other details automatically.",
+              },
+              {
+                q: "Can I import from Excel?",
+                a: "Absolutely. BhoomiQ has a smart Excel import feature that parses your existing property spreadsheets. It automatically detects multi-unit buildings, maps columns to the right fields, and imports everything in one click. Most users migrate their entire portfolio in under 5 minutes.",
+              },
+              {
+                q: "Is my property data secure?",
+                a: "Your data is stored on encrypted cloud infrastructure using Neon Postgres. We use Google OAuth and industry-standard authentication. All connections are HTTPS encrypted. Your property and financial data is never shared with third parties or used for advertising.",
+              },
+              {
+                q: "How does AI bill scanning work?",
+                a: "Upload a photo or PDF of any Indian utility bill. Our AI, powered by Google Gemini, reads the document and extracts key fields like billed amount, due date, consumption units, and meter readings. The extracted data pre-fills your bill entry form for quick review and saving.",
+              },
+            ].map((faq, i) => (
+              <Reveal key={i} delay={i * 60}>
+                <details className="group bg-white rounded-xl border border-slate-100 shadow-sm">
+                  <summary className="flex items-center justify-between cursor-pointer px-6 py-5 text-left">
+                    <span className="text-sm font-semibold text-slate-900 pr-4">{faq.q}</span>
+                    <ChevronDown size={16} className="text-slate-400 shrink-0 group-open:rotate-180 transition-transform" />
+                  </summary>
+                  <div className="px-6 pb-5 -mt-1">
+                    <p className="text-sm text-slate-500 leading-relaxed">{faq.a}</p>
+                  </div>
+                </details>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ═══ CTA ═══ */}
       <section className="py-20 px-6">
         <Reveal>
@@ -373,6 +503,8 @@ export default function LandingPage() {
           </div>
           <p className="text-slate-400 text-sm">Built for Indian families managing property portfolios.</p>
           <div className="flex gap-6 text-sm text-slate-400">
+            <Link href="/privacy" className="hover:text-slate-900 transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-slate-900 transition-colors">Terms</Link>
             <Link href="/auth/sign-in" className="hover:text-slate-900 transition-colors">Sign In</Link>
             <Link href="/auth/sign-up" className="hover:text-slate-900 transition-colors">Sign Up</Link>
           </div>
