@@ -1,44 +1,21 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { MapPin, Building2, RefreshCw, IndianRupee, Maximize2 } from "lucide-react";
+import { Building2, RefreshCw, MapPin, IndianRupee, ChevronRight } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/format";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/lib/utils/toast";
+import { cn } from "@/lib/utils/cn";
 import type { Property } from "@/lib/db/schema";
 
-// Dynamically import map to avoid SSR issues with Leaflet
-const MapContainer = dynamic(
-  () => import("react-leaflet").then((m) => m.MapContainer),
-  { ssr: false }
-);
-const TileLayer = dynamic(
-  () => import("react-leaflet").then((m) => m.TileLayer),
-  { ssr: false }
-);
-const Marker = dynamic(
-  () => import("react-leaflet").then((m) => m.Marker),
-  { ssr: false }
-);
-const Popup = dynamic(
-  () => import("react-leaflet").then((m) => m.Popup),
-  { ssr: false }
-);
-
-function getStatusColor(status: string) {
-  switch (status) {
-    case "occupied": return "bg-emerald-500";
-    case "vacant": return "bg-slate-400";
-    case "under_renovation": return "bg-amber-500";
-    case "for_sale": return "bg-blue-500";
-    case "sold": return "bg-red-500";
-    default: return "bg-slate-400";
-  }
-}
+const MapContainer = dynamic(() => import("react-leaflet").then((m) => m.MapContainer), { ssr: false });
+const TileLayer = dynamic(() => import("react-leaflet").then((m) => m.TileLayer), { ssr: false });
+const Marker = dynamic(() => import("react-leaflet").then((m) => m.Marker), { ssr: false });
+const Popup = dynamic(() => import("react-leaflet").then((m) => m.Popup), { ssr: false });
 
 function getStatusBadgeVariant(status: string) {
   switch (status) {
@@ -51,33 +28,102 @@ function getStatusBadgeVariant(status: string) {
   }
 }
 
+function getStatusDot(status: string) {
+  switch (status) {
+    case "occupied": return "bg-emerald-500";
+    case "vacant": return "bg-slate-400";
+    case "under_renovation": return "bg-amber-500";
+    case "for_sale": return "bg-blue-500";
+    case "sold": return "bg-red-500";
+    default: return "bg-slate-400";
+  }
+}
+
+function formatCompact(val: string | null): string {
+  if (!val) return "—";
+  const n = parseFloat(val);
+  if (n >= 10000000) return `₹${(n / 10000000).toFixed(1)}Cr`;
+  if (n >= 100000) return `₹${(n / 100000).toFixed(1)}L`;
+  if (n >= 1000) return `₹${(n / 1000).toFixed(0)}K`;
+  return `₹${n}`;
+}
+
+function createBubbleIcon(L: typeof import("leaflet"), property: Property, isSelected: boolean) {
+  const value = formatCompact(property.currentValue);
+  const statusColor = property.status === "occupied" ? "#059669"
+    : property.status === "vacant" ? "#94a3b8"
+    : property.status === "sold" ? "#dc2626"
+    : property.status === "for_sale" ? "#3b82f6"
+    : "#d97706";
+
+  const bg = isSelected ? "#1e40af" : "#ffffff";
+  const text = isSelected ? "#ffffff" : "#1e293b";
+  const border = isSelected ? "#1e40af" : "#e2e8f0";
+  const shadow = isSelected ? "0 4px 12px rgba(30,64,175,0.35)" : "0 2px 8px rgba(0,0,0,0.12)";
+
+  return L.divIcon({
+    className: "",
+    html: `<div style="
+      background:${bg};
+      color:${text};
+      border:2px solid ${border};
+      border-radius:20px;
+      padding:4px 10px;
+      font-size:12px;
+      font-weight:700;
+      font-family:system-ui,sans-serif;
+      white-space:nowrap;
+      box-shadow:${shadow};
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:5px;
+      transition:all 0.15s;
+      position:relative;
+    ">
+      <span style="width:6px;height:6px;border-radius:50%;background:${statusColor};flex-shrink:0"></span>
+      ${value}
+      <div style="
+        position:absolute;
+        bottom:-6px;
+        left:50%;
+        transform:translateX(-50%);
+        width:0;height:0;
+        border-left:6px solid transparent;
+        border-right:6px solid transparent;
+        border-top:6px solid ${border};
+      "></div>
+      <div style="
+        position:absolute;
+        bottom:-4px;
+        left:50%;
+        transform:translateX(-50%);
+        width:0;height:0;
+        border-left:5px solid transparent;
+        border-right:5px solid transparent;
+        border-top:5px solid ${bg};
+      "></div>
+    </div>`,
+    iconSize: [0, 0],
+    iconAnchor: [40, 35],
+    popupAnchor: [0, -35],
+  });
+}
+
 export default function MapPage() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [geocoding, setGeocoding] = useState(false);
   const [leafletReady, setLeafletReady] = useState(false);
-  const [customIcon, setCustomIcon] = useState<unknown>(null);
-  const mapRef = useRef<unknown>(null);
+  const [leafletLib, setLeafletLib] = useState<typeof import("leaflet") | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Load Leaflet CSS and create custom icon
     const link = document.createElement("link");
     link.rel = "stylesheet";
     link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
     document.head.appendChild(link);
-
-    import("leaflet").then((L) => {
-      const icon = L.divIcon({
-        className: "custom-marker",
-        html: `<div style="width:32px;height:32px;background:linear-gradient(135deg,#3b82f6,#6366f1);border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(59,130,246,0.4);border:2px solid white"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform:rotate(45deg)"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>`,
-        iconSize: [32, 32],
-        iconAnchor: [16, 32],
-        popupAnchor: [0, -32],
-      });
-      setCustomIcon(icon);
-      setLeafletReady(true);
-    });
-
+    import("leaflet").then((L) => { setLeafletLib(L); setLeafletReady(true); });
     return () => { document.head.removeChild(link); };
   }, []);
 
@@ -99,93 +145,143 @@ export default function MapPage() {
       });
       const data = await res.json();
       toast.success(`Geocoded ${data.geocoded} of ${data.total} properties`);
-      // Reload properties
       const updated = await fetch("/api/properties").then((r) => r.json());
       setProperties(updated);
-    } catch {
-      toast.error("Geocoding failed");
-    } finally {
-      setGeocoding(false);
-    }
+    } catch { toast.error("Geocoding failed"); }
+    finally { setGeocoding(false); }
   };
 
   const mapped = properties.filter((p) => p.latitude && p.longitude);
   const unmapped = properties.filter((p) => !p.latitude || !p.longitude);
 
-  // Center on Ahmedabad by default, or center of mapped properties
   const center: [number, number] = mapped.length > 0
     ? [
         mapped.reduce((s, p) => s + parseFloat(p.latitude || "0"), 0) / mapped.length,
         mapped.reduce((s, p) => s + parseFloat(p.longitude || "0"), 0) / mapped.length,
       ]
-    : [23.0225, 72.5714]; // Ahmedabad
+    : [23.0225, 72.5714];
 
   if (loading) {
     return (
-      <div className="space-y-6 pt-12 md:pt-0 animate-pulse">
-        <div className="flex items-center justify-between">
+      <div className="pt-12 md:pt-0 animate-pulse">
+        <div className="flex items-center justify-between mb-4">
           <div className="h-9 w-36 bg-muted rounded" />
           <div className="h-10 w-40 bg-muted rounded" />
         </div>
-        <div className="h-[500px] bg-muted rounded-2xl" />
+        <div className="h-[calc(100vh-140px)] bg-muted rounded-2xl" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 pt-12 md:pt-0">
-      <div className="flex items-center justify-between flex-wrap gap-4">
+    <div className="pt-12 md:pt-0 flex flex-col h-[calc(100vh-48px)] md:h-[calc(100vh-32px)]">
+      {/* Header */}
+      <div className="flex items-center justify-between flex-wrap gap-3 mb-4 shrink-0">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Property Map</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            {mapped.length} of {properties.length} properties on map
-            {unmapped.length > 0 && ` · ${unmapped.length} need geocoding`}
+          <h1 className="text-2xl font-bold tracking-tight">Property Map</h1>
+          <p className="text-muted-foreground text-xs mt-0.5">
+            {mapped.length} of {properties.length} on map
+            {unmapped.length > 0 && <span className="text-amber-500 font-medium"> · {unmapped.length} need location</span>}
           </p>
         </div>
-        {unmapped.length > 0 && (
-          <Button onClick={geocodeAll} disabled={geocoding} className="gap-2">
-            <RefreshCw size={16} className={geocoding ? "animate-spin" : ""} />
-            {geocoding ? "Locating..." : `Locate ${unmapped.length} Properties`}
-          </Button>
-        )}
+        <div className="flex gap-2">
+          {unmapped.length > 0 && (
+            <Button onClick={geocodeAll} disabled={geocoding} size="sm" className="gap-1.5">
+              <RefreshCw size={14} className={geocoding ? "animate-spin" : ""} />
+              {geocoding ? "Locating..." : "Locate All"}
+            </Button>
+          )}
+        </div>
       </div>
 
-      {/* Map */}
-      <Card className="overflow-hidden">
-        <div className="h-[500px] md:h-[600px] relative">
-          {leafletReady && customIcon ? (
-            <MapContainer
-              center={center}
-              zoom={12}
-              className="h-full w-full z-0"
-              ref={mapRef as any}
-            >
+      {/* Split panel: List + Map */}
+      <div className="flex-1 flex gap-0 rounded-2xl overflow-hidden border border-slate-200 bg-white min-h-0">
+        {/* Left: Property list */}
+        <div className="hidden md:flex flex-col w-[340px] border-r border-slate-100 shrink-0">
+          <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/50">
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              {properties.length} Properties
+            </p>
+          </div>
+          <div className="flex-1 overflow-y-auto">
+            {properties.map((p) => {
+              const hasLoc = p.latitude && p.longitude;
+              const isSelected = selectedId === p.id;
+              return (
+                <div
+                  key={p.id}
+                  onClick={() => setSelectedId(isSelected ? null : p.id)}
+                  className={cn(
+                    "flex items-start gap-3 px-4 py-3.5 border-b border-slate-50 cursor-pointer transition-colors",
+                    isSelected ? "bg-blue-50 border-l-2 border-l-blue-600" : "hover:bg-slate-50 border-l-2 border-l-transparent"
+                  )}
+                >
+                  <div className={cn("w-2 h-2 rounded-full mt-1.5 shrink-0", getStatusDot(p.status))} />
+                  <div className="flex-1 min-w-0">
+                    <p className={cn("text-sm font-semibold truncate", isSelected && "text-blue-700")}>{p.name}</p>
+                    <p className="text-xs text-slate-400 truncate mt-0.5">{p.address}</p>
+                    <div className="flex items-center gap-2 mt-1.5">
+                      {p.currentValue && (
+                        <span className="text-xs font-bold text-slate-800">{formatCompact(p.currentValue)}</span>
+                      )}
+                      {p.monthlyRent && (
+                        <span className="text-[10px] text-slate-400">{formatCompact(p.monthlyRent)}/mo</span>
+                      )}
+                      <Badge variant={getStatusBadgeVariant(p.status)} className="text-[9px] px-1.5 py-0">
+                        {p.status?.replace("_", " ")}
+                      </Badge>
+                    </div>
+                    {!hasLoc && <p className="text-[10px] text-amber-500 mt-1">No location</p>}
+                  </div>
+                  <Link href={`/properties/${p.id}`} onClick={(e) => e.stopPropagation()} className="mt-1 text-slate-300 hover:text-blue-600 transition-colors">
+                    <ChevronRight size={16} />
+                  </Link>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Right: Map */}
+        <div className="flex-1 relative">
+          {leafletReady && leafletLib ? (
+            <MapContainer center={center} zoom={12} className="h-full w-full z-0" zoomControl={false}>
               <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+                url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
               />
               {mapped.map((p) => (
                 <Marker
                   key={p.id}
                   position={[parseFloat(p.latitude!), parseFloat(p.longitude!)]}
-                  icon={customIcon as any}
+                  icon={createBubbleIcon(leafletLib, p, selectedId === p.id)}
+                  eventHandlers={{
+                    click: () => setSelectedId(selectedId === p.id ? null : p.id),
+                  }}
                 >
                   <Popup>
-                    <div className="min-w-[200px] p-1">
-                      <Link href={`/properties/${p.id}`} className="text-sm font-bold text-blue-600 hover:underline">
+                    <div className="min-w-[220px] p-1">
+                      <Link href={`/properties/${p.id}`} className="text-sm font-bold text-blue-600 hover:underline block">
                         {p.name}
                       </Link>
                       <p className="text-xs text-slate-500 mt-0.5">{p.address}</p>
-                      <div className="flex items-center gap-2 mt-2">
-                        <span className={`inline-block w-2 h-2 rounded-full ${getStatusColor(p.status)}`} />
-                        <span className="text-xs capitalize">{p.status?.replace("_", " ")}</span>
+                      <div className="flex items-center gap-3 mt-2.5 pt-2 border-t border-slate-100">
+                        {p.currentValue && (
+                          <div>
+                            <p className="text-[10px] text-slate-400">Value</p>
+                            <p className="text-xs font-bold">{formatCurrency(p.currentValue)}</p>
+                          </div>
+                        )}
+                        {p.monthlyRent && (
+                          <div>
+                            <p className="text-[10px] text-slate-400">Rent/mo</p>
+                            <p className="text-xs font-bold">{formatCurrency(p.monthlyRent)}</p>
+                          </div>
+                        )}
+                        <Badge variant={getStatusBadgeVariant(p.status)} className="text-[10px] ml-auto">
+                          {p.status?.replace("_", " ")}
+                        </Badge>
                       </div>
-                      {p.currentValue && (
-                        <p className="text-xs font-semibold mt-1">{formatCurrency(p.currentValue)}</p>
-                      )}
-                      {p.monthlyRent && (
-                        <p className="text-xs text-slate-500">{formatCurrency(p.monthlyRent)}/mo rent</p>
-                      )}
                     </div>
                   </Popup>
                 </Marker>
@@ -197,40 +293,25 @@ export default function MapPage() {
             </div>
           )}
         </div>
-      </Card>
+      </div>
 
-      {/* Property list below map */}
-      {properties.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {properties.map((p) => {
-            const hasLocation = p.latitude && p.longitude;
-            return (
-              <Link key={p.id} href={`/properties/${p.id}`}>
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardContent className="p-4 flex items-start gap-3">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${hasLocation ? "bg-blue-50" : "bg-slate-100"}`}>
-                      {hasLocation ? <MapPin size={18} className="text-blue-600" /> : <Building2 size={18} className="text-slate-400" />}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-semibold truncate">{p.name}</p>
-                        <Badge variant={getStatusBadgeVariant(p.status)} className="shrink-0 text-[10px]">
-                          {p.status?.replace("_", " ")}
-                        </Badge>
-                      </div>
-                      <p className="text-xs text-muted-foreground truncate mt-0.5">{p.address}</p>
-                      <div className="flex items-center gap-3 mt-1.5 text-xs">
-                        {p.currentValue && <span className="font-semibold">{formatCurrency(p.currentValue)}</span>}
-                        {!hasLocation && <span className="text-amber-500 font-medium">No location</span>}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            );
-          })}
-        </div>
-      )}
+      {/* Mobile property list */}
+      <div className="md:hidden mt-4 space-y-2">
+        {properties.map((p) => (
+          <Link key={p.id} href={`/properties/${p.id}`}>
+            <Card className="hover:shadow-md transition-shadow">
+              <CardContent className="p-3 flex items-center gap-3">
+                <div className={cn("w-2 h-8 rounded-full shrink-0", getStatusDot(p.status))} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold truncate">{p.name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{p.address}</p>
+                </div>
+                {p.currentValue && <span className="text-xs font-bold shrink-0">{formatCompact(p.currentValue)}</span>}
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }
