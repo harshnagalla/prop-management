@@ -17,6 +17,7 @@ import {
   Map,
   Users,
   ArrowLeftRight,
+  Landmark,
 } from "lucide-react";
 import { authClient } from "@/lib/auth/client";
 import { useState } from "react";
@@ -33,6 +34,7 @@ const nav = [
   { href: "/map", label: "Map View", icon: Map },
   { href: "/compare", label: "Compare", icon: ArrowLeftRight },
   { href: "/import", label: "AI Import", icon: Upload },
+  { href: "/bank-import", label: "Bank Import", icon: Landmark },
 ];
 
 export function Sidebar() {

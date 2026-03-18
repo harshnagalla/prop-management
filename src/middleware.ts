@@ -16,5 +16,6 @@ export const config = {
     "/tenants/:path*",
     "/compare/:path*",
     "/import/:path*",
+    "/bank-import/:path*",
   ],
 };

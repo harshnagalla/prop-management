@@ -194,3 +194,63 @@ Extract every property row found in the document.`,
 
   return object;
 }
+
+// --- Bank Statement Schema ---
+
+const bankTransactionSchema = z.object({
+  transactions: z.array(z.object({
+    date: z.string().describe("Transaction date in YYYY-MM-DD format"),
+    description: z.string().describe("Transaction narration/description"),
+    amount: z.number().describe("Absolute transaction amount"),
+    type: z.enum(["credit", "debit"]).describe("Credit (money received) or Debit (money paid)"),
+    category: z.enum(["rent_received", "electricity", "water", "municipal_tax", "maintenance", "insurance", "repair", "transfer", "other"]).optional().describe("Auto-detected category"),
+    possibleProperty: z.string().optional().describe("Property name this might relate to"),
+  })),
+});
+
+export async function extractBankTransactions(
+  base64File: string,
+  mimeType: string
+): Promise<z.infer<typeof bankTransactionSchema>> {
+  const { object } = await withRetry(() =>
+    generateObject({
+      model: google("gemini-2.0-flash"),
+      schema: bankTransactionSchema,
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "file", data: base64File, mediaType: mimeType },
+            {
+              type: "text",
+              text: `Extract all transactions from this Indian bank statement.
+
+For each transaction detect:
+- Date: convert any format (DD/MM/YYYY, DD-MM-YY) to YYYY-MM-DD
+- Description: the narration/description text
+- Amount: the absolute amount (no negatives)
+- Type: "credit" if money was received, "debit" if money was paid out
+- Category: auto-detect:
+  - "rent_received" for rent payments, NEFT/IMPS credits mentioning rent or tenant names
+  - "electricity" for Torrent Power, UGVCL, DGVCL, MGVCL, PGVCL
+  - "water" for GWSSB, water board
+  - "municipal_tax" for AMC, municipal corporation, property tax
+  - "maintenance" for society maintenance, association fees
+  - "insurance" for insurance premiums
+  - "repair" for repair, plumbing, electrician
+  - "transfer" for account transfers, self-transfers
+  - "other" for everything else
+- possibleProperty: if the description mentions a property name, address, or flat/shed number
+
+Handle Indian bank formats (SBI, HDFC, ICICI, Kotak, Axis).
+Handle UPI, NEFT, RTGS, IMPS transactions.
+Ignore balance columns — only extract transaction amounts.
+Convert Indian date formats (DD/MM/YYYY) to YYYY-MM-DD.`,
+            },
+          ],
+        },
+      ],
+    })
+  );
+  return object;
+}
