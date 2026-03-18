@@ -77,7 +77,7 @@ export default function LandingPage() {
 
       {/* ═══ Navbar ═══ */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrollY > 20 ? "bg-white/80 backdrop-blur-xl shadow-sm border-b border-slate-100" : "bg-transparent"}`}>
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
               <Building2 size={18} className="text-white" />
@@ -99,7 +99,7 @@ export default function LandingPage() {
       </nav>
 
       {/* ═══ Hero ═══ */}
-      <section className="relative pt-28 pb-0 md:pt-36 px-6 overflow-hidden">
+      <section className="relative pt-28 pb-0 md:pt-36 px-4 sm:px-6 overflow-hidden">
         {/* Subtle gradient bg */}
         <div className="absolute inset-0 bg-gradient-to-b from-blue-50/80 via-white to-white" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-blue-100/40 rounded-full blur-3xl -translate-y-1/2" />
@@ -110,7 +110,7 @@ export default function LandingPage() {
               <Sparkles size={12} /> AI-Powered Property Intelligence
             </div>
 
-            <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-slate-900 leading-[1.05] tracking-tight">
+            <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-slate-900 leading-[1.05] tracking-tight">
               Your family&apos;s property empire,{" "}
               <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 one dashboard.
@@ -251,7 +251,7 @@ export default function LandingPage() {
       </section>
 
       {/* ═══ Stats ═══ */}
-      <section className="pt-32 pb-16 px-6 bg-white">
+      <section className="pt-32 pb-16 px-4 sm:px-6 bg-white">
         <div className="max-w-5xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
             {[
@@ -277,7 +277,7 @@ export default function LandingPage() {
       </section>
 
       {/* ═══ Features ═══ */}
-      <section id="features" className="py-20 px-6 bg-slate-50/60">
+      <section id="features" className="py-20 px-4 sm:px-6 bg-slate-50/60">
         <div className="max-w-6xl mx-auto">
           <Reveal>
             <div className="text-center max-w-2xl mx-auto mb-14">
@@ -291,7 +291,7 @@ export default function LandingPage() {
             </div>
           </Reveal>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {features.map((f, i) => (
               <Reveal key={f.title} delay={i * 70}>
                 <div className="group bg-white rounded-2xl p-7 border border-slate-100 shadow-sm hover:shadow-lg hover:border-blue-100 transition-all duration-300">
@@ -308,7 +308,7 @@ export default function LandingPage() {
       </section>
 
       {/* ═══ How it works ═══ */}
-      <section className="py-20 px-6 bg-white">
+      <section className="py-20 px-4 sm:px-6 bg-white">
         <div className="max-w-4xl mx-auto">
           <Reveal>
             <div className="text-center mb-14">
@@ -317,7 +317,7 @@ export default function LandingPage() {
             </div>
           </Reveal>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               { step: "1", title: "Import Properties", desc: "Drop your Excel sheet or add properties manually. We detect multi-unit buildings automatically.", icon: FileText },
               { step: "2", title: "Track Everything", desc: "Bills, income, documents, remarks — all organized per property with AI-powered bill scanning.", icon: BarChart3 },
@@ -341,7 +341,7 @@ export default function LandingPage() {
       </section>
 
       {/* ═══ Who is BhoomiQ for? ═══ */}
-      <section className="py-20 px-6 bg-slate-50/60">
+      <section className="py-20 px-4 sm:px-6 bg-slate-50/60">
         <div className="max-w-4xl mx-auto">
           <Reveal>
             <div className="text-center mb-8">
@@ -370,7 +370,7 @@ export default function LandingPage() {
       </section>
 
       {/* ═══ Testimonials ═══ */}
-      <section className="py-20 px-6 bg-white">
+      <section className="py-20 px-4 sm:px-6 bg-white">
         <div className="max-w-6xl mx-auto">
           <Reveal>
             <div className="text-center mb-14">
@@ -381,7 +381,7 @@ export default function LandingPage() {
             </div>
           </Reveal>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               {
                 quote: "Finally replaced our Excel sheets. Now I can see which properties are making money and which aren't.",
@@ -418,7 +418,7 @@ export default function LandingPage() {
       </section>
 
       {/* ═══ FAQ ═══ */}
-      <section className="py-20 px-6 bg-slate-50/60">
+      <section className="py-20 px-4 sm:px-6 bg-slate-50/60">
         <div className="max-w-3xl mx-auto">
           <Reveal>
             <div className="text-center mb-14">
@@ -473,7 +473,7 @@ export default function LandingPage() {
       </section>
 
       {/* ═══ CTA ═══ */}
-      <section className="py-20 px-6">
+      <section className="py-20 px-4 sm:px-6">
         <Reveal>
           <div className="max-w-4xl mx-auto bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl sm:rounded-3xl p-7 sm:p-10 md:p-16 text-center relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3" />
@@ -495,7 +495,7 @@ export default function LandingPage() {
       </section>
 
       {/* ═══ Footer ═══ */}
-      <footer className="border-t border-slate-100 py-10 px-6">
+      <footer className="border-t border-slate-100 py-10 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center">
@@ -503,8 +503,8 @@ export default function LandingPage() {
             </div>
             <span className="font-bold text-slate-900">BhoomiQ</span>
           </div>
-          <p className="text-slate-400 text-sm">Built for Indian families managing property portfolios.</p>
-          <div className="flex gap-6 text-sm text-slate-400">
+          <p className="text-slate-400 text-sm text-center">Built for Indian families managing property portfolios.</p>
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-sm text-slate-400">
             <Link href="/blog" className="hover:text-slate-900 transition-colors">Blog</Link>
             <Link href="/privacy" className="hover:text-slate-900 transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-slate-900 transition-colors">Terms</Link>

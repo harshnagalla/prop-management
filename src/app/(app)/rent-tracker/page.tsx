@@ -220,7 +220,7 @@ export default function RentTrackerPage() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Rent Collection</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Rent Collection</h1>
           <p className="text-muted-foreground text-sm mt-1">
             {MONTHS[selectedMonth - 1]} {selectedYear}
             {totalExpected > 0 && (
@@ -230,7 +230,7 @@ export default function RentTrackerPage() {
             )}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {/* Month selector */}
           <div className="relative">
             <select

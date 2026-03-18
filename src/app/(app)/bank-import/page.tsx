@@ -200,7 +200,7 @@ export default function BankImportPage() {
   return (
     <div className="space-y-6 pt-12 md:pt-0 max-w-5xl">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Bank Statement Import</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Bank Statement Import</h1>
         <p className="text-muted-foreground text-sm mt-2">
           Upload your bank statement — AI extracts transactions, matches to properties, records income & bills
         </p>
@@ -285,7 +285,7 @@ export default function BankImportPage() {
       {step === "review" && (
         <div className="space-y-4">
           {/* Summary */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Card className="bg-emerald-50/50 border-emerald-200">
               <CardContent className="p-4 text-center">
                 <TrendingUp size={18} className="text-emerald-600 mx-auto mb-1" />
@@ -310,8 +310,8 @@ export default function BankImportPage() {
           </div>
 
           {/* Filter + actions */}
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            <div className="flex gap-1">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex gap-1 overflow-x-auto">
               {[
                 { key: "all" as const, label: `All (${transactions.length})` },
                 { key: "credit" as const, label: `Income (${transactions.filter((t) => t.type === "credit").length})` },
@@ -367,19 +367,21 @@ export default function BankImportPage() {
                         <p className="text-sm text-slate-700 mt-1 truncate">{t.description}</p>
 
                         {/* Controls */}
-                        <div className="flex items-center gap-2 mt-2 flex-wrap">
-                          <select value={t.propertyId || ""} onChange={(e) => updateTxn(realIdx, { propertyId: e.target.value || undefined })} className={selectCls + " w-44"}>
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mt-2">
+                          <select value={t.propertyId || ""} onChange={(e) => updateTxn(realIdx, { propertyId: e.target.value || undefined })} className={selectCls + " w-full sm:w-44"}>
                             <option value="">Assign property...</option>
                             {properties.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                           </select>
-                          <select value={t.action || "skip"} onChange={(e) => updateTxn(realIdx, { action: e.target.value as Transaction["action"] })} className={selectCls + " w-32"}>
-                            <option value="income">Record Income</option>
-                            <option value="bill">Record Bill</option>
-                            <option value="skip">Skip</option>
-                          </select>
-                          <select value={t.category || "other"} onChange={(e) => updateTxn(realIdx, { category: e.target.value })} className={selectCls + " w-36"}>
-                            {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
-                          </select>
+                          <div className="flex gap-2">
+                            <select value={t.action || "skip"} onChange={(e) => updateTxn(realIdx, { action: e.target.value as Transaction["action"] })} className={selectCls + " flex-1 sm:w-32"}>
+                              <option value="income">Record Income</option>
+                              <option value="bill">Record Bill</option>
+                              <option value="skip">Skip</option>
+                            </select>
+                            <select value={t.category || "other"} onChange={(e) => updateTxn(realIdx, { category: e.target.value })} className={selectCls + " flex-1 sm:w-36"}>
+                              {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                            </select>
+                          </div>
                         </div>
                       </div>
                     </div>

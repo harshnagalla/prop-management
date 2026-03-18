@@ -462,7 +462,7 @@ export default function IncomePage() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Rental Income</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Rental Income</h1>
           <p className="text-muted-foreground text-sm mt-1">
             Track rent payments by property
           </p>
@@ -636,7 +636,7 @@ export default function IncomePage() {
                             ) : (
                               <Badge variant="warning">Pending</Badge>
                             )}
-                            <div className="flex gap-0.5 opacity-0 group-hover/row:opacity-100 transition-opacity">
+                            <div className="flex gap-0.5 sm:opacity-0 sm:group-hover/row:opacity-100 transition-opacity">
                               <Button
                                 variant="ghost"
                                 size="icon"

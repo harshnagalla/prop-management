@@ -257,7 +257,7 @@ export default function DashboardPage() {
     <div className="space-y-10 pt-12 md:pt-0">
       {/* Welcome header */}
       <div className="space-y-1">
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
           Mission Control
         </h1>
         <p className="text-muted-foreground text-sm md:text-base">

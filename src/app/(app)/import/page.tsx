@@ -424,7 +424,7 @@ export default function ImportPage() {
   return (
     <div className="space-y-6 pt-12 md:pt-0 max-w-5xl">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Smart Import</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Smart Import</h1>
         <p className="text-muted-foreground text-sm mt-2">
           Import from CSV, Excel, images, or PDFs — with field mapping and AI extraction
         </p>
@@ -523,7 +523,7 @@ export default function ImportPage() {
       {/* ═══ Field Mapping ═══ */}
       {step === "mapping" && (
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h2 className="text-lg font-bold flex items-center gap-2"><Columns3 size={20} /> Map Your Columns</h2>
               <p className="text-sm text-muted-foreground mt-1">We auto-detected some columns. Adjust the mapping below.</p>

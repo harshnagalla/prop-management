@@ -174,7 +174,7 @@ export default function MapPage() {
   }
 
   return (
-    <div className="pt-12 md:pt-0 flex flex-col h-[calc(100vh-48px)] md:h-[calc(100vh-32px)]">
+    <div className="pt-14 md:pt-0 flex flex-col h-[calc(100vh-48px)] md:h-[calc(100vh-32px)]">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3 mb-4 shrink-0">
         <div>

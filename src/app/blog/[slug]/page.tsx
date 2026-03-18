@@ -128,7 +128,7 @@ export default async function BlogPostPage({ params }: Props) {
 
       {/* Navbar */}
       <nav className="bg-white border-b border-slate-100">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
               <Building2 size={18} className="text-white" />
@@ -161,7 +161,7 @@ export default async function BlogPostPage({ params }: Props) {
       </nav>
 
       {/* Article */}
-      <article className="py-12 px-6">
+      <article className="py-12 px-4 sm:px-6">
         <div className="max-w-3xl mx-auto">
           {/* Back link */}
           <Link
@@ -177,7 +177,7 @@ export default async function BlogPostPage({ params }: Props) {
             <span className="text-sm font-semibold text-blue-600 uppercase tracking-wider">
               {post.category}
             </span>
-            <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mt-3 leading-tight">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mt-3 leading-tight">
               {post.title}
             </h1>
             <div className="flex flex-wrap items-center gap-4 mt-5 text-sm text-slate-400">
@@ -206,7 +206,7 @@ export default async function BlogPostPage({ params }: Props) {
       </article>
 
       {/* CTA Banner */}
-      <section className="px-6 pb-16">
+      <section className="px-4 sm:px-6 pb-16">
         <div className="max-w-3xl mx-auto">
           <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-8 md:p-12 text-center relative overflow-hidden">
             <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3" />
@@ -235,7 +235,7 @@ export default async function BlogPostPage({ params }: Props) {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-100 py-10 px-6">
+      <footer className="border-t border-slate-100 py-10 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center">

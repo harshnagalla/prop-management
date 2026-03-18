@@ -457,13 +457,13 @@ export default function PropertiesPage() {
     <div className="space-y-6 pt-12 md:pt-0">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
-        <h1 className="text-3xl font-bold tracking-tight">Properties</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Properties</h1>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => window.location.href = "/import"} className="gap-2">
-            <Upload size={16} /> Import
+            <Upload size={16} /> <span className="hidden sm:inline">Import</span>
           </Button>
           <Button onClick={() => setShowAdd(true)} className="gap-2">
-            <Plus size={16} /> Add Property
+            <Plus size={16} /> <span className="hidden sm:inline">Add Property</span>
           </Button>
         </div>
       </div>

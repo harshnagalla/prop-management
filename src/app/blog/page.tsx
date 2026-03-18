@@ -30,7 +30,7 @@ export default function BlogPage() {
     <div className="min-h-screen bg-white">
       {/* Navbar */}
       <nav className="bg-white border-b border-slate-100">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
               <Building2 size={18} className="text-white" />
@@ -63,12 +63,12 @@ export default function BlogPage() {
       </nav>
 
       {/* Header */}
-      <section className="pt-16 pb-10 px-6 bg-gradient-to-b from-slate-50 to-white">
+      <section className="pt-16 pb-10 px-4 sm:px-6 bg-gradient-to-b from-slate-50 to-white">
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-sm font-bold text-blue-600 uppercase tracking-wider mb-3">
             Blog
           </p>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
             Property Management Insights
           </h1>
           <p className="text-slate-500 mt-4 text-lg max-w-2xl mx-auto">
@@ -79,7 +79,7 @@ export default function BlogPage() {
       </section>
 
       {/* Blog Grid */}
-      <section className="pb-20 px-6">
+      <section className="pb-20 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {blogPosts.map((post) => (
@@ -131,7 +131,7 @@ export default function BlogPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-100 py-10 px-6">
+      <footer className="border-t border-slate-100 py-10 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center">

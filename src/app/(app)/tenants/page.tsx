@@ -98,7 +98,7 @@ export default function TenantsPage() {
     <div className="space-y-6 pt-12 md:pt-0">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Tenant Directory</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Tenant Directory</h1>
         {tenantProperties.length > 0 && (
           <p className="text-muted-foreground mt-1">
             {tenantProperties.length} active tenant{tenantProperties.length !== 1 ? "s" : ""} across{" "}

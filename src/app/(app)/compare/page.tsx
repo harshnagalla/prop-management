@@ -291,7 +291,7 @@ export default function ComparePage() {
   return (
     <div className="space-y-6 pt-12 md:pt-0">
       {/* Header */}
-      <h1 className="text-3xl font-bold tracking-tight">Compare Properties</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Compare Properties</h1>
 
       {/* Property selector */}
       <Card>
@@ -398,9 +398,9 @@ export default function ComparePage() {
         />
       )}
 
-      {/* Comparison table */}
+      {/* Comparison table — desktop */}
       {selected.length >= 2 && (
-        <Card>
+        <Card className="hidden md:block">
           <CardHeader>
             <CardTitle>Side-by-Side Comparison</CardTitle>
           </CardHeader>
@@ -449,6 +449,33 @@ export default function ComparePage() {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Comparison cards — mobile */}
+      {selected.length >= 2 && (
+        <div className="md:hidden space-y-4">
+          {selected.map((p, pi) => (
+            <Card key={p.id}>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">{p.name}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {metrics.map((row) => {
+                  const best =
+                    row.best !== "none"
+                      ? bestIndex(row.values, row.best)
+                      : -1;
+                  return (
+                    <div key={row.label} className="flex items-center justify-between py-1.5 border-b border-border/40 last:border-0">
+                      <span className="text-xs text-muted-foreground">{row.label}</span>
+                      <span className="text-sm">{formatCell(row.values[pi], row.type, pi === best)}</span>
+                    </div>
+                  );
+                })}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       )}
 
       {/* Visual comparison bars */}

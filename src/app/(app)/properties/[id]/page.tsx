@@ -645,31 +645,31 @@ export default function PropertyDetailPage() {
         <Tabs.List className="flex border-b border-border gap-0 overflow-x-auto">
           <Tabs.Trigger
             value="overview"
-            className="px-4 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary transition-colors whitespace-nowrap"
+            className="px-4 py-3 text-sm font-medium text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary transition-colors whitespace-nowrap min-h-[44px]"
           >
             Overview
           </Tabs.Trigger>
           <Tabs.Trigger
             value="bills"
-            className="px-4 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary transition-colors whitespace-nowrap"
+            className="px-4 py-3 text-sm font-medium text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary transition-colors whitespace-nowrap min-h-[44px]"
           >
             Bills ({bills.length})
           </Tabs.Trigger>
           <Tabs.Trigger
             value="income"
-            className="px-4 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary transition-colors whitespace-nowrap"
+            className="px-4 py-3 text-sm font-medium text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary transition-colors whitespace-nowrap min-h-[44px]"
           >
             Income ({income.length})
           </Tabs.Trigger>
           <Tabs.Trigger
             value="documents"
-            className="px-4 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary transition-colors whitespace-nowrap"
+            className="px-4 py-3 text-sm font-medium text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary transition-colors whitespace-nowrap min-h-[44px]"
           >
             Documents ({documents.length})
           </Tabs.Trigger>
           <Tabs.Trigger
             value="remarks"
-            className="px-4 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary transition-colors whitespace-nowrap"
+            className="px-4 py-3 text-sm font-medium text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary transition-colors whitespace-nowrap min-h-[44px]"
           >
             Remarks ({remarks.length})
           </Tabs.Trigger>

@@ -522,7 +522,7 @@ export default function BillsPage() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Bills</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Bills</h1>
           <p className="text-muted-foreground text-sm mt-1">
             {filtersActive
               ? `${filtered.length} of ${bills.length} bills`
@@ -531,7 +531,7 @@ export default function BillsPage() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => setShowScan(true)} className="gap-2">
-            <Upload size={16} /> Scan Bill
+            <Upload size={16} /> <span className="hidden sm:inline">Scan Bill</span>
           </Button>
           <Button
             variant="default"
@@ -541,7 +541,7 @@ export default function BillsPage() {
             }}
             className="gap-2"
           >
-            <Plus size={16} /> Add Bill
+            <Plus size={16} /> <span className="hidden sm:inline">Add Bill</span>
           </Button>
         </div>
       </div>

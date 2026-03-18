@@ -229,7 +229,7 @@ export default function DocumentsPage() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Documents</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Documents</h1>
           <p className="text-muted-foreground text-sm mt-2">
             Your property document vault
           </p>

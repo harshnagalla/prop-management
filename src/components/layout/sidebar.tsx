@@ -68,7 +68,7 @@ export function Sidebar() {
         variant="ghost"
         size="icon"
         onClick={() => setOpen(!open)}
-        className="fixed top-4 left-4 z-50 md:hidden"
+        className="fixed top-3 left-3 z-50 md:hidden h-11 w-11 min-h-[44px] min-w-[44px]"
       >
         {open ? <X size={20} /> : <Menu size={20} />}
       </Button>
@@ -111,7 +111,7 @@ export function Sidebar() {
                       href={item.href}
                       onClick={() => setOpen(false)}
                       className={cn(
-                        "flex items-center gap-3 px-3 py-2 rounded-[var(--radius)] text-sm font-medium transition-colors",
+                        "flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius)] text-sm font-medium transition-colors min-h-[44px]",
                         isActive
                           ? "bg-primary/10 text-primary font-semibold"
                           : "text-muted-foreground hover:text-foreground hover:bg-muted"
