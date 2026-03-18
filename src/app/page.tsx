@@ -110,7 +110,7 @@ export default function LandingPage() {
               <Sparkles size={12} /> AI-Powered Property Intelligence
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-black text-slate-900 leading-[1.05] tracking-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-slate-900 leading-[1.05] tracking-tight">
               Your family&apos;s property empire,{" "}
               <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 one dashboard.
@@ -165,7 +165,7 @@ export default function LandingPage() {
                 {/* Dashboard content */}
                 <div className="p-6 bg-gradient-to-b from-slate-50 to-white">
                   {/* Stat cards */}
-                  <div className="grid grid-cols-4 gap-3 mb-5">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
                     {[
                       { label: "Portfolio Value", value: "₹12.5 Cr", change: "+18.5%", color: "text-emerald-600", bg: "bg-blue-50" },
                       { label: "Monthly Rent", value: "₹4.2L", change: "+12%", color: "text-emerald-600", bg: "bg-emerald-50" },
@@ -215,10 +215,10 @@ export default function LandingPage() {
                       { name: "TRP - GF-35", status: "Vacant", value: "₹60.2L", yield: "—", color: "bg-slate-100 text-slate-600" },
                     ].map((p, i) => (
                       <div key={p.name} className={`flex items-center px-4 py-2.5 text-xs ${i < 2 ? "border-b border-slate-50" : ""}`}>
-                        <span className="font-medium text-slate-800 w-32 truncate">{p.name}</span>
-                        <span className={`${p.color} px-2 py-0.5 rounded-full text-[9px] font-semibold`}>{p.status}</span>
-                        <span className="ml-auto text-slate-600 font-medium tabular-nums">{p.value}</span>
-                        <span className="ml-6 text-slate-500 font-medium tabular-nums w-10 text-right">{p.yield}</span>
+                        <span className="font-medium text-slate-800 min-w-0 flex-1 truncate">{p.name}</span>
+                        <span className={`${p.color} px-2 py-0.5 rounded-full text-[9px] font-semibold shrink-0`}>{p.status}</span>
+                        <span className="ml-auto text-slate-600 font-medium tabular-nums shrink-0">{p.value}</span>
+                        <span className="ml-3 sm:ml-6 text-slate-500 font-medium tabular-nums w-10 text-right shrink-0 hidden sm:inline">{p.yield}</span>
                       </div>
                     ))}
                   </div>
@@ -253,7 +253,7 @@ export default function LandingPage() {
       {/* ═══ Stats ═══ */}
       <section className="pt-32 pb-16 px-6 bg-white">
         <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
             {[
               { value: 500, suffix: "+", label: "Properties Managed", icon: Building2 },
               { value: 50, suffix: " Cr+", prefix: "₹", label: "Value Tracked", icon: TrendingUp },
@@ -265,7 +265,7 @@ export default function LandingPage() {
                   <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mx-auto mb-3">
                     <s.icon size={20} className="text-blue-600" />
                   </div>
-                  <p className="text-3xl md:text-4xl font-extrabold text-slate-900">
+                  <p className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900">
                     <Counter end={s.value} suffix={s.suffix} prefix={s.prefix} />
                   </p>
                   <p className="text-slate-400 text-sm mt-1">{s.label}</p>
@@ -475,14 +475,13 @@ export default function LandingPage() {
       {/* ═══ CTA ═══ */}
       <section className="py-20 px-6">
         <Reveal>
-          <div className="max-w-4xl mx-auto bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-10 md:p-16 text-center relative overflow-hidden">
+          <div className="max-w-4xl mx-auto bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl sm:rounded-3xl p-7 sm:p-10 md:p-16 text-center relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3" />
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/3" />
 
             <div className="relative">
-              <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
-                Ready to take control of
-                <br />your property portfolio?
+              <h2 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                Ready to take control of your property portfolio?
               </h2>
               <p className="text-blue-100/80 text-lg mt-5 max-w-xl mx-auto">
                 Join families across Ahmedabad who replaced their Excel sheets. Free to start, takes 15 minutes.

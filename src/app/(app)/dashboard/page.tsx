@@ -267,29 +267,29 @@ export default function DashboardPage() {
 
       {/* Quick Actions */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Link href="/properties" className="group flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl hover:shadow-md hover:border-blue-200 transition-all">
-          <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+        <Link href="/properties" className="group flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl hover:shadow-md hover:border-blue-200 transition-all min-w-0">
+          <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors shrink-0">
             <Plus size={16} className="text-blue-600" />
           </div>
-          <span className="text-sm font-medium text-slate-700">Add Property</span>
+          <span className="text-sm font-medium text-slate-700 truncate">Add Property</span>
         </Link>
-        <Link href="/income" className="group flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl hover:shadow-md hover:border-green-200 transition-all">
-          <div className="w-9 h-9 rounded-lg bg-green-50 flex items-center justify-center group-hover:bg-green-100 transition-colors">
+        <Link href="/income" className="group flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl hover:shadow-md hover:border-green-200 transition-all min-w-0">
+          <div className="w-9 h-9 rounded-lg bg-green-50 flex items-center justify-center group-hover:bg-green-100 transition-colors shrink-0">
             <IndianRupee size={16} className="text-green-600" />
           </div>
-          <span className="text-sm font-medium text-slate-700">Record Payment</span>
+          <span className="text-sm font-medium text-slate-700 truncate">Record Payment</span>
         </Link>
-        <Link href="/bills" className="group flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl hover:shadow-md hover:border-violet-200 transition-all">
-          <div className="w-9 h-9 rounded-lg bg-violet-50 flex items-center justify-center group-hover:bg-violet-100 transition-colors">
+        <Link href="/bills" className="group flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl hover:shadow-md hover:border-violet-200 transition-all min-w-0">
+          <div className="w-9 h-9 rounded-lg bg-violet-50 flex items-center justify-center group-hover:bg-violet-100 transition-colors shrink-0">
             <Camera size={16} className="text-violet-600" />
           </div>
-          <span className="text-sm font-medium text-slate-700">Scan Bill</span>
+          <span className="text-sm font-medium text-slate-700 truncate">Scan Bill</span>
         </Link>
-        <Link href="/import" className="group flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl hover:shadow-md hover:border-amber-200 transition-all">
-          <div className="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center group-hover:bg-amber-100 transition-colors">
+        <Link href="/import" className="group flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl hover:shadow-md hover:border-amber-200 transition-all min-w-0">
+          <div className="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center group-hover:bg-amber-100 transition-colors shrink-0">
             <Upload size={16} className="text-amber-600" />
           </div>
-          <span className="text-sm font-medium text-slate-700">Import Data</span>
+          <span className="text-sm font-medium text-slate-700 truncate">Import Data</span>
         </Link>
       </div>
 
@@ -387,8 +387,8 @@ export default function DashboardPage() {
                   <p>No data yet. Add income and bills to see trends.</p>
                 </div>
               ) : (
-                <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={areaChartData} margin={{ top: 5, right: 10, left: 10, bottom: 20 }}>
+                <ResponsiveContainer width="100%" height={250}>
+                  <AreaChart data={areaChartData} margin={{ top: 5, right: 5, left: 5, bottom: 20 }}>
                     <defs>
                       <linearGradient id="incomeGrad" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="var(--color-success)" stopOpacity={0.15} />
@@ -460,7 +460,7 @@ export default function DashboardPage() {
                   <p>No expenses recorded yet. Add bills to see breakdown.</p>
                 </div>
               ) : (
-                <ResponsiveContainer width="100%" height={300}>
+                <ResponsiveContainer width="100%" height={250}>
                   <PieChart>
                     <Pie
                       data={chartData.expenseByCategory}

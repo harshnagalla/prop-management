@@ -23,18 +23,38 @@ import { authClient } from "@/lib/auth/client";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
-const nav = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/properties", label: "Properties", icon: Building2 },
-  { href: "/bills", label: "Bills", icon: Receipt },
-  { href: "/income", label: "Rental Income", icon: IndianRupee },
-  { href: "/rent-tracker", label: "Rent Tracker", icon: Wallet },
-  { href: "/tenants", label: "Tenants", icon: Users },
-  { href: "/documents", label: "Documents", icon: FileText },
-  { href: "/map", label: "Map View", icon: Map },
-  { href: "/compare", label: "Compare", icon: ArrowLeftRight },
-  { href: "/import", label: "AI Import", icon: Upload },
-  { href: "/bank-import", label: "Bank Import", icon: Landmark },
+const navSections = [
+  {
+    label: "Main",
+    items: [
+      { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/properties", label: "Properties", icon: Building2 },
+    ],
+  },
+  {
+    label: "Finance",
+    items: [
+      { href: "/bills", label: "Bills", icon: Receipt },
+      { href: "/income", label: "Rental Income", icon: IndianRupee },
+      { href: "/rent-tracker", label: "Rent Tracker", icon: Wallet },
+    ],
+  },
+  {
+    label: "Data",
+    items: [
+      { href: "/documents", label: "Documents", icon: FileText },
+      { href: "/map", label: "Map View", icon: Map },
+      { href: "/tenants", label: "Tenants", icon: Users },
+      { href: "/compare", label: "Compare", icon: ArrowLeftRight },
+    ],
+  },
+  {
+    label: "Import",
+    items: [
+      { href: "/import", label: "AI Import", icon: Upload },
+      { href: "/bank-import", label: "Bank Import", icon: Landmark },
+    ],
+  },
 ];
 
 export function Sidebar() {
@@ -74,28 +94,37 @@ export function Sidebar() {
           </h1>
         </div>
 
-        <nav className="flex-1 p-4 space-y-1">
-          {nav.map((item) => {
-            const isActive =
-              pathname === item.href ||
-              (item.href !== "/" && pathname.startsWith(item.href));
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setOpen(false)}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius)] text-sm font-medium transition-colors",
-                  isActive
-                    ? "bg-primary/10 text-primary font-semibold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                )}
-              >
-                <item.icon size={18} />
-                {item.label}
-              </Link>
-            );
-          })}
+        <nav className="flex-1 p-4 space-y-4 overflow-y-auto">
+          {navSections.map((section) => (
+            <div key={section.label}>
+              <p className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+                {section.label}
+              </p>
+              <div className="space-y-0.5">
+                {section.items.map((item) => {
+                  const isActive =
+                    pathname === item.href ||
+                    (item.href !== "/" && pathname.startsWith(item.href));
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setOpen(false)}
+                      className={cn(
+                        "flex items-center gap-3 px-3 py-2 rounded-[var(--radius)] text-sm font-medium transition-colors",
+                        isActive
+                          ? "bg-primary/10 text-primary font-semibold"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                      )}
+                    >
+                      <item.icon size={18} />
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
         <div className="p-4 border-t border-border">

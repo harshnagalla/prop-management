@@ -14,9 +14,9 @@ export function Modal({ open, onClose, title, children, wide }: ModalProps) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-      <div className={`relative bg-card border border-border rounded-xl w-full max-h-[90vh] overflow-y-auto m-4 ${wide ? "max-w-4xl" : "max-w-lg"}`}>
+      <div className={`relative bg-card border border-border rounded-t-xl sm:rounded-xl w-full max-h-[85vh] sm:max-h-[90vh] overflow-y-auto sm:m-4 ${wide ? "max-w-4xl" : "max-w-lg"}`}>
         <div className="flex items-center justify-between p-5 border-b border-border">
           <h2 className="text-lg font-semibold">{title}</h2>
           <button

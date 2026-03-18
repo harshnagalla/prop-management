@@ -617,22 +617,22 @@ export default function PropertyDetailPage() {
             </p>
           )}
         </div>
-        <div className="flex gap-2 flex-wrap">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
           {property.status !== "sold" && (
             <>
-              <Button variant="outline" size="sm" onClick={() => { resetBillForm(); setShowAddBill(true); }}>
+              <Button variant="outline" size="sm" onClick={() => { resetBillForm(); setShowAddBill(true); }} className="justify-center">
                 <Receipt size={14} className="mr-1.5" />
                 Add Bill
               </Button>
-              <Button variant="outline" size="sm" onClick={() => { resetIncomeForm(property); setShowAddIncome(true); }}>
+              <Button variant="outline" size="sm" onClick={() => { resetIncomeForm(property); setShowAddIncome(true); }} className="justify-center">
                 <IndianRupee size={14} className="mr-1.5" />
                 Record Payment
               </Button>
-              <Button variant="outline" size="sm" onClick={() => { resetDocForm(); setShowAddDoc(true); }}>
+              <Button variant="outline" size="sm" onClick={() => { resetDocForm(); setShowAddDoc(true); }} className="justify-center">
                 <Upload size={14} className="mr-1.5" />
-                Upload Document
+                Upload Doc
               </Button>
-              <Button variant="destructive" size="sm" onClick={() => setShowSale(true)}>
+              <Button variant="destructive" size="sm" onClick={() => setShowSale(true)} className="justify-center">
                 Mark as Sold
               </Button>
             </>

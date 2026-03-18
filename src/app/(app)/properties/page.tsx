@@ -508,7 +508,7 @@ export default function PropertiesPage() {
                     className="pl-9"
                   />
                 </div>
-                <div className="flex border border-border rounded-[var(--radius)] overflow-hidden shrink-0">
+                <div className="hidden md:flex border border-border rounded-[var(--radius)] overflow-hidden shrink-0">
                   <button
                     onClick={() => setViewMode("list")}
                     className={cn(
