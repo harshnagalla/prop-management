@@ -346,10 +346,13 @@ export default function ImportPage() {
           body: JSON.stringify({
             name: p.name + (unitMatch ? ` - ${unitMatch[0]}` : ""),
             address: p.address, city: "Ahmedabad", type: p.type, status: p.status,
-            purchasePrice: p.purchasePrice || null, currentValue: p.purchasePrice || null,
+            purchasePrice: p.purchasePrice > 0 ? String(p.purchasePrice) : null,
+            currentValue: p.purchasePrice > 0 ? String(p.purchasePrice) : null,
             area: null, areaUnit: "sqft",
-            dastavejNo: p.dastavejNo || null, registrationDate: p.registrationDate || null,
-            stampDuty: p.stampDuty || null, registrationCharges: p.registrationCharges || null,
+            dastavejNo: p.dastavejNo || null,
+            registrationDate: p.registrationDate || null,
+            stampDuty: p.stampDuty > 0 ? String(p.stampDuty) : null,
+            registrationCharges: p.registrationCharges > 0 ? String(p.registrationCharges) : null,
             ownership: p.ownership || null, notes: p.remarks || null,
           }),
         });
