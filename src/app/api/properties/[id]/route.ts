@@ -32,6 +32,13 @@ export async function PUT(
   const { id } = await params;
   const body = await req.json();
 
+  if (body.name !== undefined && (typeof body.name !== "string" || body.name.length > 500)) {
+    return NextResponse.json({ error: "Invalid property name" }, { status: 400 });
+  }
+  if (body.address !== undefined && (typeof body.address !== "string" || body.address.length > 1000)) {
+    return NextResponse.json({ error: "Invalid address" }, { status: 400 });
+  }
+
   const result = await db
     .update(properties)
     .set({ ...body, updatedAt: new Date() })

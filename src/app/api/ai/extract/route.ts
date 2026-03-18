@@ -1,10 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { extractBillData, extractSpreadsheetData } from "@/lib/ai/gemini";
 import { auth } from "@/lib/auth/server";
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   const { data: session } = await auth.getSession();
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { success } = rateLimit(`ai-extract:${session.user.id}`, 10, 60000);
+  if (!success) {
+    return NextResponse.json(
+      { error: "Rate limited. Please wait a moment." },
+      { status: 429 }
+    );
+  }
 
   const { file, mimeType, mode } = await req.json();
 

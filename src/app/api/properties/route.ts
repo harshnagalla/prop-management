@@ -24,6 +24,14 @@ export async function POST(req: NextRequest) {
   const userId = session.user.id;
 
   const body = await req.json();
+
+  if (!body.name || typeof body.name !== "string" || body.name.length > 500) {
+    return NextResponse.json({ error: "Invalid property name" }, { status: 400 });
+  }
+  if (!body.address || typeof body.address !== "string" || body.address.length > 1000) {
+    return NextResponse.json({ error: "Invalid address" }, { status: 400 });
+  }
+
   const result = await db
     .insert(properties)
     .values({ ...body, userId })
