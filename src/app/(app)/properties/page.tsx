@@ -454,16 +454,16 @@ export default function PropertiesPage() {
   }
 
   return (
-    <div className="space-y-6 pt-12 md:pt-0">
+    <div className="space-y-6 pt-12 md:pt-0 overflow-x-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Properties</h1>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => window.location.href = "/import"} className="gap-2">
-            <Upload size={16} /> <span className="hidden sm:inline">Import</span>
+      <div className="flex items-center justify-between gap-2">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight shrink-0">Properties</h1>
+        <div className="flex gap-1.5 shrink-0">
+          <Button variant="outline" size="sm" onClick={() => window.location.href = "/import"} className="gap-1.5 h-9 px-3">
+            <Upload size={14} /> <span className="hidden sm:inline">Import</span>
           </Button>
-          <Button onClick={() => setShowAdd(true)} className="gap-2">
-            <Plus size={16} /> <span className="hidden sm:inline">Add Property</span>
+          <Button size="sm" onClick={() => setShowAdd(true)} className="gap-1.5 h-9 px-3">
+            <Plus size={14} /> <span className="hidden sm:inline">Add</span>
           </Button>
         </div>
       </div>

@@ -14,9 +14,9 @@ export default async function AppLayout({
   if (!session?.user) redirect("/");
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex overflow-x-hidden">
       <Sidebar />
-      <main className="flex-1 md:ml-64 p-6 md:p-8">{children}</main>
+      <main className="flex-1 md:ml-64 p-4 sm:p-6 md:p-8 overflow-x-hidden min-w-0">{children}</main>
       <Toaster />
     </div>
   );
