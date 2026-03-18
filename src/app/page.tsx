@@ -85,6 +85,9 @@ export default function LandingPage() {
             <span className="text-xl font-extrabold text-slate-900 tracking-tight">BhoomiQ</span>
           </Link>
           <div className="flex items-center gap-2">
+            <Link href="/blog" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors px-4 py-2 hidden sm:block">
+              Blog
+            </Link>
             <Link href="/auth/sign-in" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors px-4 py-2 hidden sm:block">
               Sign In
             </Link>
@@ -503,6 +506,7 @@ export default function LandingPage() {
           </div>
           <p className="text-slate-400 text-sm">Built for Indian families managing property portfolios.</p>
           <div className="flex gap-6 text-sm text-slate-400">
+            <Link href="/blog" className="hover:text-slate-900 transition-colors">Blog</Link>
             <Link href="/privacy" className="hover:text-slate-900 transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-slate-900 transition-colors">Terms</Link>
             <Link href="/auth/sign-in" className="hover:text-slate-900 transition-colors">Sign In</Link>
