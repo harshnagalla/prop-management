@@ -580,20 +580,20 @@ export default function PropertiesPage() {
             return (
               <Link key={p.id} href={`/properties/${p.id}`} className="group">
                 <Card className="overflow-hidden transition-shadow hover:shadow-[var(--shadow-card-hover)]">
-                  {/* Image placeholder */}
-                  <div className={cn("h-40 flex items-center justify-center", colorClass)}>
-                    <Icon size={56} strokeWidth={1.2} className="opacity-60" />
-                  </div>
-
-                  {/* Card content */}
-                  <CardContent className="p-5 space-y-3">
-                    <div>
-                      <h3 className="font-semibold text-lg group-hover:text-primary transition-colors truncate">
-                        {p.name}
-                      </h3>
-                      <p className="text-xs text-muted-foreground truncate mt-0.5">
-                        {p.address}{p.city ? `, ${p.city}` : ""}
-                      </p>
+                  {/* Compact header with icon + name */}
+                  <CardContent className="p-4 space-y-2.5">
+                    <div className="flex items-start gap-3">
+                      <div className={cn("w-11 h-11 rounded-xl flex items-center justify-center shrink-0", colorClass)}>
+                        <Icon size={20} strokeWidth={1.5} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-base group-hover:text-primary transition-colors truncate">
+                          {p.name}
+                        </h3>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {p.address}{p.city ? `, ${p.city}` : ""}
+                        </p>
+                      </div>
                     </div>
 
                     <div className="flex items-center gap-1.5 flex-wrap">
@@ -612,56 +612,32 @@ export default function PropertiesPage() {
                       )}
                     </div>
 
-                    {/* Financial details grid */}
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 pt-1 text-xs">
-                      <div>
-                        <p className="text-muted-foreground">Property Value</p>
-                        <p className="font-semibold text-sm">{formatCurrency(p.currentValue || p.purchasePrice)}</p>
-                      </div>
+                    {/* Key numbers — compact row */}
+                    <div className="flex items-center gap-3 text-xs pt-1">
+                      <span className="font-bold text-sm">{formatCurrency(p.currentValue || p.purchasePrice)}</span>
                       {p.monthlyRent && (
-                        <div>
-                          <p className="text-muted-foreground">Rent/mo</p>
-                          <p className="font-semibold text-sm">{formatCurrency(p.monthlyRent)}</p>
-                        </div>
+                        <span className="text-muted-foreground">{formatCurrency(p.monthlyRent)}/mo</span>
                       )}
-                      {p.stampDuty && (
-                        <div>
-                          <p className="text-muted-foreground">Stamp Duty</p>
-                          <p className="font-semibold">{formatCurrency(p.stampDuty)}</p>
-                        </div>
-                      )}
-                      {p.registrationCharges && (
-                        <div>
-                          <p className="text-muted-foreground">Reg. Charges</p>
-                          <p className="font-semibold">{formatCurrency(p.registrationCharges)}</p>
-                        </div>
-                      )}
-                      {(p.purchasePrice || p.stampDuty || p.registrationCharges) && (
-                        <div className="col-span-2 pt-1 border-t border-border/50">
-                          <p className="text-muted-foreground">Total Cost</p>
-                          <p className="font-bold text-sm text-primary">
-                            {formatCurrency(
-                              parseFloat(p.purchasePrice || "0") +
-                              parseFloat(p.stampDuty || "0") +
-                              parseFloat(p.registrationCharges || "0")
-                            )}
-                          </p>
-                        </div>
+                      {yld > 0 && (
+                        <span className={cn("font-semibold", yld > 5 ? "text-success" : yld > 3 ? "text-foreground" : "text-warning")}>
+                          {formatPercent(yld)}
+                        </span>
                       )}
                     </div>
 
-                    {/* Extra info */}
-                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted-foreground pt-1">
-                      {p.area && <span>{p.area} {p.areaUnit || "sqft"}</span>}
-                      {p.dastavejNo && <span>Dastavej: {p.dastavejNo}</span>}
-                      {yld > 0 && (
-                        <span className={cn(
-                          "font-semibold",
-                          yld > 5 ? "text-success" : yld > 3 ? "text-foreground" : "text-warning"
-                        )}>
-                          {formatPercent(yld)} yield
+                    {/* Total cost line */}
+                    {(p.stampDuty || p.registrationCharges) && (
+                      <div className="flex items-center justify-between text-xs pt-1 border-t border-border/50">
+                        <span className="text-muted-foreground">Total Cost</span>
+                        <span className="font-bold text-primary">
+                          {formatCurrency(parseFloat(p.purchasePrice || "0") + parseFloat(p.stampDuty || "0") + parseFloat(p.registrationCharges || "0"))}
                         </span>
-                      )}
+                      </div>
+                    )}
+
+                    {/* Extra info */}
+                    <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground">
+                      {p.dastavejNo && <span>Dastavej: {p.dastavejNo}</span>}
                       {p.tenantName && <span>Tenant: {p.tenantName}</span>}
                     </div>
                   </CardContent>
