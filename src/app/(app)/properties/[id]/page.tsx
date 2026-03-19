@@ -36,7 +36,12 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import {
+  LineChart,
+  Line,
+} from "recharts";
 import { formatCurrency, formatPercent, formatDate, calcRentalYield } from "@/lib/utils/format";
+import { getInvestmentScore } from "@/lib/utils/investment-score";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,7 +50,7 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Modal } from "@/components/ui/modal";
 import { toast } from "@/lib/utils/toast";
-import type { Property, Bill, RentalIncome, PropertyRemark } from "@/lib/db/schema";
+import type { Property, Bill, RentalIncome, PropertyRemark, PropertyValueHistory } from "@/lib/db/schema";
 
 type BillWithProperty = Bill & { propertyName: string | null };
 type IncomeWithProperty = RentalIncome & { propertyName: string | null };
@@ -177,6 +182,7 @@ export default function PropertyDetailPage() {
   const [income, setIncome] = useState<IncomeWithProperty[]>([]);
   const [documents, setDocuments] = useState<DocumentMeta[]>([]);
   const [remarks, setRemarks] = useState<PropertyRemark[]>([]);
+  const [valueHistory, setValueHistory] = useState<PropertyValueHistory[]>([]);
   const [chartData, setChartData] = useState<PropertyChartData | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -248,8 +254,9 @@ export default function PropertyDetailPage() {
       fetch(`/api/documents?propertyId=${id}`),
       fetch(`/api/properties/${id}/charts`),
       fetch(`/api/properties/${id}/remarks`),
+      fetch(`/api/properties/${id}/value-history`),
     ])
-      .then(async ([propRes, billsRes, incomeRes, docsRes, chartsRes, remarksRes]) => {
+      .then(async ([propRes, billsRes, incomeRes, docsRes, chartsRes, remarksRes, valueHistRes]) => {
         if (!propRes.ok) {
           if (propRes.status === 404) {
             setNotFound(true);
@@ -257,13 +264,14 @@ export default function PropertyDetailPage() {
           }
           throw new Error("Failed to load property");
         }
-        const [propData, billsData, incomeData, docsData, chartsData, remarksData] = await Promise.all([
+        const [propData, billsData, incomeData, docsData, chartsData, remarksData, valueHistData] = await Promise.all([
           propRes.json(),
           billsRes.ok ? billsRes.json() : [],
           incomeRes.ok ? incomeRes.json() : [],
           docsRes.ok ? docsRes.json() : [],
           chartsRes.ok ? chartsRes.json() : null,
           remarksRes.ok ? remarksRes.json() : [],
+          valueHistRes.ok ? valueHistRes.json() : [],
         ]);
         setProperty(propData);
         setBills(billsData);
@@ -271,6 +279,7 @@ export default function PropertyDetailPage() {
         setDocuments(docsData);
         setChartData(chartsData);
         setRemarks(remarksData);
+        setValueHistory(valueHistData);
       })
       .catch(() => {
         setNotFound(true);
@@ -604,6 +613,14 @@ export default function PropertyDetailPage() {
                 {property.type}
               </Badge>
             )}
+            {(() => {
+              const inv = getInvestmentScore(property);
+              return (
+                <Badge variant={inv.variant as "success" | "default" | "warning" | "destructive"}>
+                  {inv.rating} ({inv.score})
+                </Badge>
+              );
+            })()}
           </div>
           {(property.address || property.city) && (
             <p className="text-sm text-muted-foreground">
@@ -746,6 +763,43 @@ export default function PropertyDetailPage() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Value History Chart */}
+          {valueHistory.length >= 2 && (() => {
+            const firstVal = parseFloat(valueHistory[0].value);
+            const lastVal = parseFloat(valueHistory[valueHistory.length - 1].value);
+            const totalChange = lastVal - firstVal;
+            const totalPct = firstVal > 0 ? (totalChange / firstVal) * 100 : 0;
+            const firstDate = new Date(valueHistory[0].recordedAt);
+            const lastDate = new Date(valueHistory[valueHistory.length - 1].recordedAt);
+            const years = Math.max((lastDate.getTime() - firstDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000), 1);
+            const annualizedPct = firstVal > 0 ? (Math.pow(lastVal / firstVal, 1 / years) - 1) * 100 : 0;
+            const chartPoints = valueHistory.map((v) => ({
+              date: new Date(v.recordedAt).toLocaleDateString("en-IN", { month: "short", year: "2-digit" }),
+              value: parseFloat(v.value),
+            }));
+            return (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Property Value History</CardTitle>
+                  <CardDescription>
+                    Appreciation: {formatCurrency(totalChange)} ({totalPct >= 0 ? "+" : ""}{totalPct.toFixed(1)}%), Annualized: {annualizedPct >= 0 ? "+" : ""}{annualizedPct.toFixed(1)}%
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={200}>
+                    <LineChart data={chartPoints}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                      <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="var(--color-muted-foreground)" />
+                      <YAxis tick={{ fontSize: 12 }} stroke="var(--color-muted-foreground)" tickFormatter={(v: number) => formatCompactCurrency(v)} />
+                      <Tooltip formatter={(v: number) => [formatCurrency(v), "Value"]} />
+                      <Line type="monotone" dataKey="value" stroke="var(--color-primary)" strokeWidth={2} dot={{ r: 4 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            );
+          })()}
 
           {/* Registration Details */}
           {(property.stampDuty || property.registrationCharges) && (

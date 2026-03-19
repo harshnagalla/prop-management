@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Building2, Plus, Pencil, Trash2, Search, Home, Factory, Landmark, TreePine, Layers, LayoutGrid, List, Upload, FileSpreadsheet, Check, AlertCircle } from "lucide-react";
 import { formatCurrency, formatPercent, calcRentalYield } from "@/lib/utils/format";
+import { getInvestmentScore } from "@/lib/utils/investment-score";
 import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/utils/toast";
 import { Modal } from "@/components/ui/modal";
@@ -650,6 +651,14 @@ export default function PropertiesPage() {
                           {p.ownership}
                         </Badge>
                       )}
+                      {(() => {
+                        const inv = getInvestmentScore(p);
+                        return (
+                          <Badge variant={inv.variant as "success" | "default" | "warning" | "destructive"} className="text-[10px]">
+                            {inv.rating}
+                          </Badge>
+                        );
+                      })()}
                     </div>
 
                     {/* Key numbers — compact row */}
@@ -726,6 +735,14 @@ export default function PropertiesPage() {
                         <Badge variant={getStatusBadgeVariant(p.status || "vacant")} className="shrink-0">
                           {p.status?.replace("_", " ")}
                         </Badge>
+                        {(() => {
+                          const inv = getInvestmentScore(p);
+                          return (
+                            <Badge variant={inv.variant as "success" | "default" | "warning" | "destructive"} className="shrink-0 text-[10px]">
+                              {inv.rating}
+                            </Badge>
+                          );
+                        })()}
                       </div>
                       <p className="text-sm text-muted-foreground truncate mt-0.5">
                         {p.address}{p.city ? `, ${p.city}` : ""}

@@ -159,3 +159,12 @@ export const propertyRemarks = pgTable("property_remarks", {
 
 export type PropertyRemark = typeof propertyRemarks.$inferSelect;
 export type NewPropertyRemark = typeof propertyRemarks.$inferInsert;
+
+export const propertyValueHistory = pgTable("property_value_history", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  propertyId: uuid("property_id").references(() => properties.id, { onDelete: "cascade" }).notNull(),
+  userId: text("user_id").notNull(),
+  value: numeric("value", { precision: 15, scale: 2 }).notNull(),
+  recordedAt: timestamp("recorded_at").defaultNow().notNull(),
+});
+export type PropertyValueHistory = typeof propertyValueHistory.$inferSelect;

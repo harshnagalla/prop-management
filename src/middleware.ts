@@ -18,5 +18,6 @@ export const config = {
     "/import/:path*",
     "/bank-import/:path*",
     "/reports/:path*",
+    "/insights/:path*",
   ],
 };

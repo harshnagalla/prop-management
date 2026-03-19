@@ -19,6 +19,7 @@ import {
   ArrowLeftRight,
   Landmark,
   FileBarChart,
+  TrendingUp,
 } from "lucide-react";
 import { authClient } from "@/lib/auth/client";
 import { useState } from "react";
@@ -49,6 +50,7 @@ const navSections = [
       { href: "/tenants", label: "Tenants", icon: Users },
       { href: "/compare", label: "Compare", icon: ArrowLeftRight },
       { href: "/reports", label: "Reports", icon: FileBarChart },
+      { href: "/insights", label: "Insights", icon: TrendingUp },
     ],
   },
   {

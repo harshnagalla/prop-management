@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { properties } from "@/lib/db/schema";
+import { properties, propertyValueHistory } from "@/lib/db/schema";
 import { and, eq } from "drizzle-orm";
 import { auth } from "@/lib/auth/server";
 
@@ -46,6 +46,15 @@ export async function PUT(
     .returning();
 
   if (!result.length) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  if (body.currentValue && result[0]) {
+    await db.insert(propertyValueHistory).values({
+      propertyId: id,
+      userId,
+      value: body.currentValue,
+    });
+  }
+
   return NextResponse.json(result[0]);
 }
 

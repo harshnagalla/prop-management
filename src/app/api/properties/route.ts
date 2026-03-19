@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { properties } from "@/lib/db/schema";
+import { properties, propertyValueHistory } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { auth } from "@/lib/auth/server";
 
@@ -36,6 +36,14 @@ export async function POST(req: NextRequest) {
     .insert(properties)
     .values({ ...body, userId })
     .returning();
+
+  if (body.currentValue && result[0]) {
+    await db.insert(propertyValueHistory).values({
+      propertyId: result[0].id,
+      userId,
+      value: body.currentValue,
+    });
+  }
 
   return NextResponse.json(result[0], { status: 201 });
 }
