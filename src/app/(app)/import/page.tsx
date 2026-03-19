@@ -124,6 +124,25 @@ function groupByBuilding(properties: ImportProperty[]): BuildingGroup[] {
 /* ─── selectClassName ─── */
 const selectCls = "w-full bg-white border border-slate-200 rounded-lg h-9 px-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500";
 
+function extractUnit(address: string): string {
+  const patterns = [
+    /UNIT\s*[-:]?\s*(\d+)/i,
+    /SHED\s*[-:]?\s*(\d+)/i,
+    /FLAT\s*[-:]?\s*(\d+)/i,
+    /SHOP\s*[-:]?\s*(\d+)/i,
+    /(?:FF|GF|TF|SF)\s*[-:]?\s*(?:SHOP\s*[-:]?\s*)?(\d+)/i,
+    /(?:^|\s)(\d{3,4})(?:\s*,|\s*$)/,
+  ];
+  for (const pat of patterns) {
+    const m = address.match(pat);
+    if (m) {
+      const full = address.match(new RegExp(`(?:UNIT|SHED|FLAT|SHOP|FF|GF|TF|SF)\\s*[-:]?\\s*(?:SHOP\\s*[-:]?\\s*)?${m[1]}`, "i"));
+      return full ? full[0] : m[1];
+    }
+  }
+  return "";
+}
+
 /* ─── Main ─── */
 export default function ImportPage() {
   const [step, setStep] = useState<"upload" | "mapping" | "review" | "done">("upload");
@@ -160,14 +179,9 @@ export default function ImportPage() {
   }
 
   function extractBuildingName(name: string): string {
-    // Remove unit identifiers to get base building name
-    return name.replace(/\s*-\s*(SHED|UNIT|FLAT|SHOP|BLOCK|FF|GF|TF|SF|[A-Z])-?\s*\d+.*/i, "").trim();
+    return name.replace(/\s*-\s*(SHED|UNIT|FLAT|SHOP|BLOCK|FF|GF|TF|SF)-?\s*\d+.*/i, "").trim();
   }
 
-  function extractUnit(address: string): string {
-    const match = address.match(/(?:SHED|UNIT|FLAT|SHOP|BLOCK|FF|GF|TF|SF|[A-Z])-?\s*\d+/i);
-    return match ? match[0] : "";
-  }
 
   function detectDuplicates(props: ImportProperty[]) {
     const dupes: Record<number, { id: string; name: string; matchType: string }> = {};
@@ -440,12 +454,12 @@ export default function ImportPage() {
     for (const idx of selected) {
       const p = properties[idx];
       try {
-        const unitMatch = p.address.match(/(?:SHED|UNIT|FLAT|SHOP|BLOCK|FF|GF|TF|SF|[A-Z])-?\s*\d+/i);
+        const unitId = extractUnit(p.address);
         const res = await fetch("/api/properties", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            name: p.name + (unitMatch ? ` - ${unitMatch[0]}` : ""),
+            name: p.name + (unitId ? ` - ${unitId}` : ""),
             address: p.address, city: "Ahmedabad", type: p.type, status: p.status,
             purchasePrice: p.purchasePrice > 0 ? String(p.purchasePrice) : null,
             currentValue: p.purchasePrice > 0 ? String(p.purchasePrice) : null,
@@ -468,6 +482,14 @@ export default function ImportPage() {
   };
 
   const toggleSelect = (idx: number) => setSelected((prev) => { const n = new Set(prev); if (n.has(idx)) n.delete(idx); else n.add(idx); return n; });
+  const updateProperty = (idx: number, field: string, value: string | number) => {
+    setProperties((prev) => prev.map((p, i) => {
+      if (i !== idx) return p;
+      const updated = { ...p, [field]: value };
+      updated.totalCost = updated.purchasePrice + updated.stampDuty + updated.registrationCharges;
+      return updated;
+    }));
+  };
   const toggleGroup = (gi: number) => setGroups((p) => p.map((g, i) => i === gi ? { ...g, expanded: !g.expanded } : g));
   const toggleGroupSel = (g: BuildingGroup) => {
     const ids = g.units.map((u) => properties.indexOf(u));
@@ -708,13 +730,13 @@ export default function ImportPage() {
                     </CardHeader>
                     {group.expanded && (
                       <CardContent className="pt-4 space-y-3">
-                        {group.units.map((unit) => { const idx = properties.indexOf(unit); return <PropertyRow key={idx} property={unit} idx={idx} selected={selected.has(idx)} isDuplicate={idx in duplicateMap} duplicateOf={duplicateMap[idx]} onToggle={toggleSelect} />; })}
+                        {group.units.map((unit) => { const idx = properties.indexOf(unit); return <PropertyRow key={idx} property={unit} idx={idx} selected={selected.has(idx)} isDuplicate={idx in duplicateMap} duplicateOf={duplicateMap[idx]} onToggle={toggleSelect} onUpdate={updateProperty} />; })}
                       </CardContent>
                     )}
                   </>
                 ) : (
                   <CardContent className="p-4">
-                    <PropertyRow property={group.units[0]} idx={properties.indexOf(group.units[0])} selected={selected.has(properties.indexOf(group.units[0]))} isDuplicate={properties.indexOf(group.units[0]) in duplicateMap} duplicateOf={duplicateMap[properties.indexOf(group.units[0])]} onToggle={toggleSelect} />
+                    <PropertyRow property={group.units[0]} idx={properties.indexOf(group.units[0])} selected={selected.has(properties.indexOf(group.units[0]))} isDuplicate={properties.indexOf(group.units[0]) in duplicateMap} duplicateOf={duplicateMap[properties.indexOf(group.units[0])]} onToggle={toggleSelect} onUpdate={updateProperty} />
                   </CardContent>
                 )}
               </Card>
@@ -747,17 +769,18 @@ export default function ImportPage() {
 }
 
 /* ─── Property Row ─── */
-function PropertyRow({ property: p, idx, selected, isDuplicate, duplicateOf, onToggle }: { property: ImportProperty; idx: number; selected: boolean; isDuplicate?: boolean; duplicateOf?: { id: string; name: string; matchType: string }; onToggle: (idx: number) => void; }) {
-  const unitMatch = p.address.match(/(?:SHED|UNIT|FLAT|SHOP|BLOCK|FF|GF|TF|SF|[A-Z])-?\s*\d+/i);
+function PropertyRow({ property: p, idx, selected, isDuplicate, duplicateOf, onToggle, onUpdate }: { property: ImportProperty; idx: number; selected: boolean; isDuplicate?: boolean; duplicateOf?: { id: string; name: string; matchType: string }; onToggle: (idx: number) => void; onUpdate?: (idx: number, field: string, value: string | number) => void; }) {
+  const unitId = extractUnit(p.address);
+  const editCls = "bg-transparent border border-border/50 rounded px-1.5 py-0.5 text-xs font-semibold w-24 focus:outline-none focus:ring-1 focus:ring-primary/30 focus:border-primary";
   return (
-    <div onClick={() => onToggle(idx)} className={`flex items-start gap-4 p-3 rounded-xl cursor-pointer transition-all ${isDuplicate ? "bg-amber-50/50 ring-1 ring-amber-200" : selected ? "bg-primary/5 ring-1 ring-primary/20" : "hover:bg-muted/50"}`}>
-      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center mt-0.5 shrink-0 transition-colors ${selected ? "border-primary bg-primary" : "border-border"}`}>
+    <div className={`flex items-start gap-4 p-3 rounded-xl transition-all ${isDuplicate ? "bg-amber-50/50 ring-1 ring-amber-200" : selected ? "bg-primary/5 ring-1 ring-primary/20" : "hover:bg-muted/50"}`}>
+      <div onClick={() => onToggle(idx)} className={`w-5 h-5 rounded border-2 flex items-center justify-center mt-0.5 shrink-0 cursor-pointer transition-colors ${selected ? "border-primary bg-primary" : "border-border"}`}>
         {selected && <Check size={12} className="text-white" />}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
           <p className="text-sm font-semibold">{p.name}</p>
-          {unitMatch && <Badge className="text-[10px]">{unitMatch[0]}</Badge>}
+          {unitId && <Badge className="text-[10px]">{unitId}</Badge>}
           <Badge variant="secondary" className="text-[10px]">{p.type}</Badge>
           {p.ownership && <Badge variant="outline" className="text-[10px]">{p.ownership}</Badge>}
         </div>
@@ -772,13 +795,29 @@ function PropertyRow({ property: p, idx, selected, isDuplicate, duplicateOf, onT
         )}
         <p className="text-xs text-muted-foreground mt-1 truncate">{p.address}</p>
         {p.area && <p className="text-xs text-muted-foreground mt-0.5">{p.area}</p>}
-        <div className="flex flex-wrap gap-x-5 gap-y-1 mt-2 text-xs">
-          {p.purchasePrice > 0 && <span><span className="text-muted-foreground">Value: </span><span className="font-semibold">{formatCurrency(p.purchasePrice)}</span></span>}
-          {p.stampDuty > 0 && <span><span className="text-muted-foreground">Stamp: </span><span className="font-semibold">{formatCurrency(p.stampDuty)}</span></span>}
-          {p.totalCost > 0 && <span><span className="text-muted-foreground">Total: </span><span className="font-semibold text-primary">{formatCurrency(p.totalCost)}</span></span>}
-          {p.dastavejNo && <span><span className="text-muted-foreground">Dastavej: </span><span className="font-semibold">{p.dastavejNo}</span></span>}
+        {/* Editable financial fields */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
+          <div>
+            <p className="text-[10px] text-muted-foreground">Value</p>
+            <input type="number" value={p.purchasePrice || ""} onChange={(e) => onUpdate?.(idx, "purchasePrice", parseFloat(e.target.value) || 0)} onClick={(e) => e.stopPropagation()} className={editCls} />
+          </div>
+          <div>
+            <p className="text-[10px] text-muted-foreground">Stamp Duty</p>
+            <input type="number" value={p.stampDuty || ""} onChange={(e) => onUpdate?.(idx, "stampDuty", parseFloat(e.target.value) || 0)} onClick={(e) => e.stopPropagation()} className={editCls} />
+          </div>
+          <div>
+            <p className="text-[10px] text-muted-foreground">Reg. Charges</p>
+            <input type="number" value={p.registrationCharges || ""} onChange={(e) => onUpdate?.(idx, "registrationCharges", parseFloat(e.target.value) || 0)} onClick={(e) => e.stopPropagation()} className={editCls} />
+          </div>
+          <div>
+            <p className="text-[10px] text-muted-foreground">Total</p>
+            <p className="text-xs font-bold text-primary mt-0.5">{formatCurrency(p.purchasePrice + p.stampDuty + p.registrationCharges)}</p>
+          </div>
         </div>
-        {p.remarks && <p className="text-xs text-muted-foreground mt-1.5 italic truncate">&quot;{p.remarks}&quot;</p>}
+        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1.5 text-xs text-muted-foreground">
+          {p.dastavejNo && <span>Dastavej: <span className="font-semibold text-foreground">{p.dastavejNo}</span></span>}
+          {p.remarks && <span className="italic truncate max-w-xs">&quot;{p.remarks}&quot;</span>}
+        </div>
       </div>
     </div>
   );

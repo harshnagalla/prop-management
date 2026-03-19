@@ -40,7 +40,7 @@ import {
   LineChart,
   Line,
 } from "recharts";
-import { formatCurrency, formatPercent, formatDate, calcRentalYield } from "@/lib/utils/format";
+import { formatCurrency, formatCurrencyIndian, formatPercent, formatDate, calcRentalYield } from "@/lib/utils/format";
 import { getInvestmentScore } from "@/lib/utils/investment-score";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
@@ -797,7 +797,7 @@ export default function PropertyDetailPage() {
                       <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
                       <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="var(--color-muted-foreground)" />
                       <YAxis tick={{ fontSize: 12 }} stroke="var(--color-muted-foreground)" tickFormatter={(v: number) => formatCompactCurrency(v)} />
-                      <Tooltip formatter={(v: number) => [formatCurrency(v), "Value"]} />
+                      <Tooltip formatter={(v: number) => [formatCurrencyIndian(v), "Value"]} />
                       <Line type="monotone" dataKey="value" stroke="var(--color-primary)" strokeWidth={2} dot={{ r: 4 }} />
                     </LineChart>
                   </ResponsiveContainer>
@@ -1093,7 +1093,7 @@ export default function PropertyDetailPage() {
                       ))}
                     </Pie>
                     <Tooltip
-                      formatter={(value: number) => [formatCurrency(value), "Amount"]}
+                      formatter={(value: number) => [formatCurrencyIndian(value), "Amount"]}
                       contentStyle={{
                         borderRadius: "var(--radius)",
                         border: "1px solid var(--color-border)",

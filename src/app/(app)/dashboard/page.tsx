@@ -31,7 +31,7 @@ import { cn } from "@/lib/utils/cn";
 import { StatCard } from "@/components/ui/stat-card";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { formatCurrency, formatPercent } from "@/lib/utils/format";
+import { formatCurrency, formatCurrencyIndian, formatPercent } from "@/lib/utils/format";
 
 interface DashboardData {
   properties: {
@@ -466,7 +466,7 @@ export default function DashboardPage() {
                     />
                     <Tooltip
                       formatter={(value: number, name: string) => [
-                        formatCurrency(value),
+                        formatCurrencyIndian(value),
                         name === "income" ? "Income" : "Expenses",
                       ]}
                       labelStyle={{ fontWeight: 600 }}
@@ -531,7 +531,7 @@ export default function DashboardPage() {
                       ))}
                     </Pie>
                     <Tooltip
-                      formatter={(value: number) => [formatCurrency(value), "Amount"]}
+                      formatter={(value: number) => [formatCurrencyIndian(value), "Amount"]}
                       contentStyle={{
                         borderRadius: "var(--radius)",
                         border: "1px solid var(--color-border)",
@@ -577,7 +577,7 @@ export default function DashboardPage() {
                       <Cell fill="var(--color-warning)" />
                     </Pie>
                     <Tooltip
-                      formatter={(value: number) => [formatCurrency(value), "Value"]}
+                      formatter={(value: number) => [formatCurrencyIndian(value), "Value"]}
                       contentStyle={{
                         borderRadius: "var(--radius)",
                         border: "1px solid var(--color-border)",
