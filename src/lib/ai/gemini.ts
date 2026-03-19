@@ -195,6 +195,83 @@ Extract every property row found in the document.`,
   return object;
 }
 
+// --- Smart Property Import Schema ---
+
+const smartImportSchema = z.object({
+  properties: z.array(z.object({
+    name: z.string().describe("Property/building name"),
+    unitNumber: z.string().optional().describe("Unit/shop/flat/shed number if this is a unit within a building (e.g. 'UNIT 127', 'SHED-74', 'FF-106', '301')"),
+    buildingName: z.string().describe("Parent building name without unit number (e.g. 'GALLERIA', 'AAROHI VERVE', 'SHUBHAM INDUSTRIAL PARK')"),
+    address: z.string().describe("Full address"),
+    city: z.string().optional().describe("City name, default Ahmedabad"),
+    area: z.string().optional().describe("Area in locality (e.g. 'Bopal', 'Narol', 'Bodakdev', 'SG Highway')"),
+    type: z.enum(["residential", "commercial", "industrial", "land", "mixed"]).describe("Property type"),
+    areaDetails: z.string().optional().describe("Area measurements as-is from source (carpet, built-up, land area with units)"),
+    dastavejNo: z.string().optional().describe("Dastavej/deed registration number"),
+    registrationDate: z.string().optional().describe("Registration date in YYYY-MM-DD format"),
+    propertyValue: z.number().optional().describe("Property value / purchase price in INR"),
+    stampDuty: z.number().optional().describe("Stamp duty amount in INR"),
+    registrationCharges: z.number().optional().describe("Registration charges in INR"),
+    totalCost: z.number().optional().describe("Total cost including all charges in INR"),
+    ownership: z.string().optional().describe("Ownership description (e.g. '50% Siva, 50% NMP')"),
+    ownershipPercent: z.number().optional().describe("The user's ownership percentage (0-100)"),
+    remarks: z.string().optional().describe("Any remarks or notes"),
+  })),
+  buildingGroups: z.array(z.object({
+    buildingName: z.string(),
+    unitCount: z.number(),
+    propertyIndices: z.array(z.number()).describe("Indices into the properties array that belong to this building"),
+  })).describe("Buildings that have multiple units"),
+});
+
+export async function smartImportProperties(
+  csvText: string,
+  existingProperties?: Array<{ name: string; address: string }>
+): Promise<z.infer<typeof smartImportSchema>> {
+  const existingContext = existingProperties && existingProperties.length > 0
+    ? `\n\nEXISTING PROPERTIES ALREADY IN DATABASE:\n${existingProperties.map((p, i) => `${i + 1}. "${p.name}" at "${p.address}"`).join("\n")}\n\nFor each imported property, check if it's the SAME property (same building AND same unit) as any existing one. Different units in the same building are SEPARATE properties.`
+    : "";
+
+  const { object } = await withRetry(() =>
+    generateObject({
+      model: google("gemini-2.0-flash"),
+      schema: smartImportSchema,
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: `You are a property data extraction expert for Indian real estate.
+
+Parse this property spreadsheet data and extract all properties with their details.
+
+CRITICAL RULES:
+1. Each ROW is a separate property. Even if the building name is the same, different rows = different units.
+2. Extract the UNIT NUMBER from the address (e.g. "UNIT 127", "SHED-74", "FF-106", "301", "B-1001", "TF-3024", "FF-SHOP-105").
+3. The BUILDING NAME is the main property name WITHOUT the unit number.
+4. For "BLOCK NO A 1ST FLOOR, UNIT 127, BOPAL" — the unit is "UNIT 127", NOT "A 1".
+5. For "301, AAROHI VERVE COMMERCIAL" — the unit is "301", building is "AAROHI VERVE".
+6. Group properties that share the same building name.
+7. Parse ALL financial numbers — remove commas, ₹ symbols, "Rs." prefix. Convert lakhs/crores to full numbers.
+8. Convert dates from DD-Mon-YYYY or DD/MM/YYYY to YYYY-MM-DD format.
+9. For ownership like "50%Siva 50% nmp" — extract the first percentage as the user's ownership (50).
+10. For "100% Siva" or "100%Siva" — ownership percent is 100.
+11. Skip header rows, title rows, and total/summary rows.
+12. The "area" field should extract the locality name from the address (Bopal, Narol, Bodakdev, etc.)
+${existingContext}
+
+SPREADSHEET DATA:
+${csvText}`,
+            },
+          ],
+        },
+      ],
+    })
+  );
+  return object;
+}
+
 // --- Bank Statement Schema ---
 
 const bankTransactionSchema = z.object({

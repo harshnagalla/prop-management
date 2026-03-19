@@ -146,7 +146,7 @@ function extractUnit(address: string): string {
 /* ─── Main ─── */
 export default function ImportPage() {
   const [step, setStep] = useState<"upload" | "mapping" | "review" | "done">("upload");
-  const [mode, setMode] = useState<"spreadsheet" | "ai">("spreadsheet");
+  const [mode, setMode] = useState<"smart" | "spreadsheet" | "ai">("smart");
   const [extracting, setExtracting] = useState(false);
   const [importing, setImporting] = useState(false);
   const [error, setError] = useState("");
@@ -381,14 +381,70 @@ export default function ImportPage() {
     setStep("review");
   };
 
+  const handleSmartImport = useCallback(async (file: File) => {
+    setError("");
+    setExtracting(true);
+    try {
+      let csvText: string;
+      if (file.name.endsWith(".csv")) {
+        csvText = await new Promise<string>((resolve, reject) => {
+          const r = new FileReader(); r.onload = () => resolve(r.result as string); r.onerror = reject; r.readAsText(file);
+        });
+      } else {
+        const buf = await new Promise<ArrayBuffer>((resolve, reject) => {
+          const r = new FileReader(); r.onload = () => resolve(r.result as ArrayBuffer); r.onerror = reject; r.readAsArrayBuffer(file);
+        });
+        const wb = XLSX.read(new Uint8Array(buf), { type: "array" });
+        csvText = XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]]);
+      }
+
+      const res = await fetch("/api/ai/smart-import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ csvText }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || "AI import failed"); setExtracting(false); return; }
+
+      const props: ImportProperty[] = (data.properties || []).map((p: Record<string, unknown>) => ({
+        name: (p.unitNumber ? `${p.buildingName} - ${p.unitNumber}` : p.name) as string,
+        address: (p.address || "") as string,
+        type: (p.type || "residential") as string,
+        status: "occupied",
+        area: (p.areaDetails || "") as string,
+        dastavejNo: (p.dastavejNo || "") as string,
+        registrationDate: (p.registrationDate || "") as string,
+        purchasePrice: (p.propertyValue || 0) as number,
+        stampDuty: (p.stampDuty || 0) as number,
+        registrationCharges: (p.registrationCharges || 0) as number,
+        totalCost: ((p.totalCost as number) || ((p.propertyValue as number || 0) + (p.stampDuty as number || 0) + (p.registrationCharges as number || 0))),
+        ownership: (p.ownership || "") as string,
+        remarks: (p.remarks || "") as string,
+        buildingGroup: ((p.buildingName || p.name || "") as string).toUpperCase(),
+      }));
+
+      setProperties(props);
+      setGroups(groupByBuilding(props));
+      const dupes = detectDuplicates(props);
+      setDuplicateMap(dupes);
+      setSelected(new Set(props.map((_, i) => i).filter((i) => !(i in dupes))));
+      setStep("review");
+    } catch {
+      setError("AI import failed. Try manual CSV mode instead.");
+    } finally {
+      setExtracting(false);
+    }
+  }, [existingProperties]);
+
   const handleFile = (file: File) => {
-    // CSV/Excel files ALWAYS go through spreadsheet parsing (field mapping)
-    // regardless of mode — it's more accurate than AI for structured data
+    if (mode === "smart" && file.name.match(/\.(csv|xlsx?|xls)$/i)) {
+      handleSmartImport(file);
+      return;
+    }
     if (file.name.match(/\.(csv|xlsx?|xls)$/i)) {
       handleSpreadsheet(file);
       return;
     }
-    // Images/PDFs go through AI
     handleAI(file);
   };
 
@@ -545,18 +601,24 @@ export default function ImportPage() {
       {/* ═══ Upload ═══ */}
       {step === "upload" && (
         <>
-          <div className="flex gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <button onClick={() => setMode("smart")}
+              className={`p-4 rounded-xl border-2 transition-all text-left ${mode === "smart" ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"}`}>
+              <Sparkles size={24} className={mode === "smart" ? "text-primary" : "text-muted-foreground"} />
+              <p className="font-semibold mt-2">AI Smart Import</p>
+              <p className="text-xs text-muted-foreground mt-1">Drop CSV/Excel. AI detects buildings, units, duplicates — no manual mapping.</p>
+            </button>
             <button onClick={() => setMode("spreadsheet")}
-              className={`flex-1 p-4 rounded-xl border-2 transition-all text-left ${mode === "spreadsheet" ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"}`}>
+              className={`p-4 rounded-xl border-2 transition-all text-left ${mode === "spreadsheet" ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"}`}>
               <FileSpreadsheet size={24} className={mode === "spreadsheet" ? "text-primary" : "text-muted-foreground"} />
-              <p className="font-semibold mt-2">CSV / Excel</p>
-              <p className="text-xs text-muted-foreground mt-1">Parse and map columns to property fields. Works with any spreadsheet format.</p>
+              <p className="font-semibold mt-2">Manual Mapping</p>
+              <p className="text-xs text-muted-foreground mt-1">Parse CSV/Excel and manually map columns. Works with any format.</p>
             </button>
             <button onClick={() => setMode("ai")}
-              className={`flex-1 p-4 rounded-xl border-2 transition-all text-left ${mode === "ai" ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"}`}>
-              <Sparkles size={24} className={mode === "ai" ? "text-primary" : "text-muted-foreground"} />
-              <p className="font-semibold mt-2">AI Scan</p>
-              <p className="text-xs text-muted-foreground mt-1">Upload any file — CSV, Excel, images, PDFs. AI extracts data with Gemini.</p>
+              className={`p-4 rounded-xl border-2 transition-all text-left ${mode === "ai" ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"}`}>
+              <FileImage size={24} className={mode === "ai" ? "text-primary" : "text-muted-foreground"} />
+              <p className="font-semibold mt-2">Scan Image/PDF</p>
+              <p className="text-xs text-muted-foreground mt-1">Upload photos or PDFs. AI reads and extracts property data.</p>
             </button>
           </div>
 
@@ -575,7 +637,7 @@ export default function ImportPage() {
                         {mode === "ai" ? <Sparkles size={24} className="text-primary animate-pulse" /> : <FileSpreadsheet size={24} className="text-primary" />}
                       </div>
                     </div>
-                    <p className="text-base font-semibold">{mode === "ai" ? "AI analyzing your file..." : "Parsing spreadsheet..."}</p>
+                    <p className="text-base font-semibold">{mode === "smart" ? "AI analyzing your spreadsheet..." : mode === "ai" ? "AI analyzing your file..." : "Parsing spreadsheet..."}</p>
                   </div>
                 ) : (
                   <div className="text-center">
@@ -584,7 +646,9 @@ export default function ImportPage() {
                     </div>
                     <p className="text-lg font-semibold mb-2">Drag & drop or click to upload</p>
                     <p className="text-sm text-muted-foreground max-w-md mx-auto mb-6">
-                      {mode === "spreadsheet" ? "Upload CSV or Excel. You'll map columns to property fields next." : "Upload any file. AI extracts property data using Gemini."}
+                      {mode === "smart" ? "Drop your property spreadsheet. AI will detect buildings, units, values, and duplicates automatically."
+                        : mode === "spreadsheet" ? "Upload CSV or Excel. You'll map columns to property fields next."
+                        : "Upload photos or PDFs. AI reads and extracts property data."}
                     </p>
                     <div className="flex flex-wrap items-center justify-center gap-2">
                       <Badge variant="secondary" className="gap-1.5 px-3 py-1"><FileSpreadsheet size={12} /> CSV</Badge>
@@ -598,7 +662,7 @@ export default function ImportPage() {
                 )}
               </div>
             </div>
-            <input type="file" accept={mode === "spreadsheet" ? ".csv,.xlsx,.xls" : ".csv,.xlsx,.xls,image/*,.pdf"} className="hidden"
+            <input type="file" accept={mode === "ai" ? "image/*,.pdf" : ".csv,.xlsx,.xls"} className="hidden"
               onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} disabled={extracting} />
           </label>
         </>
