@@ -71,6 +71,7 @@ export const properties = pgTable("properties", {
 
   // Ownership
   ownership: text("ownership"),
+  ownershipPercent: numeric("ownership_percent", { precision: 5, scale: 2 }),
 
   // Geolocation
   latitude: numeric("latitude", { precision: 10, scale: 7 }),

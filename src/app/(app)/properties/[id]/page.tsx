@@ -628,9 +628,14 @@ export default function PropertyDetailPage() {
               {property.city ? `, ${property.city}` : ""}
             </p>
           )}
-          {property.ownership && (
+          {(property.ownership || property.ownershipPercent) && (
             <p className="text-sm text-muted-foreground">
-              Ownership: {property.ownership}
+              Ownership: {property.ownership || ""}
+              {property.ownershipPercent && (
+                <Badge variant={parseFloat(property.ownershipPercent) < 100 ? "warning" : "success"} className="ml-2 text-xs">
+                  {parseFloat(property.ownershipPercent)}% yours
+                </Badge>
+              )}
             </p>
           )}
         </div>

@@ -54,6 +54,14 @@ interface DashboardData {
     thisMonthBills: number;
     expectedMonthlyRent: number;
   };
+  ownershipBreakdown: {
+    fullyOwned: number;
+    fullyOwnedValue: number;
+    shared: number;
+    sharedValue: number;
+    yourShareValue: number;
+    totalPortfolioValue: number;
+  };
   propertyList: Array<{
     id: string;
     name: string;
@@ -231,7 +239,7 @@ export default function DashboardPage() {
 
   if (!data) return null;
 
-  const { properties: props, financials, propertyList } = data;
+  const { properties: props, financials, propertyList, ownershipBreakdown } = data;
 
   const sortedProperties = [...propertyList].sort((a, b) => {
     if (!sortKey) return 0;
@@ -342,6 +350,7 @@ export default function DashboardPage() {
           <StatCard
             title="Portfolio Value"
             value={formatCurrency(financials.totalPortfolioValue)}
+            subtitle={ownershipBreakdown.shared > 0 ? `Your share: ${formatCurrency(ownershipBreakdown.yourShareValue)}` : undefined}
             icon={TrendingUp}
             variant="blue"
             trend={
@@ -539,6 +548,65 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Portfolio Ownership Chart */}
+        {ownershipBreakdown.shared > 0 && (
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle>Portfolio Ownership</CardTitle>
+              <CardDescription>Breakdown by ownership structure</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
+                <ResponsiveContainer width="100%" height={220}>
+                  <PieChart>
+                    <Pie
+                      data={[
+                        { name: "Fully Owned", value: ownershipBreakdown.fullyOwnedValue },
+                        { name: "Shared", value: ownershipBreakdown.sharedValue },
+                      ].filter((d) => d.value > 0)}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={90}
+                      innerRadius={45}
+                      paddingAngle={2}
+                    >
+                      <Cell fill="var(--color-primary)" />
+                      <Cell fill="var(--color-warning)" />
+                    </Pie>
+                    <Tooltip
+                      formatter={(value: number) => [formatCurrency(value), "Value"]}
+                      contentStyle={{
+                        borderRadius: "var(--radius)",
+                        border: "1px solid var(--color-border)",
+                        background: "var(--color-card)",
+                      }}
+                    />
+                    <Legend verticalAlign="bottom" />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="space-y-3 text-sm">
+                  <div className="p-3 rounded-lg bg-primary/5 border border-primary/10">
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Your Total Share</p>
+                    <p className="text-xl font-bold text-primary mt-1">{formatCurrency(ownershipBreakdown.yourShareValue)}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-primary" />
+                    <span className="text-muted-foreground">Fully Owned:</span>
+                    <span className="font-medium">{ownershipBreakdown.fullyOwned} properties ({formatCurrency(ownershipBreakdown.fullyOwnedValue)})</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-warning" />
+                    <span className="text-muted-foreground">Shared:</span>
+                    <span className="font-medium">{ownershipBreakdown.shared} properties (your share: {formatCurrency(ownershipBreakdown.yourShareValue - ownershipBreakdown.fullyOwnedValue)})</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Property performance table */}

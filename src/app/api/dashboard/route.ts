@@ -54,6 +54,29 @@ export async function GET() {
     .filter((p) => p.status === "occupied" && p.monthlyRent)
     .reduce((sum, p) => sum + parseFloat(p.monthlyRent || "0"), 0);
 
+  // Ownership breakdown
+  const ownershipBreakdown = {
+    fullyOwned: 0,
+    fullyOwnedValue: 0,
+    shared: 0,
+    sharedValue: 0,
+    yourShareValue: 0,
+    totalPortfolioValue: totalValue,
+  };
+
+  for (const p of props) {
+    const pct = parseFloat(p.ownershipPercent || "100");
+    const val = parseFloat(p.currentValue || "0");
+    if (pct >= 100 || !p.ownershipPercent) {
+      ownershipBreakdown.fullyOwned++;
+      ownershipBreakdown.fullyOwnedValue += val;
+    } else {
+      ownershipBreakdown.shared++;
+      ownershipBreakdown.sharedValue += val;
+    }
+    ownershipBreakdown.yourShareValue += val * (pct / 100);
+  }
+
   return NextResponse.json({
     properties: {
       total: props.length,
@@ -75,6 +98,7 @@ export async function GET() {
       thisMonthBills: parseFloat(thisMonthBillsData[0]?.total || "0"),
       expectedMonthlyRent,
     },
+    ownershipBreakdown,
     propertyList: props.map((p) => ({
       id: p.id,
       name: p.name,

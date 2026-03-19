@@ -73,6 +73,7 @@ function PropertyForm({
     stampDuty: initial?.stampDuty || "",
     registrationCharges: initial?.registrationCharges || "",
     ownership: initial?.ownership || "",
+    ownershipPercent: initial?.ownershipPercent || "",
     leaseStart: initial?.leaseStart
       ? new Date(initial.leaseStart).toISOString().split("T")[0]
       : "",
@@ -102,6 +103,7 @@ function PropertyForm({
           stampDuty: form.stampDuty || null,
           registrationCharges: form.registrationCharges || null,
           ownership: form.ownership || null,
+          ownershipPercent: form.ownershipPercent ? String(form.ownershipPercent) : null,
           leaseStart: form.leaseStart || null,
           leaseEnd: form.leaseEnd || null,
           securityDeposit: form.securityDeposit || null,
@@ -273,13 +275,26 @@ function PropertyForm({
               className="mt-1"
             />
           </div>
-          <div className="col-span-1 sm:col-span-2">
+          <div>
             <label className="text-sm font-medium">Ownership</label>
             <Input
               value={form.ownership}
               onChange={(e) => set("ownership", e.target.value)}
               className="mt-1"
               placeholder="e.g. 50% Siva, 50% NMP"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">Your Ownership %</label>
+            <Input
+              type="number"
+              min={0}
+              max={100}
+              step={0.01}
+              value={form.ownershipPercent}
+              onChange={(e) => set("ownershipPercent", e.target.value)}
+              className="mt-1"
+              placeholder="e.g. 50 for 50%"
             />
           </div>
         </div>
@@ -649,6 +664,11 @@ export default function PropertiesPage() {
                       {p.ownership && (
                         <Badge variant="outline" className="text-[10px]">
                           {p.ownership}
+                        </Badge>
+                      )}
+                      {p.ownershipPercent && parseFloat(p.ownershipPercent) < 100 && (
+                        <Badge variant="warning" className="text-[10px]">
+                          {parseFloat(p.ownershipPercent)}% owned
                         </Badge>
                       )}
                       {(() => {

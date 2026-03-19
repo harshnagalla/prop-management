@@ -66,6 +66,12 @@ function parseDate(val: unknown): string {
   return "";
 }
 
+function parseOwnershipPercent(ownership: string): number {
+  const match = ownership.match(/(\d+(?:\.\d+)?)\s*%/);
+  if (match) return parseFloat(match[1]);
+  return 0;
+}
+
 function guessType(val: unknown): string {
   const s = String(val || "").toLowerCase();
   if (s.includes("resident")) return "residential";
@@ -448,7 +454,9 @@ export default function ImportPage() {
             registrationDate: p.registrationDate || null,
             stampDuty: p.stampDuty > 0 ? String(p.stampDuty) : null,
             registrationCharges: p.registrationCharges > 0 ? String(p.registrationCharges) : null,
-            ownership: p.ownership || null, notes: p.remarks || null,
+            ownership: p.ownership || null,
+            ownershipPercent: p.ownership ? String(parseOwnershipPercent(p.ownership)) || null : null,
+            notes: p.remarks || null,
           }),
         });
         if (res.ok) success++; else failed++;
