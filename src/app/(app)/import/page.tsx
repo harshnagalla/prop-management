@@ -146,7 +146,7 @@ function extractUnit(address: string): string {
 /* ─── Main ─── */
 export default function ImportPage() {
   const [step, setStep] = useState<"upload" | "mapping" | "review" | "done">("upload");
-  const [mode, setMode] = useState<"smart" | "spreadsheet" | "ai">("smart");
+  const [mode, setMode] = useState<"smart" | "spreadsheet" | "ai">("spreadsheet");
   const [extracting, setExtracting] = useState(false);
   const [importing, setImporting] = useState(false);
   const [error, setError] = useState("");
@@ -437,14 +437,13 @@ export default function ImportPage() {
   }, [existingProperties]);
 
   const handleFile = (file: File) => {
-    if (mode === "smart" && file.name.match(/\.(csv|xlsx?|xls)$/i)) {
-      handleSmartImport(file);
-      return;
-    }
+    // CSV/Excel always go through field mapping (numbers are accurate)
+    // AI enhance runs after mapping for smart metadata
     if (file.name.match(/\.(csv|xlsx?|xls)$/i)) {
       handleSpreadsheet(file);
       return;
     }
+    // Images/PDFs go through AI
     handleAI(file);
   };
 
@@ -637,27 +636,6 @@ export default function ImportPage() {
       {/* ═══ Upload ═══ */}
       {step === "upload" && (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <button onClick={() => setMode("smart")}
-              className={`p-4 rounded-xl border-2 transition-all text-left ${mode === "smart" ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"}`}>
-              <Sparkles size={24} className={mode === "smart" ? "text-primary" : "text-muted-foreground"} />
-              <p className="font-semibold mt-2">AI Smart Import</p>
-              <p className="text-xs text-muted-foreground mt-1">Drop CSV/Excel. AI detects buildings, units, duplicates — no manual mapping.</p>
-            </button>
-            <button onClick={() => setMode("spreadsheet")}
-              className={`p-4 rounded-xl border-2 transition-all text-left ${mode === "spreadsheet" ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"}`}>
-              <FileSpreadsheet size={24} className={mode === "spreadsheet" ? "text-primary" : "text-muted-foreground"} />
-              <p className="font-semibold mt-2">Manual Mapping</p>
-              <p className="text-xs text-muted-foreground mt-1">Parse CSV/Excel and manually map columns. Works with any format.</p>
-            </button>
-            <button onClick={() => setMode("ai")}
-              className={`p-4 rounded-xl border-2 transition-all text-left ${mode === "ai" ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"}`}>
-              <FileImage size={24} className={mode === "ai" ? "text-primary" : "text-muted-foreground"} />
-              <p className="font-semibold mt-2">Scan Image/PDF</p>
-              <p className="text-xs text-muted-foreground mt-1">Upload photos or PDFs. AI reads and extracts property data.</p>
-            </button>
-          </div>
-
           <label className={`block rounded-2xl cursor-pointer transition-all overflow-hidden ${extracting ? "" : dragOver ? "shadow-xl ring-2 ring-primary" : "hover:shadow-lg"}`}
             onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
             onDragLeave={() => setDragOver(false)}
@@ -670,35 +648,30 @@ export default function ImportPage() {
                       <div className="absolute inset-0 rounded-full border-4 border-primary/20" />
                       <div className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin" />
                       <div className="absolute inset-0 flex items-center justify-center">
-                        {mode === "ai" ? <Sparkles size={24} className="text-primary animate-pulse" /> : <FileSpreadsheet size={24} className="text-primary" />}
+                        <Sparkles size={24} className="text-primary animate-pulse" />
                       </div>
                     </div>
-                    <p className="text-base font-semibold">{mode === "smart" ? "AI analyzing your spreadsheet..." : mode === "ai" ? "AI analyzing your file..." : "Parsing spreadsheet..."}</p>
+                    <p className="text-base font-semibold">Reading your file...</p>
                   </div>
                 ) : (
                   <div className="text-center">
                     <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-5">
                       <Upload size={32} className="text-primary" />
                     </div>
-                    <p className="text-lg font-semibold mb-2">Drag & drop or click to upload</p>
+                    <p className="text-lg font-semibold mb-2">Drop your file here</p>
                     <p className="text-sm text-muted-foreground max-w-md mx-auto mb-6">
-                      {mode === "smart" ? "Drop your property spreadsheet. AI will detect buildings, units, values, and duplicates automatically."
-                        : mode === "spreadsheet" ? "Upload CSV or Excel. You'll map columns to property fields next."
-                        : "Upload photos or PDFs. AI reads and extracts property data."}
+                      CSV, Excel, images, or PDFs — we&apos;ll figure out the best way to import
                     </p>
                     <div className="flex flex-wrap items-center justify-center gap-2">
-                      <Badge variant="secondary" className="gap-1.5 px-3 py-1"><FileSpreadsheet size={12} /> CSV</Badge>
-                      <Badge variant="secondary" className="gap-1.5 px-3 py-1"><FileSpreadsheet size={12} /> Excel</Badge>
-                      {mode === "ai" && <>
-                        <Badge variant="secondary" className="gap-1.5 px-3 py-1"><FileImage size={12} /> Images</Badge>
-                        <Badge variant="secondary" className="gap-1.5 px-3 py-1"><FileText size={12} /> PDF</Badge>
-                      </>}
+                      <Badge variant="secondary" className="gap-1.5 px-3 py-1"><FileSpreadsheet size={12} /> CSV / Excel</Badge>
+                      <Badge variant="secondary" className="gap-1.5 px-3 py-1"><FileImage size={12} /> Images</Badge>
+                      <Badge variant="secondary" className="gap-1.5 px-3 py-1"><FileText size={12} /> PDF</Badge>
                     </div>
                   </div>
                 )}
               </div>
             </div>
-            <input type="file" accept={mode === "ai" ? "image/*,.pdf" : ".csv,.xlsx,.xls"} className="hidden"
+            <input type="file" accept=".csv,.xlsx,.xls,image/*,.pdf" className="hidden"
               onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} disabled={extracting} />
           </label>
         </>
