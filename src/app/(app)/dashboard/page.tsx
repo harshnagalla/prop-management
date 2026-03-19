@@ -62,6 +62,8 @@ interface DashboardData {
     yourShareValue: number;
     totalPortfolioValue: number;
   };
+  ownershipByPerson: Array<{ name: string; count: number; value: number }>;
+  areaStats: { totalCarpetArea: number; totalBuiltUpArea: number; totalLandArea: number; unit: string };
   propertyList: Array<{
     id: string;
     name: string;
@@ -421,7 +423,72 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Charts section */}
+      {/* Ownership & Area */}
+      {(data.ownershipByPerson.length > 0 || data.areaStats.totalCarpetArea > 0) && (
+        <div className="space-y-4">
+          <SectionHeader title="Ownership & Area" subtitle="Portfolio ownership split and total area across properties" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            {/* Ownership pie */}
+            {data.ownershipByPerson.length > 0 && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle>Ownership Split</CardTitle>
+                  <CardDescription>Portfolio value by owner</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={250}>
+                    <PieChart>
+                      <Pie data={data.ownershipByPerson} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} innerRadius={45} paddingAngle={2}>
+                        {data.ownershipByPerson.map((_, i) => (
+                          <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(value: number) => [formatCurrencyIndian(value), "Value"]}
+                        contentStyle={{ borderRadius: "var(--radius)", border: "1px solid var(--color-border)", background: "var(--color-card)" }} />
+                      <Legend verticalAlign="bottom" />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Area stats */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle>Total Area</CardTitle>
+                <CardDescription>Combined area across all properties</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4 py-4">
+                  {data.areaStats.totalCarpetArea > 0 && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Carpet Area</span>
+                      <span className="text-lg font-bold">{data.areaStats.totalCarpetArea.toFixed(2)} {data.areaStats.unit || "Sq.Mt"}</span>
+                    </div>
+                  )}
+                  {data.areaStats.totalBuiltUpArea > 0 && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Built-up Area</span>
+                      <span className="text-lg font-bold">{data.areaStats.totalBuiltUpArea.toFixed(2)} {data.areaStats.unit || "Sq.Mt"}</span>
+                    </div>
+                  )}
+                  {data.areaStats.totalLandArea > 0 && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Land Area</span>
+                      <span className="text-lg font-bold">{data.areaStats.totalLandArea.toFixed(2)} {data.areaStats.unit || "Sq.Mt"}</span>
+                    </div>
+                  )}
+                  {!data.areaStats.totalCarpetArea && !data.areaStats.totalBuiltUpArea && !data.areaStats.totalLandArea && (
+                    <p className="text-sm text-muted-foreground text-center py-4">No area data recorded yet</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      )}
+
+      {/* Financial Trends */}
       <div className="space-y-4">
         <SectionHeader title="Financial Trends" subtitle="Income, expenses, and spending patterns" />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">

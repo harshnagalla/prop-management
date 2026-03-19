@@ -77,6 +77,41 @@ export async function GET() {
     ownershipBreakdown.yourShareValue += val * (pct / 100);
   }
 
+  // Parse area details across portfolio
+  let totalCarpetArea = 0;
+  let totalBuiltUpArea = 0;
+  let totalLandArea = 0;
+  const areaUnit = "Sq.Mt"; // Standardize display
+  for (const p of props) {
+    const details = (p.areaDetails || "").toLowerCase();
+    const carpetMatch = details.match(/carpet\s*:?\s*([\d.]+)/);
+    const builtMatch = details.match(/build\s*up\s*:?\s*([\d.]+)/);
+    const landMatch = details.match(/land\s*:?\s*([\d.]+)/);
+    if (carpetMatch) totalCarpetArea += parseFloat(carpetMatch[1]);
+    if (builtMatch) totalBuiltUpArea += parseFloat(builtMatch[1]);
+    if (landMatch) totalLandArea += parseFloat(landMatch[1]);
+  }
+
+  // Ownership by person (parse text like "50%Siva 50% nmp", "100% Siva")
+  const ownershipByPerson: Record<string, { count: number; value: number }> = {};
+  for (const p of props) {
+    const text = p.ownership || "";
+    const matches = text.matchAll(/(\d+)\s*%\s*([a-zA-Z]+)/gi);
+    for (const m of matches) {
+      const pct = parseInt(m[1]);
+      const name = m[2].charAt(0).toUpperCase() + m[2].slice(1).toLowerCase();
+      if (!ownershipByPerson[name]) ownershipByPerson[name] = { count: 0, value: 0 };
+      ownershipByPerson[name].count++;
+      ownershipByPerson[name].value += parseFloat(p.currentValue || "0") * (pct / 100);
+    }
+    if (!text) {
+      const name = "Unassigned";
+      if (!ownershipByPerson[name]) ownershipByPerson[name] = { count: 0, value: 0 };
+      ownershipByPerson[name].count++;
+      ownershipByPerson[name].value += parseFloat(p.currentValue || "0");
+    }
+  }
+
   return NextResponse.json({
     properties: {
       total: props.length,
@@ -99,6 +134,8 @@ export async function GET() {
       expectedMonthlyRent,
     },
     ownershipBreakdown,
+    ownershipByPerson: Object.entries(ownershipByPerson).map(([name, data]) => ({ name, ...data })),
+    areaStats: { totalCarpetArea, totalBuiltUpArea, totalLandArea, unit: areaUnit },
     propertyList: props.map((p) => ({
       id: p.id,
       name: p.name,
