@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Building2, Plus, Pencil, Trash2, Search, Home, Factory, Landmark, TreePine, Layers, LayoutGrid, List, Upload, FileSpreadsheet, Check, AlertCircle } from "lucide-react";
+import { Building2, Plus, Pencil, Trash2, Search, Home, Factory, Landmark, TreePine, Layers, LayoutGrid, List, Table2, Upload, FileSpreadsheet, Check, AlertCircle } from "lucide-react";
 import { formatCurrency, formatPercent, calcRentalYield } from "@/lib/utils/format";
 import { getInvestmentScore } from "@/lib/utils/investment-score";
 import { cn } from "@/lib/utils/cn";
@@ -381,6 +381,87 @@ function PropertyForm({
   );
 }
 
+const tableCellInput =
+  "bg-transparent border-0 border-b border-transparent focus:border-primary text-sm w-full text-right py-1.5 px-1 focus:outline-none";
+
+function EditableRow({ property, onSave }: { property: Property; onSave: (id: string, data: Record<string, unknown>) => Promise<void> }) {
+  const [form, setForm] = useState({
+    status: property.status || "occupied",
+    currentValue: property.currentValue || "",
+    monthlyRent: property.monthlyRent || "",
+    stampDuty: property.stampDuty || "",
+    registrationCharges: property.registrationCharges || "",
+    ownership: property.ownership || "",
+    tenantName: property.tenantName || "",
+  });
+  const [saving, setSaving] = useState(false);
+  const [changed, setChanged] = useState(false);
+
+  const update = (key: string, value: string) => {
+    setForm((f) => ({ ...f, [key]: value }));
+    setChanged(true);
+  };
+
+  const save = async () => {
+    setSaving(true);
+    await onSave(property.id, form);
+    setSaving(false);
+    setChanged(false);
+  };
+
+  return (
+    <tr className="border-b border-border/50 hover:bg-muted/20">
+      <td className="px-3 py-1.5">
+        <Link href={`/properties/${property.id}`} className="text-sm font-medium text-primary hover:underline whitespace-nowrap">
+          {property.name}
+        </Link>
+      </td>
+      <td className="px-3 py-1.5">
+        <select
+          value={form.status}
+          onChange={(e) => update("status", e.target.value)}
+          className="bg-transparent border-0 border-b border-transparent focus:border-primary text-sm py-1.5 px-1 focus:outline-none"
+        >
+          {STATUSES.map((s) => (
+            <option key={s} value={s}>
+              {s.replace("_", " ").replace(/\b\w/g, (c) => c.toUpperCase())}
+            </option>
+          ))}
+        </select>
+      </td>
+      <td className="px-3 py-1.5">
+        <input type="number" value={form.currentValue} onChange={(e) => update("currentValue", e.target.value)} className={tableCellInput} />
+      </td>
+      <td className="px-3 py-1.5">
+        <input type="number" value={form.monthlyRent} onChange={(e) => update("monthlyRent", e.target.value)} className={tableCellInput} />
+      </td>
+      <td className="px-3 py-1.5">
+        <input type="number" value={form.stampDuty} onChange={(e) => update("stampDuty", e.target.value)} className={tableCellInput} />
+      </td>
+      <td className="px-3 py-1.5">
+        <input type="number" value={form.registrationCharges} onChange={(e) => update("registrationCharges", e.target.value)} className={tableCellInput} />
+      </td>
+      <td className="px-3 py-1.5">
+        <input type="text" value={form.ownership} onChange={(e) => update("ownership", e.target.value)} className={cn(tableCellInput, "text-left")} />
+      </td>
+      <td className="px-3 py-1.5">
+        <input type="text" value={form.tenantName} onChange={(e) => update("tenantName", e.target.value)} className={cn(tableCellInput, "text-left")} />
+      </td>
+      <td className="px-3 py-1.5 text-center">
+        <Button
+          variant={changed ? "default" : "ghost"}
+          size="icon"
+          className="h-7 w-7"
+          disabled={!changed || saving}
+          onClick={save}
+        >
+          <Check size={14} />
+        </Button>
+      </td>
+    </tr>
+  );
+}
+
 export default function PropertiesPage() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
@@ -476,7 +557,19 @@ export default function PropertiesPage() {
   };
 
   // View mode
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "list" | "table">("grid");
+
+  const handleBulkSave = async (id: string, data: Record<string, unknown>) => {
+    try {
+      const res = await fetch(`/api/properties/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (res.ok) { toast.success("Saved"); load(); }
+      else toast.error("Failed to save");
+    } catch { toast.error("Failed to save"); }
+  };
 
   function getPropertyIcon(type: string | null) {
     switch (type) {
@@ -585,6 +678,15 @@ export default function PropertiesPage() {
               >
                 <LayoutGrid size={18} />
               </button>
+              <button
+                onClick={() => setViewMode("table")}
+                className={cn(
+                  "p-2 transition-colors",
+                  viewMode === "table" ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <Table2 size={18} />
+              </button>
             </div>
           </div>
 
@@ -637,6 +739,29 @@ export default function PropertiesPage() {
               </Button>
             }
           />
+        </div>
+      ) : viewMode === "table" ? (
+        <div className="hidden md:block overflow-x-auto border border-border rounded-xl">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-muted/40 border-b border-border">
+                <th className="px-3 py-2 text-left font-medium text-muted-foreground text-xs">Name</th>
+                <th className="px-3 py-2 text-left font-medium text-muted-foreground text-xs">Status</th>
+                <th className="px-3 py-2 text-right font-medium text-muted-foreground text-xs">Value</th>
+                <th className="px-3 py-2 text-right font-medium text-muted-foreground text-xs">Rent/mo</th>
+                <th className="px-3 py-2 text-right font-medium text-muted-foreground text-xs">Stamp Duty</th>
+                <th className="px-3 py-2 text-right font-medium text-muted-foreground text-xs">Reg. Charges</th>
+                <th className="px-3 py-2 text-left font-medium text-muted-foreground text-xs">Ownership</th>
+                <th className="px-3 py-2 text-left font-medium text-muted-foreground text-xs">Tenant</th>
+                <th className="px-3 py-2 text-center font-medium text-muted-foreground text-xs w-20">Save</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((p) => (
+                <EditableRow key={p.id} property={p} onSave={handleBulkSave} />
+              ))}
+            </tbody>
+          </table>
         </div>
       ) : viewMode === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
