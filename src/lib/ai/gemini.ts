@@ -244,21 +244,26 @@ export async function smartImportProperties(
               type: "text",
               text: `You are a property data extraction expert for Indian real estate.
 
-Parse this property spreadsheet data and extract all properties with their details.
+Parse this property spreadsheet and extract ALL properties with ALL financial details.
 
-CRITICAL RULES:
-1. Each ROW is a separate property. Even if the building name is the same, different rows = different units.
-2. Extract the UNIT NUMBER from the address (e.g. "UNIT 127", "SHED-74", "FF-106", "301", "B-1001", "TF-3024", "FF-SHOP-105").
-3. The BUILDING NAME is the main property name WITHOUT the unit number.
-4. For "BLOCK NO A 1ST FLOOR, UNIT 127, BOPAL" — the unit is "UNIT 127", NOT "A 1".
-5. For "301, AAROHI VERVE COMMERCIAL" — the unit is "301", building is "AAROHI VERVE".
-6. Group properties that share the same building name.
-7. Parse ALL financial numbers — remove commas, ₹ symbols, "Rs." prefix. Convert lakhs/crores to full numbers.
-8. Convert dates from DD-Mon-YYYY or DD/MM/YYYY to YYYY-MM-DD format.
-9. For ownership like "50%Siva 50% nmp" — extract the first percentage as the user's ownership (50).
-10. For "100% Siva" or "100%Siva" — ownership percent is 100.
-11. Skip header rows, title rows, and total/summary rows.
-12. The "area" field should extract the locality name from the address (Bopal, Narol, Bodakdev, etc.)
+CRITICAL RULES FOR FINANCIAL DATA:
+- "Property Value" or "Purchase Price" column = propertyValue field. This is usually the LARGEST number (lakhs range). Example: 1205450, 2450000, 5180000
+- "Stamp Duty" column = stampDuty field. Usually 1-5% of property value. Example: 9930, 120100, 253825
+- "Registration Charges" column = registrationCharges field. Usually small. Example: 1950, 24625, 52025
+- "Total Cost" column = totalCost field. Should equal propertyValue + stampDuty + registrationCharges
+- NEVER confuse stamp duty with property value. Property value is always the biggest number.
+- Remove ₹ symbols, "Rs.", commas, quotes from numbers. "₹1,205,450" → 1205450
+- If a number is in quotes like "1,205,450", strip quotes and commas.
+
+CRITICAL RULES FOR PROPERTIES:
+1. Each ROW = one separate property. Same building name with different rows = different units.
+2. Extract UNIT NUMBER from address: "UNIT 127", "SHED-74", "FF-106", "301", "B-1001", "TF-3024", "FF-SHOP-105"
+3. "BLOCK NO A 1ST FLOOR, UNIT 127" → unit is "UNIT 127", NOT "A 1"
+4. "301, AAROHI VERVE COMMERCIAL" → unit is "301", building is "AAROHI VERVE"
+5. Group properties sharing the same building name.
+6. Dates: DD-Mon-YYYY or DD/MM/YYYY → YYYY-MM-DD
+7. Ownership "50%Siva 50% nmp" → ownershipPercent: 50. "100% Siva" → 100.
+8. Skip header rows, title rows, total/summary rows.
 ${existingContext}
 
 SPREADSHEET DATA:
