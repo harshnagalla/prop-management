@@ -449,13 +449,22 @@ export default function ImportPage() {
 
   /* ─── Apply mapping ─── */
   const applyMapping = async () => {
+    const nameColIdx = Object.entries(mapping).find(([, v]) => v === "name")?.[0];
+    if (!nameColIdx) { setError("Please map at least the 'Building / Property Name' column."); return; }
+
+    const skipPatterns = /^(total|residential|commercial|industrial|summary|count|subtotal|grand)/i;
+
     const dataRows = rows.slice(dataStartIdx).filter((row) => {
       const nonEmpty = row.filter((c) => String(c || "").trim()).length;
-      return nonEmpty >= 2;
+      if (nonEmpty < 2) return false;
+      // Skip summary/total rows
+      const firstCol = String(row[0] || "").trim();
+      if (skipPatterns.test(firstCol)) return false;
+      // Skip rows where the name column is empty or is just a number
+      const nameVal = String(row[parseInt(nameColIdx)] || "").trim();
+      if (!nameVal || /^\d+$/.test(nameVal)) return false;
+      return true;
     });
-
-    const nameIdx = Object.entries(mapping).find(([, v]) => v === "name")?.[0];
-    if (!nameIdx) { setError("Please map at least the 'Building / Property Name' column."); return; }
 
     const props: ImportProperty[] = [];
     for (const row of dataRows) {
