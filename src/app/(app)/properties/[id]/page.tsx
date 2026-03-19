@@ -21,6 +21,7 @@ import {
   Camera,
   CheckCircle2,
   Loader2,
+  Pencil,
 } from "lucide-react";
 import * as Tabs from "@radix-ui/react-tabs";
 import {
@@ -101,6 +102,21 @@ function formatCategoryLabel(category: string): string {
   return category
     .replace(/_/g, " ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function parseAreaDetails(text: string | null): Array<{ label: string; value: string }> {
+  if (!text) return [];
+  const areas: Array<{ label: string; value: string }> = [];
+  const carpetMatch = text.match(/carpet\s*:?\s*([\d.]+)\s*(sq\.?\s*(?:mt|ft|yd))/i);
+  const builtMatch = text.match(/build\s*up\s*:?\s*([\d.]+)\s*(sq\.?\s*(?:mt|ft|yd))/i);
+  const landMatch = text.match(/land\s*:?\s*([\d.]+)\s*(sq\.?\s*(?:mt|ft|yd))/i);
+  const totalMatch = text.match(/total\s*:?\s*([\d.]+)\s*(sq\.?\s*(?:mt|ft|yd))/i);
+  if (carpetMatch) areas.push({ label: "Carpet Area", value: `${carpetMatch[1]} ${carpetMatch[2]}` });
+  if (builtMatch) areas.push({ label: "Built-up Area", value: `${builtMatch[1]} ${builtMatch[2]}` });
+  if (landMatch) areas.push({ label: "Land Area", value: `${landMatch[1]} ${landMatch[2]}` });
+  if (totalMatch) areas.push({ label: "Total Area", value: `${totalMatch[1]} ${totalMatch[2]}` });
+  if (areas.length === 0 && text.trim()) areas.push({ label: "Area", value: text.trim() });
+  return areas;
 }
 
 const PIE_COLORS = [
@@ -196,6 +212,29 @@ export default function PropertyDetailPage() {
   const [showAddIncome, setShowAddIncome] = useState(false);
   const [showAddDoc, setShowAddDoc] = useState(false);
   const [showSale, setShowSale] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
+  const [editSaving, setEditSaving] = useState(false);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    address: "",
+    city: "",
+    type: "residential" as string,
+    status: "vacant" as string,
+    currentValue: "",
+    purchasePrice: "",
+    monthlyRent: "",
+    stampDuty: "",
+    registrationCharges: "",
+    ownership: "",
+    ownershipPercent: "",
+    areaDetails: "",
+    tenantName: "",
+    dastavejNo: "",
+    leaseStart: "",
+    leaseEnd: "",
+    securityDeposit: "",
+    notes: "",
+  });
 
   // AI scan states
   const [scanning, setScanning] = useState(false);
@@ -640,6 +679,33 @@ export default function PropertyDetailPage() {
           )}
         </div>
         <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
+          <Button variant="outline" size="sm" onClick={() => {
+            if (!property) return;
+            setEditForm({
+              name: property.name || "",
+              address: property.address || "",
+              city: property.city || "",
+              type: property.type || "residential",
+              status: property.status || "vacant",
+              currentValue: property.currentValue || "",
+              purchasePrice: property.purchasePrice || "",
+              monthlyRent: property.monthlyRent || "",
+              stampDuty: property.stampDuty || "",
+              registrationCharges: property.registrationCharges || "",
+              ownership: property.ownership || "",
+              ownershipPercent: property.ownershipPercent || "",
+              areaDetails: property.areaDetails || "",
+              tenantName: property.tenantName || "",
+              dastavejNo: property.dastavejNo || "",
+              leaseStart: property.leaseStart ? new Date(property.leaseStart).toISOString().split("T")[0] : "",
+              leaseEnd: property.leaseEnd ? new Date(property.leaseEnd).toISOString().split("T")[0] : "",
+              securityDeposit: property.securityDeposit || "",
+              notes: property.notes || "",
+            });
+            setShowEdit(true);
+          }} className="justify-center gap-1.5">
+            <Pencil size={14} /> Edit
+          </Button>
           {property.status !== "sold" && (
             <>
               <Button variant="outline" size="sm" onClick={() => { resetBillForm(); setShowAddBill(true); }} className="justify-center">
@@ -842,6 +908,20 @@ export default function PropertyDetailPage() {
             </div>
           )}
 
+          {/* Area Details stat cards */}
+          {property.areaDetails && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {parseAreaDetails(property.areaDetails).map((a) => (
+                <Card key={a.label}>
+                  <CardContent className="p-4">
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{a.label}</p>
+                    <p className="text-lg font-semibold mt-1">{a.value}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+
           {/* Additional info */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {property.area && (
@@ -850,12 +930,6 @@ export default function PropertyDetailPage() {
                 <span>
                   {property.area} {property.areaUnit || "sqft"}
                 </span>
-              </div>
-            )}
-            {property.areaDetails && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Ruler size={14} />
-                <span>{property.areaDetails}</span>
               </div>
             )}
             {property.tenantName && (
@@ -1891,6 +1965,170 @@ export default function PropertyDetailPage() {
             </Button>
             <Button type="submit" variant="default" disabled={uploading || !docFile}>
               {uploading ? "Uploading..." : "Upload Document"}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Edit Property Modal */}
+      <Modal open={showEdit} onClose={() => setShowEdit(false)} title="Edit Property" wide>
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            setEditSaving(true);
+            try {
+              const payload: Record<string, unknown> = {
+                name: editForm.name,
+                address: editForm.address,
+                city: editForm.city || null,
+                type: editForm.type,
+                status: editForm.status,
+                currentValue: editForm.currentValue || null,
+                purchasePrice: editForm.purchasePrice || null,
+                monthlyRent: editForm.monthlyRent || null,
+                stampDuty: editForm.stampDuty || null,
+                registrationCharges: editForm.registrationCharges || null,
+                ownership: editForm.ownership || null,
+                ownershipPercent: editForm.ownershipPercent || null,
+                areaDetails: editForm.areaDetails || null,
+                tenantName: editForm.tenantName || null,
+                dastavejNo: editForm.dastavejNo || null,
+                leaseStart: editForm.leaseStart ? new Date(editForm.leaseStart) : null,
+                leaseEnd: editForm.leaseEnd ? new Date(editForm.leaseEnd) : null,
+                securityDeposit: editForm.securityDeposit || null,
+                notes: editForm.notes || null,
+              };
+              const res = await fetch(`/api/properties/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+              });
+              if (!res.ok) throw new Error("Failed to update");
+              toast.success("Property updated");
+              setShowEdit(false);
+              loadData();
+            } catch {
+              toast.error("Failed to update property");
+            } finally {
+              setEditSaving(false);
+            }
+          }}
+          className="space-y-5"
+        >
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium">Name *</label>
+              <Input value={editForm.name} onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))} className="mt-1" required />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Address *</label>
+              <Input value={editForm.address} onChange={(e) => setEditForm((f) => ({ ...f, address: e.target.value }))} className="mt-1" required />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className="text-sm font-medium">City</label>
+                <Input value={editForm.city} onChange={(e) => setEditForm((f) => ({ ...f, city: e.target.value }))} className="mt-1" />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Type</label>
+                <select value={editForm.type} onChange={(e) => setEditForm((f) => ({ ...f, type: e.target.value }))} className={selectClassName}>
+                  <option value="residential">Residential</option>
+                  <option value="commercial">Commercial</option>
+                  <option value="industrial">Industrial</option>
+                  <option value="land">Land</option>
+                  <option value="mixed">Mixed</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Status</label>
+                <select value={editForm.status} onChange={(e) => setEditForm((f) => ({ ...f, status: e.target.value }))} className={selectClassName}>
+                  <option value="occupied">Occupied</option>
+                  <option value="vacant">Vacant</option>
+                  <option value="under_renovation">Under Renovation</option>
+                  <option value="for_sale">For Sale</option>
+                  <option value="sold">Sold</option>
+                </select>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className="text-sm font-medium">Current Value</label>
+                <Input type="number" step="0.01" value={editForm.currentValue} onChange={(e) => setEditForm((f) => ({ ...f, currentValue: e.target.value }))} className="mt-1" />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Purchase Price</label>
+                <Input type="number" step="0.01" value={editForm.purchasePrice} onChange={(e) => setEditForm((f) => ({ ...f, purchasePrice: e.target.value }))} className="mt-1" />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Monthly Rent</label>
+                <Input type="number" step="0.01" value={editForm.monthlyRent} onChange={(e) => setEditForm((f) => ({ ...f, monthlyRent: e.target.value }))} className="mt-1" />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium">Stamp Duty</label>
+                <Input type="number" step="0.01" value={editForm.stampDuty} onChange={(e) => setEditForm((f) => ({ ...f, stampDuty: e.target.value }))} className="mt-1" />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Registration Charges</label>
+                <Input type="number" step="0.01" value={editForm.registrationCharges} onChange={(e) => setEditForm((f) => ({ ...f, registrationCharges: e.target.value }))} className="mt-1" />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium">Ownership</label>
+                <Input value={editForm.ownership} onChange={(e) => setEditForm((f) => ({ ...f, ownership: e.target.value }))} className="mt-1" placeholder="e.g. Self, Joint" />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Ownership %</label>
+                <Input type="number" step="0.01" min="0" max="100" value={editForm.ownershipPercent} onChange={(e) => setEditForm((f) => ({ ...f, ownershipPercent: e.target.value }))} className="mt-1" />
+              </div>
+            </div>
+            <div>
+              <label className="text-sm font-medium">Area Details</label>
+              <Input value={editForm.areaDetails} onChange={(e) => setEditForm((f) => ({ ...f, areaDetails: e.target.value }))} className="mt-1" placeholder="e.g. Carpet : 43.76 Sq.Mt Build up : 47.57 Sq.MT" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium">Tenant Name</label>
+                <Input value={editForm.tenantName} onChange={(e) => setEditForm((f) => ({ ...f, tenantName: e.target.value }))} className="mt-1" />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Dastavej No</label>
+                <Input value={editForm.dastavejNo} onChange={(e) => setEditForm((f) => ({ ...f, dastavejNo: e.target.value }))} className="mt-1" />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className="text-sm font-medium">Lease Start</label>
+                <Input type="date" value={editForm.leaseStart} onChange={(e) => setEditForm((f) => ({ ...f, leaseStart: e.target.value }))} className="mt-1" />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Lease End</label>
+                <Input type="date" value={editForm.leaseEnd} onChange={(e) => setEditForm((f) => ({ ...f, leaseEnd: e.target.value }))} className="mt-1" />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Security Deposit</label>
+                <Input type="number" step="0.01" value={editForm.securityDeposit} onChange={(e) => setEditForm((f) => ({ ...f, securityDeposit: e.target.value }))} className="mt-1" />
+              </div>
+            </div>
+            <div>
+              <label className="text-sm font-medium">Notes</label>
+              <textarea
+                value={editForm.notes}
+                onChange={(e) => setEditForm((f) => ({ ...f, notes: e.target.value }))}
+                className={textareaClassName}
+                rows={3}
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-3 justify-end pt-3">
+            <Button type="button" variant="outline" onClick={() => setShowEdit(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="default" disabled={editSaving || !editForm.name || !editForm.address}>
+              {editSaving ? "Saving..." : "Save Changes"}
             </Button>
           </div>
         </form>
