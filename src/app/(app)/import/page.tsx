@@ -140,7 +140,7 @@ export default function ImportPage() {
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [results, setResults] = useState({ success: 0, failed: 0 });
   const [existingProperties, setExistingProperties] = useState<{ id: string; name: string; address: string }[]>([]);
-  const [duplicates, setDuplicates] = useState<Set<number>>(new Set());
+  const [duplicateMap, setDuplicateMap] = useState<Record<number, { id: string; name: string; matchType: string }>>({});
 
   // Fetch existing properties for duplicate detection
   useEffect(() => {
@@ -149,22 +149,76 @@ export default function ImportPage() {
     }).catch(() => {});
   }, []);
 
+  function normalize(s: string): string {
+    return s.toLowerCase().replace(/[^a-z0-9]/g, "");
+  }
+
+  function extractBuildingName(name: string): string {
+    // Remove unit identifiers to get base building name
+    return name.replace(/\s*-\s*(SHED|UNIT|FLAT|SHOP|BLOCK|FF|GF|TF|SF|[A-Z])-?\s*\d+.*/i, "").trim();
+  }
+
+  function extractUnit(address: string): string {
+    const match = address.match(/(?:SHED|UNIT|FLAT|SHOP|BLOCK|FF|GF|TF|SF|[A-Z])-?\s*\d+/i);
+    return match ? match[0] : "";
+  }
+
   function detectDuplicates(props: ImportProperty[]) {
-    const dupes = new Set<number>();
+    const dupes: Record<number, { id: string; name: string; matchType: string }> = {};
+
     for (let i = 0; i < props.length; i++) {
       const p = props[i];
-      const importName = p.name.toLowerCase().replace(/[^a-z0-9]/g, "");
+      const importNameNorm = normalize(p.name);
+      const importBuilding = normalize(extractBuildingName(p.name));
+      const importUnit = extractUnit(p.address);
+
       for (const existing of existingProperties) {
-        const existingName = existing.name.toLowerCase().replace(/[^a-z0-9]/g, "");
-        // Match by name similarity or address substring
-        if (
-          importName === existingName ||
-          existingName.includes(importName) ||
-          importName.includes(existingName) ||
-          (p.address && existing.address && p.address.toLowerCase().includes(existing.address.toLowerCase().substring(0, 30)))
-        ) {
-          dupes.add(i);
+        const existingNameNorm = normalize(existing.name);
+        const existingBuilding = normalize(extractBuildingName(existing.name));
+        const existingUnit = extractUnit(existing.address || "");
+
+        // Exact name match (strongest signal)
+        if (importNameNorm === existingNameNorm) {
+          dupes[i] = { id: existing.id, name: existing.name, matchType: "Exact name match" };
           break;
+        }
+
+        // Exact same unit in same building (e.g. "SHIVALIK SHILP FF-106" matches "SHIVALIK SHILP - FF-106")
+        if (importBuilding === existingBuilding && importUnit && existingUnit && normalize(importUnit) === normalize(existingUnit)) {
+          dupes[i] = { id: existing.id, name: existing.name, matchType: `Same unit (${importUnit})` };
+          break;
+        }
+
+        // Building name contained in existing or vice versa (e.g. "VERVE" matches "AAROHI VERVE")
+        if (importBuilding.length >= 4 && existingBuilding.length >= 4) {
+          if (existingBuilding.includes(importBuilding) || importBuilding.includes(existingBuilding)) {
+            // Same building, check if same unit
+            if (importUnit && existingUnit && normalize(importUnit) === normalize(existingUnit)) {
+              dupes[i] = { id: existing.id, name: existing.name, matchType: `Same building & unit` };
+              break;
+            }
+            // Same building, different or no unit — might be different shop
+            if (!importUnit || !existingUnit || normalize(importUnit) !== normalize(existingUnit)) {
+              // Don't mark as duplicate — different unit in same building is a different property
+              continue;
+            }
+          }
+        }
+
+        // Dastavej number match (strongest unique identifier)
+        if (p.dastavejNo && existing.address && existing.address.includes(p.dastavejNo)) {
+          dupes[i] = { id: existing.id, name: existing.name, matchType: `Same dastavej (${p.dastavejNo})` };
+          break;
+        }
+
+        // Address substring match (first 40 chars, normalized)
+        if (p.address && existing.address) {
+          const importAddr = normalize(p.address.substring(0, 40));
+          const existingAddr = normalize(existing.address.substring(0, 40));
+          if (importAddr.length > 15 && existingAddr.length > 15 && importAddr === existingAddr) {
+            dupes[i] = { id: existing.id, name: existing.name, matchType: "Same address" };
+            break;
+          }
         }
       }
     }
@@ -302,8 +356,8 @@ export default function ImportPage() {
     setProperties(props);
     setGroups(groupByBuilding(props));
     const dupes = detectDuplicates(props);
-    setDuplicates(dupes);
-    setSelected(new Set(props.map((_, i) => i).filter((i) => !dupes.has(i))));
+    setDuplicateMap(dupes);
+    setSelected(new Set(props.map((_, i) => i).filter((i) => !(i in dupes))));
     setStep("review");
   };
 
@@ -368,8 +422,8 @@ export default function ImportPage() {
     setGroups(groupByBuilding(props));
     // Detect duplicates and auto-deselect them
     const dupes = detectDuplicates(props);
-    setDuplicates(dupes);
-    setSelected(new Set(props.map((_, i) => i).filter((i) => !dupes.has(i))));
+    setDuplicateMap(dupes);
+    setSelected(new Set(props.map((_, i) => i).filter((i) => !(i in dupes))));
     setStep("review");
   };
 
@@ -614,8 +668,8 @@ export default function ImportPage() {
               {groups.some((g) => g.units.length > 1) && (
                 <p className="text-xs text-blue-600 mt-1"><Building2 size={12} className="inline mr-1" />Multi-unit buildings detected</p>
               )}
-              {duplicates.size > 0 && (
-                <p className="text-xs text-amber-600 mt-1"><AlertCircle size={12} className="inline mr-1" />{duplicates.size} possible duplicates detected (auto-deselected)</p>
+              {Object.keys(duplicateMap).length > 0 && (
+                <p className="text-xs text-amber-600 mt-1"><AlertCircle size={12} className="inline mr-1" />{Object.keys(duplicateMap).length} possible duplicates detected (auto-deselected)</p>
               )}
             </div>
             <div className="flex gap-2">
@@ -646,13 +700,13 @@ export default function ImportPage() {
                     </CardHeader>
                     {group.expanded && (
                       <CardContent className="pt-4 space-y-3">
-                        {group.units.map((unit) => { const idx = properties.indexOf(unit); return <PropertyRow key={idx} property={unit} idx={idx} selected={selected.has(idx)} isDuplicate={duplicates.has(idx)} onToggle={toggleSelect} />; })}
+                        {group.units.map((unit) => { const idx = properties.indexOf(unit); return <PropertyRow key={idx} property={unit} idx={idx} selected={selected.has(idx)} isDuplicate={idx in duplicateMap} duplicateOf={duplicateMap[idx]} onToggle={toggleSelect} />; })}
                       </CardContent>
                     )}
                   </>
                 ) : (
                   <CardContent className="p-4">
-                    <PropertyRow property={group.units[0]} idx={properties.indexOf(group.units[0])} selected={selected.has(properties.indexOf(group.units[0]))} isDuplicate={duplicates.has(properties.indexOf(group.units[0]))} onToggle={toggleSelect} />
+                    <PropertyRow property={group.units[0]} idx={properties.indexOf(group.units[0])} selected={selected.has(properties.indexOf(group.units[0]))} isDuplicate={properties.indexOf(group.units[0]) in duplicateMap} duplicateOf={duplicateMap[properties.indexOf(group.units[0])]} onToggle={toggleSelect} />
                   </CardContent>
                 )}
               </Card>
@@ -685,7 +739,7 @@ export default function ImportPage() {
 }
 
 /* ─── Property Row ─── */
-function PropertyRow({ property: p, idx, selected, isDuplicate, onToggle }: { property: ImportProperty; idx: number; selected: boolean; isDuplicate?: boolean; onToggle: (idx: number) => void; }) {
+function PropertyRow({ property: p, idx, selected, isDuplicate, duplicateOf, onToggle }: { property: ImportProperty; idx: number; selected: boolean; isDuplicate?: boolean; duplicateOf?: { id: string; name: string; matchType: string }; onToggle: (idx: number) => void; }) {
   const unitMatch = p.address.match(/(?:SHED|UNIT|FLAT|SHOP|BLOCK|FF|GF|TF|SF|[A-Z])-?\s*\d+/i);
   return (
     <div onClick={() => onToggle(idx)} className={`flex items-start gap-4 p-3 rounded-xl cursor-pointer transition-all ${isDuplicate ? "bg-amber-50/50 ring-1 ring-amber-200" : selected ? "bg-primary/5 ring-1 ring-primary/20" : "hover:bg-muted/50"}`}>
@@ -698,8 +752,16 @@ function PropertyRow({ property: p, idx, selected, isDuplicate, onToggle }: { pr
           {unitMatch && <Badge className="text-[10px]">{unitMatch[0]}</Badge>}
           <Badge variant="secondary" className="text-[10px]">{p.type}</Badge>
           {p.ownership && <Badge variant="outline" className="text-[10px]">{p.ownership}</Badge>}
-          {isDuplicate && <Badge variant="outline" className="text-[10px] text-amber-600 border-amber-300 bg-amber-50">Duplicate?</Badge>}
         </div>
+        {isDuplicate && duplicateOf && (
+          <div className="flex items-center gap-1.5 mt-1.5 px-2 py-1.5 bg-amber-50 border border-amber-200 rounded-lg text-xs">
+            <AlertCircle size={12} className="text-amber-500 shrink-0" />
+            <span className="text-amber-700">
+              <span className="font-semibold">Duplicate of &quot;{duplicateOf.name}&quot;</span>
+              <span className="text-amber-500 ml-1">({duplicateOf.matchType})</span>
+            </span>
+          </div>
+        )}
         <p className="text-xs text-muted-foreground mt-1 truncate">{p.address}</p>
         {p.area && <p className="text-xs text-muted-foreground mt-0.5">{p.area}</p>}
         <div className="flex flex-wrap gap-x-5 gap-y-1 mt-2 text-xs">
