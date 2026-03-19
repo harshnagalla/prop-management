@@ -265,232 +265,133 @@ export default function DashboardPage() {
     areaChartData.some((d) => d.income > 0 || d.expenses > 0) ||
     (chartData?.expenseByCategory && chartData.expenseByCategory.length > 0);
 
+  const netCashFlow = financials.totalIncomeReceived - financials.totalBills;
+
   return (
-    <div className="space-y-10 pt-12 md:pt-0">
-      {/* Welcome header */}
-      <div className="space-y-1">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-          Mission Control
-        </h1>
-        <p className="text-muted-foreground text-sm md:text-base">
-          Your portfolio overview at a glance. Track performance, income, and expenses in real time.
-        </p>
+    <div className="space-y-8 pt-12 md:pt-0">
+      {/* Header */}
+      <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard</h1>
+
+      {/* Top stats — 4 key numbers */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="p-4 rounded-xl bg-blue-50/60">
+          <p className="text-xs text-muted-foreground">Portfolio Value</p>
+          <p className="text-xl font-bold mt-1">{formatCurrency(financials.totalPortfolioValue)}</p>
+          {ownershipBreakdown.shared > 0 && <p className="text-xs text-blue-600 mt-0.5">Your share: {formatCurrency(ownershipBreakdown.yourShareValue)}</p>}
+        </div>
+        <div className="p-4 rounded-xl bg-emerald-50/60">
+          <p className="text-xs text-muted-foreground">Monthly Rent</p>
+          <p className="text-xl font-bold mt-1">{formatCurrency(financials.monthlyRentalIncome)}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{formatPercent(financials.avgRentalYield)} yield</p>
+        </div>
+        <div className="p-4 rounded-xl bg-violet-50/60">
+          <p className="text-xs text-muted-foreground">Properties</p>
+          <p className="text-xl font-bold mt-1">{props.total}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{props.occupied} occupied · {props.vacant} vacant</p>
+        </div>
+        <div className={cn("p-4 rounded-xl", netCashFlow >= 0 ? "bg-emerald-50/60" : "bg-red-50/60")}>
+          <p className="text-xs text-muted-foreground">Net Cash Flow</p>
+          <p className={cn("text-xl font-bold mt-1", netCashFlow >= 0 ? "text-emerald-700" : "text-red-700")}>{netCashFlow >= 0 ? "+" : ""}{formatCurrency(netCashFlow)}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Income minus bills</p>
+        </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-        <Link href="/properties" className="group flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-muted/50 hover:bg-muted transition-colors min-w-0">
-          <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors shrink-0">
-            <Plus size={15} className="text-blue-600" />
-          </div>
-          <span className="text-sm font-medium text-foreground/80 truncate">Add Property</span>
-        </Link>
-        <Link href="/income" className="group flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-muted/50 hover:bg-muted transition-colors min-w-0">
-          <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center group-hover:bg-green-100 transition-colors shrink-0">
-            <IndianRupee size={15} className="text-green-600" />
-          </div>
-          <span className="text-sm font-medium text-foreground/80 truncate">Record Payment</span>
-        </Link>
-        <Link href="/bills" className="group flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-muted/50 hover:bg-muted transition-colors min-w-0">
-          <div className="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center group-hover:bg-violet-100 transition-colors shrink-0">
-            <Camera size={15} className="text-violet-600" />
-          </div>
-          <span className="text-sm font-medium text-foreground/80 truncate">Scan Bill</span>
-        </Link>
-        <Link href="/import" className="group flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-muted/50 hover:bg-muted transition-colors min-w-0">
-          <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center group-hover:bg-amber-100 transition-colors shrink-0">
-            <Upload size={15} className="text-amber-600" />
-          </div>
-          <span className="text-sm font-medium text-foreground/80 truncate">Import Data</span>
-        </Link>
-      </div>
+      {/* Charts + Ownership — 2 col */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Income vs Expenses */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">Income vs Expenses</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {!hasChartData || areaChartData.every((d) => d.income === 0 && d.expenses === 0) ? (
+              <p className="text-sm text-muted-foreground text-center py-12">Add income and bills to see trends</p>
+            ) : (
+              <ResponsiveContainer width="100%" height={220}>
+                <AreaChart data={areaChartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+                  <defs>
+                    <linearGradient id="incGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--color-success)" stopOpacity={0.15} />
+                      <stop offset="95%" stopColor="var(--color-success)" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="expGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--color-destructive)" stopOpacity={0.15} />
+                      <stop offset="95%" stopColor="var(--color-destructive)" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                  <XAxis dataKey="month" tick={{ fontSize: 10 }} interval="preserveStartEnd" />
+                  <YAxis tickFormatter={formatCompactCurrency} tick={{ fontSize: 10 }} width={50} />
+                  <Tooltip formatter={(value: number, name: string) => [formatCurrencyIndian(value), name === "income" ? "Income" : "Expenses"]}
+                    contentStyle={{ borderRadius: "var(--radius)", border: "1px solid var(--color-border)", background: "var(--color-card)", fontSize: 12 }} />
+                  <Area type="monotone" dataKey="income" stroke="var(--color-success)" fill="url(#incGrad)" strokeWidth={2} />
+                  <Area type="monotone" dataKey="expenses" stroke="var(--color-destructive)" fill="url(#expGrad)" strokeWidth={2} />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
 
-      {/* This Month at a Glance */}
-      {financials.expectedMonthlyRent > 0 && (() => {
-        const collectionRate = financials.expectedMonthlyRent > 0
-          ? Math.min(Math.round((financials.thisMonthIncome / financials.expectedMonthlyRent) * 100), 100)
-          : 0;
-        const netIncome = financials.thisMonthIncome - financials.thisMonthBills;
-        const monthName = new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" });
-        return (
+        {/* Ownership pie */}
+        {data.ownershipByPerson.length > 0 ? (
           <Card>
-            <CardContent className="p-5">
-              <h3 className="text-sm font-semibold mb-4">{monthName} at a Glance</h3>
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Rent Collected</span>
-                  <span className="font-semibold text-success">
-                    {formatCurrency(financials.thisMonthIncome)} / {formatCurrency(financials.expectedMonthlyRent)}
-                  </span>
-                </div>
-                <div className="w-full h-2 bg-muted rounded-full">
-                  <div
-                    className="h-2 bg-success rounded-full transition-all duration-500"
-                    style={{ width: `${collectionRate}%` }}
-                  />
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Bills This Month</span>
-                  <span className="font-semibold">{formatCurrency(financials.thisMonthBills)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Net Income</span>
-                  <span className={cn("font-semibold", netIncome >= 0 ? "text-success" : "text-destructive")}>
-                    {netIncome >= 0 ? "+" : ""}{formatCurrency(netIncome)}
-                  </span>
-                </div>
-              </div>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Ownership Split</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={220}>
+                <PieChart>
+                  <Pie data={data.ownershipByPerson} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} innerRadius={40} paddingAngle={2}>
+                    {data.ownershipByPerson.map((_, i) => (
+                      <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value: number) => [formatCurrencyIndian(value), "Value"]}
+                    contentStyle={{ borderRadius: "var(--radius)", border: "1px solid var(--color-border)", background: "var(--color-card)", fontSize: 12 }} />
+                  <Legend verticalAlign="bottom" />
+                </PieChart>
+              </ResponsiveContainer>
             </CardContent>
           </Card>
-        );
-      })()}
-
-      {/* Key Metrics section */}
-      <div className="space-y-4">
-        <SectionHeader title="Key Metrics" subtitle="High-level portfolio performance" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          <StatCard
-            title="Portfolio Value"
-            value={formatCurrency(financials.totalPortfolioValue)}
-            subtitle={ownershipBreakdown.shared > 0 ? `Your share: ${formatCurrency(ownershipBreakdown.yourShareValue)}` : undefined}
-            icon={TrendingUp}
-            variant="blue"
-            trend={
-              financials.appreciation !== 0
-                ? {
-                    value: formatPercent(financials.appreciation) + " appreciation",
-                    positive: financials.appreciation > 0,
-                  }
-                : undefined
-            }
-          />
-          <StatCard
-            title="Monthly Rental Income"
-            value={formatCurrency(financials.monthlyRentalIncome)}
-            subtitle={`${formatCurrency(financials.annualRentalIncome)}/year`}
-            icon={IndianRupee}
-            variant="green"
-          />
-          <StatCard
-            title="Properties"
-            value={String(props.total)}
-            subtitle={`${props.occupied} occupied \u00b7 ${props.vacant} vacant`}
-            icon={Building2}
-            variant="purple"
-          />
-          <StatCard
-            title="Avg Rental Yield"
-            value={formatPercent(financials.avgRentalYield)}
-            subtitle="Annual yield on current value"
-            icon={BarChart3}
-            variant="amber"
-          />
-        </div>
+        ) : (
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Expense Breakdown</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {!chartData?.expenseByCategory || chartData.expenseByCategory.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-12">Add bills to see breakdown</p>
+              ) : (
+                <ResponsiveContainer width="100%" height={220}>
+                  <PieChart>
+                    <Pie data={chartData.expenseByCategory} dataKey="amount" nameKey="category" cx="50%" cy="50%" outerRadius={80} innerRadius={40} paddingAngle={2}>
+                      {chartData.expenseByCategory.map((_, index) => (
+                        <Cell key={index} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value: number) => [formatCurrencyIndian(value), "Amount"]}
+                      contentStyle={{ borderRadius: "var(--radius)", border: "1px solid var(--color-border)", background: "var(--color-card)", fontSize: 12 }} />
+                    <Legend verticalAlign="bottom" formatter={formatCategoryLabel} />
+                  </PieChart>
+                </ResponsiveContainer>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
 
-      {/* Operational Stats section */}
-      <div className="space-y-4">
-        <SectionHeader title="Operations" subtitle="Occupancy, billing, and monthly collections" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          <StatCard
-            title="Occupancy Rate"
-            value={formatPercent(props.occupancyRate)}
-            icon={Home}
-            variant="slate"
-          />
-          <StatCard
-            title="Unpaid Bills"
-            value={formatCurrency(financials.unpaidBills)}
-            subtitle={`of ${formatCurrency(financials.totalBills)} total`}
-            icon={Receipt}
-            variant={financials.unpaidBills > 0 ? "rose" : "slate"}
-            className={financials.unpaidBills > 0 ? "border-rose-300/60" : ""}
-          />
-          <StatCard
-            title="This Month Income"
-            value={formatCurrency(financials.thisMonthIncome)}
-            subtitle="Received this month"
-            icon={IndianRupee}
-            variant="green"
-          />
-          <StatCard
-            title="Net Cash Flow"
-            value={formatCurrency(financials.totalIncomeReceived - financials.totalBills)}
-            subtitle="All-time income minus bills"
-            icon={TrendingUp}
-            variant={financials.totalIncomeReceived - financials.totalBills >= 0 ? "green" : "rose"}
-          />
-        </div>
-      </div>
-
-      {/* Ownership & Area */}
-      {(data.ownershipByPerson.length > 0 || data.areaStats.totalCarpetArea > 0) && (
-        <div className="space-y-4">
-          <SectionHeader title="Ownership & Area" subtitle="Portfolio ownership split and total area across properties" />
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            {/* Ownership pie */}
-            {data.ownershipByPerson.length > 0 && (
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle>Ownership Split</CardTitle>
-                  <CardDescription>Portfolio value by owner</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={250}>
-                    <PieChart>
-                      <Pie data={data.ownershipByPerson} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} innerRadius={45} paddingAngle={2}>
-                        {data.ownershipByPerson.map((_, i) => (
-                          <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip formatter={(value: number) => [formatCurrencyIndian(value), "Value"]}
-                        contentStyle={{ borderRadius: "var(--radius)", border: "1px solid var(--color-border)", background: "var(--color-card)" }} />
-                      <Legend verticalAlign="bottom" />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Area stats */}
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle>Total Area</CardTitle>
-                <CardDescription>Combined area across all properties</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4 py-4">
-                  {data.areaStats.totalCarpetArea > 0 && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Carpet Area</span>
-                      <span className="text-lg font-bold">{data.areaStats.totalCarpetArea.toFixed(2)} {data.areaStats.unit || "Sq.Mt"}</span>
-                    </div>
-                  )}
-                  {data.areaStats.totalBuiltUpArea > 0 && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Built-up Area</span>
-                      <span className="text-lg font-bold">{data.areaStats.totalBuiltUpArea.toFixed(2)} {data.areaStats.unit || "Sq.Mt"}</span>
-                    </div>
-                  )}
-                  {data.areaStats.totalLandArea > 0 && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Land Area</span>
-                      <span className="text-lg font-bold">{data.areaStats.totalLandArea.toFixed(2)} {data.areaStats.unit || "Sq.Mt"}</span>
-                    </div>
-                  )}
-                  {!data.areaStats.totalCarpetArea && !data.areaStats.totalBuiltUpArea && !data.areaStats.totalLandArea && (
-                    <p className="text-sm text-muted-foreground text-center py-4">No area data recorded yet</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+      {/* Area stats — compact row */}
+      {(data.areaStats.totalCarpetArea > 0 || data.areaStats.totalBuiltUpArea > 0 || data.areaStats.totalLandArea > 0) && (
+        <div className="flex flex-wrap gap-6 text-sm">
+          {data.areaStats.totalCarpetArea > 0 && <div><span className="text-muted-foreground">Total Carpet: </span><span className="font-semibold">{data.areaStats.totalCarpetArea.toFixed(1)} Sq.Mt</span></div>}
+          {data.areaStats.totalBuiltUpArea > 0 && <div><span className="text-muted-foreground">Total Built-up: </span><span className="font-semibold">{data.areaStats.totalBuiltUpArea.toFixed(1)} Sq.Mt</span></div>}
+          {data.areaStats.totalLandArea > 0 && <div><span className="text-muted-foreground">Total Land: </span><span className="font-semibold">{data.areaStats.totalLandArea.toFixed(1)} Sq.Mt</span></div>}
         </div>
       )}
 
-      {/* Financial Trends */}
-      <div className="space-y-4">
-        <SectionHeader title="Financial Trends" subtitle="Income, expenses, and spending patterns" />
+      {/* Property table */}
+      <div className="space-y-3">
+        <h2 className="text-sm font-semibold">Properties</h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {/* Income vs Expenses Area Chart */}
           <Card>
