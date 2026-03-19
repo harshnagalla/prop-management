@@ -533,14 +533,14 @@ export default function ImportPage() {
             address: p.address, city: "Ahmedabad", type: p.type, status: p.status,
             purchasePrice: p.purchasePrice > 0 ? String(p.purchasePrice) : null,
             currentValue: p.purchasePrice > 0 ? String(p.purchasePrice) : null,
-            area: null, areaUnit: "sqft",
+            area: null, areaUnit: "sqft", areaDetails: p.area || null,
             dastavejNo: p.dastavejNo || null,
             registrationDate: p.registrationDate || null,
             stampDuty: p.stampDuty > 0 ? String(p.stampDuty) : null,
             registrationCharges: p.registrationCharges > 0 ? String(p.registrationCharges) : null,
             ownership: p.ownership || null,
             ownershipPercent: p.ownership ? String(parseOwnershipPercent(p.ownership)) || null : null,
-            notes: [p.area, p.remarks].filter(Boolean).join("\n") || null,
+            notes: p.remarks || null,
           }),
         });
         if (res.ok) success++; else failed++;

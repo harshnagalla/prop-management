@@ -59,6 +59,7 @@ export const properties = pgTable("properties", {
   currentValue: numeric("current_value", { precision: 15, scale: 2 }),
   area: numeric("area", { precision: 10, scale: 2 }),
   areaUnit: text("area_unit").default("sqft"),
+  areaDetails: text("area_details"),
   monthlyRent: numeric("monthly_rent", { precision: 12, scale: 2 }),
   tenantName: text("tenant_name"),
   notes: text("notes"),
