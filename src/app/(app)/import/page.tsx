@@ -448,10 +448,11 @@ export default function ImportPage() {
     handleAI(file);
   };
 
+  const [enhancing, setEnhancing] = useState(false);
+
   /* ─── Apply mapping ─── */
-  const applyMapping = () => {
+  const applyMapping = async () => {
     const dataRows = rows.slice(dataStartIdx).filter((row) => {
-      // Skip empty rows and total rows
       const nonEmpty = row.filter((c) => String(c || "").trim()).length;
       return nonEmpty >= 2;
     });
@@ -494,9 +495,44 @@ export default function ImportPage() {
 
     if (props.length === 0) { setError("No valid rows found. Check your header row and field mapping."); return; }
     setError("");
+
+    // AI enhance: detect units, clean names, group buildings
+    setEnhancing(true);
+    try {
+      const res = await fetch("/api/ai/enhance-import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          properties: props.map((p) => ({ name: p.name, address: p.address, type: p.type, ownership: p.ownership })),
+        }),
+      });
+      if (res.ok) {
+        const enhanced = await res.json();
+        // Merge AI results back — AI handles names/units/groups, we keep the numbers
+        for (const ep of enhanced.properties || []) {
+          const p = props[ep.index];
+          if (!p) continue;
+          if (ep.unitNumber) {
+            p.name = `${ep.cleanName} - ${ep.unitNumber}`;
+          } else {
+            p.name = ep.cleanName || p.name;
+          }
+          p.buildingGroup = (ep.buildingGroup || p.name).toUpperCase();
+          if (ep.propertyType) p.type = ep.propertyType;
+          if (ep.ownershipPercent) {
+            // Store for later use in import
+            (p as ImportProperty & { ownershipPct?: number }).ownershipPct = ep.ownershipPercent;
+          }
+        }
+      }
+    } catch {
+      // AI enhance failed — continue with manual parsing (numbers are still correct)
+    } finally {
+      setEnhancing(false);
+    }
+
     setProperties(props);
     setGroups(groupByBuilding(props));
-    // Detect duplicates and auto-deselect them
     const dupes = detectDuplicates(props);
     setDuplicateMap(dupes);
     setSelected(new Set(props.map((_, i) => i).filter((i) => !(i in dupes))));
@@ -678,7 +714,9 @@ export default function ImportPage() {
             </div>
             <div className="flex gap-2">
               <Button variant="outline" onClick={reset}><ArrowLeft size={14} className="mr-1" /> Back</Button>
-              <Button onClick={applyMapping}><ArrowRight size={14} className="mr-1" /> Apply & Preview</Button>
+              <Button onClick={applyMapping} disabled={enhancing}>
+                {enhancing ? <><Sparkles size={14} className="mr-1 animate-pulse" /> AI Enhancing...</> : <><ArrowRight size={14} className="mr-1" /> Apply & Preview</>}
+              </Button>
             </div>
           </div>
 

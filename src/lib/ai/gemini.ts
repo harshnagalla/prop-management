@@ -195,7 +195,58 @@ Extract every property row found in the document.`,
   return object;
 }
 
-// --- Smart Property Import Schema ---
+// --- AI Enhance (post-parse) Schema ---
+
+const enhanceImportSchema = z.object({
+  properties: z.array(z.object({
+    index: z.number().describe("Original index from the input array"),
+    cleanName: z.string().describe("Cleaned building/property name without unit number"),
+    unitNumber: z.string().optional().describe("Extracted unit/shop/flat/shed number (e.g. 'UNIT 127', 'SHED-74', 'FF-106', '301')"),
+    buildingGroup: z.string().describe("Parent building name for grouping (e.g. 'AAROHI VERVE' for unit 301 and 303)"),
+    locality: z.string().optional().describe("Area/locality extracted from address (e.g. 'Bopal', 'Narol', 'Bodakdev')"),
+    propertyType: z.enum(["residential", "commercial", "industrial", "land", "mixed"]).describe("Corrected property type"),
+    ownershipPercent: z.number().optional().describe("User's ownership percentage extracted from ownership text (0-100)"),
+  })),
+});
+
+export async function enhanceImportedProperties(
+  properties: Array<{ name: string; address: string; type: string; ownership: string }>,
+  existingProperties?: Array<{ name: string; address: string }>
+): Promise<z.infer<typeof enhanceImportSchema>> {
+  const existingContext = existingProperties?.length
+    ? `\n\nEXISTING PROPERTIES IN DATABASE:\n${existingProperties.map((p, i) => `${i + 1}. "${p.name}" at "${p.address}"`).join("\n")}`
+    : "";
+
+  const { object } = await withRetry(() =>
+    generateObject({
+      model: google("gemini-2.0-flash"),
+      schema: enhanceImportSchema,
+      messages: [
+        {
+          role: "user",
+          content: `Analyze these parsed property records and extract smart metadata.
+
+For each property:
+1. Extract the UNIT NUMBER from the name or address (e.g. "UNIT 127", "SHED-74", "FF-106", "301", "B-1001", "TF-3024")
+2. "BLOCK NO A 1ST FLOOR, UNIT 127" → unit is "UNIT 127", NOT "A 1"
+3. "301, AAROHI VERVE COMMERCIAL" → unit is "301"
+4. Clean the building name (remove unit number, standardize)
+5. Group buildings: "AAROHI VERVE" units 301-311 should all have buildingGroup = "AAROHI VERVE"
+6. Extract locality from address (Bopal, Narol, Bodakdev, SG Highway, Ambali, etc.)
+7. Correct property type if the parsed value seems wrong
+8. Parse ownership percentage: "50%Siva 50% nmp" → 50, "100% Siva" → 100
+${existingContext}
+
+PROPERTIES TO ANALYZE:
+${properties.map((p, i) => `${i}. Name: "${p.name}" | Address: "${p.address}" | Type: "${p.type}" | Ownership: "${p.ownership}"`).join("\n")}`,
+        },
+      ],
+    })
+  );
+  return object;
+}
+
+// --- Smart Property Import Schema (full AI parse) ---
 
 const smartImportSchema = z.object({
   properties: z.array(z.object({
