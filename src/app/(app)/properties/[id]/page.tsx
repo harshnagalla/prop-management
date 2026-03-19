@@ -819,6 +819,61 @@ export default function PropertyDetailPage() {
             )}
           </div>
 
+          {/* Lease Details */}
+          {(property.leaseStart || property.leaseEnd || property.securityDeposit) && (() => {
+            const now = new Date();
+            const leaseEnd = property.leaseEnd ? new Date(property.leaseEnd) : null;
+            const daysUntilExpiry = leaseEnd ? Math.ceil((leaseEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)) : null;
+            const leaseStatus = !leaseEnd ? null : daysUntilExpiry! < 0 ? "expired" : daysUntilExpiry! <= 30 ? "expiring" : "active";
+            const leaseStartFormatted = property.leaseStart
+              ? new Date(property.leaseStart).toLocaleDateString("en-IN", { month: "short", year: "numeric" })
+              : null;
+            const leaseEndFormatted = leaseEnd
+              ? new Date(leaseEnd).toLocaleDateString("en-IN", { month: "short", year: "numeric" })
+              : null;
+            return (
+              <Card>
+                <CardContent className="p-5">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Lease Details</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {(leaseStartFormatted || leaseEndFormatted) && (
+                      <div>
+                        <p className="text-xs text-muted-foreground">Lease Period</p>
+                        <p className="text-sm font-medium mt-0.5">
+                          {leaseStartFormatted || "—"} – {leaseEndFormatted || "—"}
+                        </p>
+                      </div>
+                    )}
+                    {property.securityDeposit && (
+                      <div>
+                        <p className="text-xs text-muted-foreground">Security Deposit</p>
+                        <p className="text-sm font-medium mt-0.5">{formatCurrency(property.securityDeposit)}</p>
+                      </div>
+                    )}
+                    {leaseStatus && (
+                      <div>
+                        <p className="text-xs text-muted-foreground">Lease Status</p>
+                        <div className="mt-1">
+                          <Badge
+                            variant={
+                              leaseStatus === "active" ? "success" :
+                              leaseStatus === "expiring" ? "warning" :
+                              "destructive"
+                            }
+                          >
+                            {leaseStatus === "active" ? "Active" :
+                             leaseStatus === "expiring" ? `Expiring in ${daysUntilExpiry} days` :
+                             "Expired"}
+                          </Badge>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })()}
+
           {/* Net Income Summary */}
           {chartData && (
             <Card>
@@ -1134,6 +1189,7 @@ export default function PropertyDetailPage() {
                             <th className="text-left px-4 py-3 font-medium text-muted-foreground">Tenant</th>
                             <th className="text-left px-4 py-3 font-medium text-muted-foreground">Received Date</th>
                             <th className="text-left px-4 py-3 font-medium text-muted-foreground">Status</th>
+                            <th className="px-4 py-3 w-10"></th>
                           </tr>
                         </thead>
                         <tbody>
@@ -1146,6 +1202,19 @@ export default function PropertyDetailPage() {
                                 <Badge variant={item.isReceived ? "success" : "warning"}>
                                   {item.isReceived ? "Received" : "Pending"}
                                 </Badge>
+                              </td>
+                              <td className="px-4 py-3">
+                                {item.isReceived && (
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => window.open(`/reports/receipt?incomeId=${item.id}`, "_blank")}
+                                    className="h-7 w-7 min-h-[28px] min-w-[28px]"
+                                    title="Print Receipt"
+                                  >
+                                    <FileText size={13} />
+                                  </Button>
+                                )}
                               </td>
                             </tr>
                           ))}
@@ -1165,9 +1234,22 @@ export default function PropertyDetailPage() {
                                   <p className="text-xs text-muted-foreground mt-0.5">{item.tenantName}</p>
                                 )}
                               </div>
-                              <Badge variant={item.isReceived ? "success" : "warning"}>
-                                {item.isReceived ? "Received" : "Pending"}
-                              </Badge>
+                              <div className="flex items-center gap-1.5">
+                                <Badge variant={item.isReceived ? "success" : "warning"}>
+                                  {item.isReceived ? "Received" : "Pending"}
+                                </Badge>
+                                {item.isReceived && (
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => window.open(`/reports/receipt?incomeId=${item.id}`, "_blank")}
+                                    className="h-7 w-7 min-h-[28px] min-w-[28px]"
+                                    title="Print Receipt"
+                                  >
+                                    <FileText size={13} />
+                                  </Button>
+                                )}
+                              </div>
                             </div>
                             <p className="text-xs text-muted-foreground mt-2">
                               {formatDate(item.receivedDate)}

@@ -72,6 +72,13 @@ function PropertyForm({
     stampDuty: initial?.stampDuty || "",
     registrationCharges: initial?.registrationCharges || "",
     ownership: initial?.ownership || "",
+    leaseStart: initial?.leaseStart
+      ? new Date(initial.leaseStart).toISOString().split("T")[0]
+      : "",
+    leaseEnd: initial?.leaseEnd
+      ? new Date(initial.leaseEnd).toISOString().split("T")[0]
+      : "",
+    securityDeposit: initial?.securityDeposit || "",
   });
 
   const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
@@ -94,6 +101,9 @@ function PropertyForm({
           stampDuty: form.stampDuty || null,
           registrationCharges: form.registrationCharges || null,
           ownership: form.ownership || null,
+          leaseStart: form.leaseStart || null,
+          leaseEnd: form.leaseEnd || null,
+          securityDeposit: form.securityDeposit || null,
         });
       }}
       className="space-y-5"
@@ -269,6 +279,40 @@ function PropertyForm({
               onChange={(e) => set("ownership", e.target.value)}
               className="mt-1"
               placeholder="e.g. 50% Siva, 50% NMP"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Lease Details */}
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Lease Details</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <label className="text-sm font-medium">Lease Start Date</label>
+            <Input
+              type="date"
+              value={form.leaseStart}
+              onChange={(e) => set("leaseStart", e.target.value)}
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">Lease End Date</label>
+            <Input
+              type="date"
+              value={form.leaseEnd}
+              onChange={(e) => set("leaseEnd", e.target.value)}
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">Security Deposit (&#8377;)</label>
+            <Input
+              type="number"
+              value={form.securityDeposit}
+              onChange={(e) => set("securityDeposit", e.target.value)}
+              className="mt-1"
             />
           </div>
         </div>

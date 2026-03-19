@@ -81,6 +81,11 @@ export const properties = pgTable("properties", {
   saleDate: timestamp("sale_date"),
   buyer: text("buyer"),
 
+  // Lease tracking
+  leaseStart: timestamp("lease_start"),
+  leaseEnd: timestamp("lease_end"),
+  securityDeposit: numeric("security_deposit", { precision: 12, scale: 2 }),
+
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

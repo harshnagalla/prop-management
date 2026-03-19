@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { rentalIncome } from "@/lib/db/schema";
+import { rentalIncome, properties } from "@/lib/db/schema";
 import { and, eq } from "drizzle-orm";
 import { auth } from "@/lib/auth/server";
 
@@ -14,8 +14,24 @@ export async function GET(
   const { id } = await params;
 
   const result = await db
-    .select()
+    .select({
+      id: rentalIncome.id,
+      propertyId: rentalIncome.propertyId,
+      userId: rentalIncome.userId,
+      amount: rentalIncome.amount,
+      month: rentalIncome.month,
+      year: rentalIncome.year,
+      receivedDate: rentalIncome.receivedDate,
+      isReceived: rentalIncome.isReceived,
+      tenantName: rentalIncome.tenantName,
+      notes: rentalIncome.notes,
+      createdAt: rentalIncome.createdAt,
+      propertyName: properties.name,
+      propertyAddress: properties.address,
+      propertyCity: properties.city,
+    })
     .from(rentalIncome)
+    .leftJoin(properties, eq(rentalIncome.propertyId, properties.id))
     .where(and(eq(rentalIncome.id, id), eq(rentalIncome.userId, userId)));
 
   if (!result.length) return NextResponse.json({ error: "Not found" }, { status: 404 });

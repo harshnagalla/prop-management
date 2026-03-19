@@ -9,7 +9,7 @@ export async function GET() {
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const userId = session.user.id;
 
-  const [props, billsData, incomeData] = await Promise.all([
+  const [props, billsData, incomeData, thisMonthBillsData] = await Promise.all([
     db
       .select()
       .from(properties)
@@ -29,6 +29,12 @@ export async function GET() {
       })
       .from(rentalIncome)
       .where(eq(rentalIncome.userId, userId)),
+    db
+      .select({
+        total: sql<string>`COALESCE(SUM(CASE WHEN EXTRACT(MONTH FROM ${bills.dueDate}) = EXTRACT(MONTH FROM NOW()) AND EXTRACT(YEAR FROM ${bills.dueDate}) = EXTRACT(YEAR FROM NOW()) THEN ${bills.amount}::numeric ELSE 0 END), 0)`,
+      })
+      .from(bills)
+      .where(eq(bills.userId, userId)),
   ]);
 
   const totalValue = props.reduce(
@@ -44,6 +50,9 @@ export async function GET() {
     0
   );
   const occupied = props.filter((p) => p.status === "occupied").length;
+  const expectedMonthlyRent = props
+    .filter((p) => p.status === "occupied" && p.monthlyRent)
+    .reduce((sum, p) => sum + parseFloat(p.monthlyRent || "0"), 0);
 
   return NextResponse.json({
     properties: {
@@ -63,6 +72,8 @@ export async function GET() {
       unpaidBills: parseFloat(billsData[0]?.unpaid || "0"),
       totalIncomeReceived: parseFloat(incomeData[0]?.total || "0"),
       thisMonthIncome: parseFloat(incomeData[0]?.thisMonth || "0"),
+      thisMonthBills: parseFloat(thisMonthBillsData[0]?.total || "0"),
+      expectedMonthlyRent,
     },
     propertyList: props.map((p) => ({
       id: p.id,

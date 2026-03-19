@@ -51,6 +51,8 @@ interface DashboardData {
     unpaidBills: number;
     totalIncomeReceived: number;
     thisMonthIncome: number;
+    thisMonthBills: number;
+    expectedMonthlyRent: number;
   };
   propertyList: Array<{
     id: string;
@@ -292,6 +294,46 @@ export default function DashboardPage() {
           <span className="text-sm font-medium text-foreground/80 truncate">Import Data</span>
         </Link>
       </div>
+
+      {/* This Month at a Glance */}
+      {financials.expectedMonthlyRent > 0 && (() => {
+        const collectionRate = financials.expectedMonthlyRent > 0
+          ? Math.min(Math.round((financials.thisMonthIncome / financials.expectedMonthlyRent) * 100), 100)
+          : 0;
+        const netIncome = financials.thisMonthIncome - financials.thisMonthBills;
+        const monthName = new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" });
+        return (
+          <Card>
+            <CardContent className="p-5">
+              <h3 className="text-sm font-semibold mb-4">{monthName} at a Glance</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Rent Collected</span>
+                  <span className="font-semibold text-success">
+                    {formatCurrency(financials.thisMonthIncome)} / {formatCurrency(financials.expectedMonthlyRent)}
+                  </span>
+                </div>
+                <div className="w-full h-2 bg-muted rounded-full">
+                  <div
+                    className="h-2 bg-success rounded-full transition-all duration-500"
+                    style={{ width: `${collectionRate}%` }}
+                  />
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Bills This Month</span>
+                  <span className="font-semibold">{formatCurrency(financials.thisMonthBills)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Net Income</span>
+                  <span className={cn("font-semibold", netIncome >= 0 ? "text-success" : "text-destructive")}>
+                    {netIncome >= 0 ? "+" : ""}{formatCurrency(netIncome)}
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })()}
 
       {/* Key Metrics section */}
       <div className="space-y-4">

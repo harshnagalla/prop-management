@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { IndianRupee, Plus, Pencil, Trash2, ChevronDown } from "lucide-react";
+import { IndianRupee, Plus, Pencil, Trash2, ChevronDown, FileText } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/utils/toast";
@@ -628,6 +628,17 @@ export default function IncomePage() {
                               <Badge variant="warning">Pending</Badge>
                             )}
                             <div className="flex gap-0.5 sm:opacity-0 sm:group-hover/row:opacity-100 transition-opacity">
+                              {entry.isReceived && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => window.open(`/reports/receipt?incomeId=${entry.id}`, "_blank")}
+                                  className="h-7 w-7 min-h-[28px] min-w-[28px]"
+                                  title="Print Receipt"
+                                >
+                                  <FileText size={13} />
+                                </Button>
+                              )}
                               <Button
                                 variant="ghost"
                                 size="icon"
