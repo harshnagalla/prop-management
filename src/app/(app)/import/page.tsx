@@ -516,12 +516,11 @@ export default function ImportPage() {
     for (const idx of selected) {
       const p = properties[idx];
       try {
-        const unitId = extractUnit(p.address);
         const res = await fetch("/api/properties", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            name: p.name + (unitId ? ` - ${unitId}` : ""),
+            name: p.name,
             address: p.address, city: "Ahmedabad", type: p.type, status: p.status,
             purchasePrice: p.purchasePrice > 0 ? String(p.purchasePrice) : null,
             currentValue: p.purchasePrice > 0 ? String(p.purchasePrice) : null,
@@ -532,7 +531,7 @@ export default function ImportPage() {
             registrationCharges: p.registrationCharges > 0 ? String(p.registrationCharges) : null,
             ownership: p.ownership || null,
             ownershipPercent: p.ownership ? String(parseOwnershipPercent(p.ownership)) || null : null,
-            notes: p.remarks || null,
+            notes: [p.area, p.remarks].filter(Boolean).join("\n") || null,
           }),
         });
         if (res.ok) success++; else failed++;
