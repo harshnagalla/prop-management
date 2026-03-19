@@ -852,6 +852,12 @@ export default function PropertyDetailPage() {
                 </span>
               </div>
             )}
+            {property.areaDetails && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Ruler size={14} />
+                <span>{property.areaDetails}</span>
+              </div>
+            )}
             {property.tenantName && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <User size={14} />

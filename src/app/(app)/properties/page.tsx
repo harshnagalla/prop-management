@@ -63,6 +63,7 @@ function PropertyForm({
     currentValue: initial?.currentValue || "",
     area: initial?.area || "",
     areaUnit: initial?.areaUnit || "sqft",
+    areaDetails: initial?.areaDetails || "",
     monthlyRent: initial?.monthlyRent || "",
     tenantName: initial?.tenantName || "",
     notes: initial?.notes || "",
@@ -94,6 +95,7 @@ function PropertyForm({
           purchasePrice: form.purchasePrice || null,
           currentValue: form.currentValue || null,
           area: form.area || null,
+          areaDetails: form.areaDetails || null,
           monthlyRent: form.monthlyRent || null,
           purchaseDate: form.purchaseDate || null,
           tenantName: form.tenantName || null,
@@ -188,6 +190,15 @@ function PropertyForm({
                 <option value="sqyd">sqyd</option>
               </select>
             </div>
+          </div>
+          <div className="col-span-1 sm:col-span-2">
+            <label className="text-sm font-medium">Area Details</label>
+            <Input
+              value={form.areaDetails}
+              onChange={(e) => set("areaDetails", e.target.value)}
+              className="mt-1"
+              placeholder="e.g. Carpet: 41.93 Sq.Mt, Build up: 44.72 Sq.MT"
+            />
           </div>
         </div>
       </div>
@@ -649,6 +660,7 @@ export default function PropertiesPage() {
                         <p className="text-xs text-muted-foreground truncate">
                           {p.address}{p.city ? `, ${p.city}` : ""}
                         </p>
+                        {p.areaDetails && <p className="text-[11px] text-muted-foreground truncate">{p.areaDetails}</p>}
                       </div>
                     </div>
 
