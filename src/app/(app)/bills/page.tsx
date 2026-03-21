@@ -757,60 +757,87 @@ export default function BillsPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {sorted.map((b, idx) => (
-                      <tr
-                        key={b.id}
-                        className={cn(
-                          "border-b border-border/50 hover:bg-muted/40 transition-colors",
-                          idx % 2 === 1 && "bg-muted/20"
-                        )}
-                      >
-                        <td className="p-4 font-medium">
-                          <div className="flex items-center gap-2">
-                            <div className={cn("w-2 h-2 rounded-full shrink-0", getCategoryColor(b.category))} />
-                            {b.propertyName || "\u2014"}
-                          </div>
-                        </td>
-                        <td className="p-4 capitalize">
-                          {b.category.replace("_", " ")}
-                        </td>
-                        <td className="p-4 text-muted-foreground">
-                          {b.vendor || "\u2014"}
-                        </td>
-                        <td className="p-4 text-right font-medium tabular-nums">
-                          {formatCurrency(b.amount)}
-                        </td>
-                        <td className="p-4 tabular-nums">{formatDate(b.dueDate)}</td>
-                        <td className="p-4 text-center">
-                          {b.isPaid ? (
-                            <Badge variant="success">Paid</Badge>
-                          ) : (
-                            <Badge variant="destructive">Unpaid</Badge>
+                    {sorted.map((b, idx) => {
+                      const isOverdue = !b.isPaid && b.dueDate && new Date(b.dueDate) < new Date();
+                      const daysOverdue = isOverdue && b.dueDate
+                        ? Math.floor((Date.now() - new Date(b.dueDate).getTime()) / (1000 * 60 * 60 * 24))
+                        : 0;
+                      return (
+                        <tr
+                          key={b.id}
+                          className={cn(
+                            "border-b border-border/30 hover:bg-muted/40 transition-colors",
+                            idx % 2 === 1 && "bg-muted/20",
+                            isOverdue && "border-l-4 border-l-destructive"
                           )}
-                        </td>
-                        <td className="p-4 text-right">
-                          <div className="flex gap-1 justify-end">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => setEditing(b)}
-                              className="h-8 w-8"
-                            >
-                              <Pencil size={14} />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleDelete(b.id)}
-                              className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                            >
-                              <Trash2 size={14} />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                        >
+                          <td className="px-4 py-3 font-medium">
+                            <div className="flex items-center gap-2">
+                              <div className={cn("w-2 h-2 rounded-full shrink-0", getCategoryColor(b.category))} />
+                              {b.propertyName || "\u2014"}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 capitalize">
+                            {b.category.replace("_", " ")}
+                          </td>
+                          <td className="px-4 py-3 text-muted-foreground">
+                            {b.vendor || "\u2014"}
+                          </td>
+                          <td className="px-4 py-3 text-right font-bold tabular-nums">
+                            {formatCurrency(b.amount)}
+                          </td>
+                          <td className="px-4 py-3 tabular-nums">
+                            <div>{formatDate(b.dueDate)}</div>
+                            {isOverdue && daysOverdue > 0 && (
+                              <span className="text-xs text-destructive font-medium">{daysOverdue}d overdue</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            {b.isPaid ? (
+                              <Badge variant="success">Paid</Badge>
+                            ) : (
+                              <Badge variant="destructive">Unpaid</Badge>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <div className="flex gap-1 justify-end">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => setEditing(b)}
+                                className="h-8 w-8"
+                              >
+                                <Pencil size={14} />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleDelete(b.id)}
+                                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                              >
+                                <Trash2 size={14} />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
+                  {sorted.length > 0 && (
+                    <tfoot>
+                      <tr className="border-t-2 border-border bg-muted/40 font-semibold">
+                        <td className="px-4 py-3" colSpan={3}>Total ({sorted.length} bills)</td>
+                        <td className="px-4 py-3 text-right tabular-nums font-bold">
+                          {formatCurrency(sorted.reduce((s, b) => s + parseFloat(b.amount), 0))}
+                        </td>
+                        <td className="px-4 py-3"></td>
+                        <td className="px-4 py-3 text-center text-xs text-muted-foreground">
+                          {sorted.filter((b) => b.isPaid).length} paid
+                        </td>
+                        <td className="px-4 py-3"></td>
+                      </tr>
+                    </tfoot>
+                  )}
                 </table>
               </div>
             </CardContent>

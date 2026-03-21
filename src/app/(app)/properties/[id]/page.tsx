@@ -1309,6 +1309,31 @@ export default function PropertyDetailPage() {
             />
           ) : (
             <div className="space-y-6">
+              {/* Yearly summary */}
+              {(() => {
+                const byYear: Record<number, { received: number; pending: number }> = {};
+                income.forEach((i) => {
+                  if (!byYear[i.year]) byYear[i.year] = { received: 0, pending: 0 };
+                  const amt = parseFloat(i.amount);
+                  if (i.isReceived) byYear[i.year].received += amt;
+                  else byYear[i.year].pending += amt;
+                });
+                const years = Object.keys(byYear).map(Number).sort().reverse();
+                return (
+                  <div className="hidden md:flex flex-wrap gap-4 p-4 bg-muted/30 rounded-[var(--radius)] border border-border/50">
+                    {years.map((y) => (
+                      <div key={y} className="text-sm">
+                        <span className="font-semibold">{y}:</span>{" "}
+                        <span className="text-success font-medium tabular-nums">{formatCurrency(byYear[y].received)}</span>
+                        {byYear[y].pending > 0 && (
+                          <span className="text-muted-foreground"> + <span className="text-warning tabular-nums">{formatCurrency(byYear[y].pending)} pending</span></span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+
               {incomeGroupKeys.map((key) => {
                 const items = incomeGrouped[key];
                 const [year, monthStr] = key.split("-");
@@ -1324,19 +1349,27 @@ export default function PropertyDetailPage() {
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="bg-muted/50 border-b border-border">
-                            <th className="text-right px-4 py-3 font-medium text-muted-foreground">Amount</th>
-                            <th className="text-left px-4 py-3 font-medium text-muted-foreground">Tenant</th>
-                            <th className="text-left px-4 py-3 font-medium text-muted-foreground">Received Date</th>
-                            <th className="text-left px-4 py-3 font-medium text-muted-foreground">Status</th>
+                            <th className="text-right px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">Amount</th>
+                            <th className="text-left px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">Tenant</th>
+                            <th className="text-left px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">Received Date</th>
+                            <th className="text-left px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</th>
                             <th className="px-4 py-3 w-10"></th>
                           </tr>
                         </thead>
                         <tbody>
-                          {items.map((item) => (
-                            <tr key={item.id} className="border-b border-border last:border-0">
-                              <td className="px-4 py-3 text-right font-medium">{formatCurrency(item.amount)}</td>
-                              <td className="px-4 py-3 text-muted-foreground">{item.tenantName || "—"}</td>
-                              <td className="px-4 py-3 text-muted-foreground">{formatDate(item.receivedDate)}</td>
+                          {items.map((item, idx) => (
+                            <tr key={item.id} className={cn(
+                              "border-b border-border/30 last:border-0 hover:bg-muted/30 transition-colors",
+                              idx % 2 === 1 && "bg-muted/20"
+                            )}>
+                              <td className={cn(
+                                "px-4 py-3 text-right font-bold tabular-nums",
+                                item.isReceived ? "text-success" : "text-muted-foreground"
+                              )}>
+                                {formatCurrency(item.amount)}
+                              </td>
+                              <td className="px-4 py-3 text-muted-foreground">{item.tenantName || "\u2014"}</td>
+                              <td className="px-4 py-3 text-muted-foreground tabular-nums">{formatDate(item.receivedDate)}</td>
                               <td className="px-4 py-3">
                                 <Badge variant={item.isReceived ? "success" : "warning"}>
                                   {item.isReceived ? "Received" : "Pending"}

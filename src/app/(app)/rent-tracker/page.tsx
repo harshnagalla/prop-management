@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Wallet, ChevronDown, CheckCircle2 } from "lucide-react";
+import { Wallet, ChevronDown, CheckCircle2, List, LayoutGrid } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { toast } from "@/lib/utils/toast";
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,7 @@ export default function RentTrackerPage() {
   const [loading, setLoading] = useState(true);
   const [recording, setRecording] = useState<Set<string>>(new Set());
   const [recordingAll, setRecordingAll] = useState(false);
+  const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
 
   const now = new Date();
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
@@ -297,9 +299,9 @@ export default function RentTrackerPage() {
             />
           </div>
 
-          {/* Record All Pending button */}
-          {pendingStatuses.length > 0 && (
-            <div className="flex justify-end">
+          {/* Actions row: Record All + View Toggle */}
+          <div className="flex items-center justify-between gap-3">
+            {pendingStatuses.length > 0 ? (
               <Button
                 variant="default"
                 onClick={recordAllPending}
@@ -310,57 +312,172 @@ export default function RentTrackerPage() {
                   ? "Recording..."
                   : `Record All Pending (${pendingStatuses.length})`}
               </Button>
+            ) : (
+              <div />
+            )}
+            <div className="flex border border-border rounded-[var(--radius)] overflow-hidden shrink-0">
+              <button
+                onClick={() => setViewMode("grid")}
+                className={cn(
+                  "p-2 transition-colors",
+                  viewMode === "grid" ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <LayoutGrid size={18} />
+              </button>
+              <button
+                onClick={() => setViewMode("table")}
+                className={cn(
+                  "p-2 transition-colors",
+                  viewMode === "table" ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <List size={18} />
+              </button>
+            </div>
+          </div>
+
+          {viewMode === "table" ? (
+            /* Summary table view */
+            <Card>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border bg-muted/40">
+                        <th className="text-left px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">Property</th>
+                        <th className="text-left px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">Tenant</th>
+                        <th className="text-right px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">Expected</th>
+                        <th className="text-center px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</th>
+                        <th className="text-left px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">Received</th>
+                        <th className="text-right px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground w-40">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {propertyStatuses.map(({ property, incomeEntry, status }, idx) => {
+                        const daysOverdue = status === "overdue" && now.getDate() > 10
+                          ? now.getDate() - 10
+                          : 0;
+                        return (
+                          <tr
+                            key={property.id}
+                            className={cn(
+                              "border-b border-border/30 hover:bg-muted/30 transition-colors",
+                              idx % 2 === 1 && "bg-muted/20"
+                            )}
+                          >
+                            <td className="px-4 py-3 font-medium">{property.name}</td>
+                            <td className="px-4 py-3 text-muted-foreground">{property.tenantName || "\u2014"}</td>
+                            <td className="px-4 py-3 text-right font-bold tabular-nums">{formatCurrency(property.monthlyRent)}</td>
+                            <td className="px-4 py-3 text-center">
+                              {status === "collected" ? (
+                                <Badge variant="success">Collected</Badge>
+                              ) : status === "overdue" ? (
+                                <div>
+                                  <Badge variant="destructive">Overdue</Badge>
+                                  {daysOverdue > 0 && (
+                                    <span className="block text-xs text-destructive mt-0.5">{daysOverdue}d overdue</span>
+                                  )}
+                                </div>
+                              ) : (
+                                <Badge variant="warning">Pending</Badge>
+                              )}
+                            </td>
+                            <td className="px-4 py-3 text-muted-foreground tabular-nums">
+                              {status === "collected" && incomeEntry?.receivedDate
+                                ? formatDate(incomeEntry.receivedDate)
+                                : "\u2014"}
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              {status !== "collected" && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => recordPayment(property)}
+                                  disabled={recording.has(property.id) || recordingAll}
+                                >
+                                  {recording.has(property.id) ? "Recording..." : "Record"}
+                                </Button>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                    <tfoot>
+                      <tr className="border-t-2 border-border bg-muted/40 font-semibold">
+                        <td className="px-4 py-3" colSpan={2}>Total ({propertyStatuses.length})</td>
+                        <td className="px-4 py-3 text-right tabular-nums">{formatCurrency(totalExpected)}</td>
+                        <td className="px-4 py-3 text-center text-xs text-muted-foreground">
+                          {propertyStatuses.filter((s) => s.status === "collected").length} collected
+                        </td>
+                        <td className="px-4 py-3" colSpan={2}></td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            /* Property cards grid */
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {propertyStatuses.map(({ property, incomeEntry, status }) => {
+                const daysOverdue = status === "overdue" && now.getDate() > 10
+                  ? now.getDate() - 10
+                  : 0;
+                return (
+                  <Card key={property.id}>
+                    <CardHeader className="flex-row items-start justify-between gap-3 pb-2">
+                      <div className="min-w-0 flex-1">
+                        <CardTitle className="truncate">{property.name}</CardTitle>
+                        {property.tenantName && (
+                          <p className="text-sm text-muted-foreground mt-0.5 truncate">
+                            {property.tenantName}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex flex-col items-end gap-1">
+                        {status === "collected" ? (
+                          <Badge variant="success">Collected</Badge>
+                        ) : status === "overdue" ? (
+                          <Badge variant="destructive">Overdue</Badge>
+                        ) : (
+                          <Badge variant="warning">Pending</Badge>
+                        )}
+                        {daysOverdue > 0 && (
+                          <span className="text-xs text-destructive font-medium">{daysOverdue}d overdue</span>
+                        )}
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-end justify-between gap-3">
+                        <div>
+                          <p className="text-xl font-bold tabular-nums">
+                            {formatCurrency(property.monthlyRent)}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-0.5">monthly rent</p>
+                        </div>
+                        {status === "collected" && incomeEntry?.receivedDate ? (
+                          <p className="text-xs text-success">
+                            Received {formatDate(incomeEntry.receivedDate)}
+                          </p>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => recordPayment(property)}
+                            disabled={recording.has(property.id) || recordingAll}
+                          >
+                            {recording.has(property.id) ? "Recording..." : "Record Payment"}
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           )}
-
-          {/* Property cards grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {propertyStatuses.map(({ property, incomeEntry, status }) => (
-              <Card key={property.id}>
-                <CardHeader className="flex-row items-start justify-between gap-3 pb-2">
-                  <div className="min-w-0 flex-1">
-                    <CardTitle className="truncate">{property.name}</CardTitle>
-                    {property.tenantName && (
-                      <p className="text-sm text-muted-foreground mt-0.5 truncate">
-                        {property.tenantName}
-                      </p>
-                    )}
-                  </div>
-                  {status === "collected" ? (
-                    <Badge variant="success">Collected</Badge>
-                  ) : status === "overdue" ? (
-                    <Badge variant="destructive">Overdue</Badge>
-                  ) : (
-                    <Badge variant="warning">Pending</Badge>
-                  )}
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-end justify-between gap-3">
-                    <div>
-                      <p className="text-xl font-bold tabular-nums">
-                        {formatCurrency(property.monthlyRent)}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-0.5">monthly rent</p>
-                    </div>
-                    {status === "collected" && incomeEntry?.receivedDate ? (
-                      <p className="text-xs text-success">
-                        Received {formatDate(incomeEntry.receivedDate)}
-                      </p>
-                    ) : (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => recordPayment(property)}
-                        disabled={recording.has(property.id) || recordingAll}
-                      >
-                        {recording.has(property.id) ? "Recording..." : "Record Payment"}
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
         </>
       )}
     </div>

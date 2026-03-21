@@ -74,6 +74,7 @@ interface DashboardData {
     purchasePrice: number;
     rentalYield: number;
     roi: number;
+    ownershipPercent: number;
   }>;
 }
 
@@ -595,38 +596,42 @@ export default function DashboardPage() {
                   <thead>
                     <tr className="border-b border-border bg-muted/40">
                       <SortHeader label="Property" sortKey="name" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} />
-                      <th className="text-left p-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</th>
+                      <th className="text-left px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</th>
                       <SortHeader label="Value" sortKey="currentValue" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} className="text-right" />
                       <SortHeader label="Monthly Rent" sortKey="monthlyRent" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} className="text-right" />
                       <SortHeader label="Yield" sortKey="rentalYield" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} className="text-right" />
                       <SortHeader label="ROI" sortKey="roi" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} className="text-right" />
+                      <th className="text-right px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">Ownership</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {sortedProperties.map((p) => (
+                    {sortedProperties.map((p, idx) => (
                       <tr
                         key={p.id}
-                        className="border-b border-border/40 hover:bg-primary/[0.03] transition-colors"
+                        className={cn(
+                          "border-b border-border/30 hover:bg-primary/[0.03] transition-colors",
+                          idx % 2 === 1 && "bg-muted/20"
+                        )}
                       >
-                        <td className="p-4 font-medium">
+                        <td className="px-4 py-3 font-medium">
                           <Link href={`/properties/${p.id}`} className="text-primary hover:underline">
                             {p.name}
                           </Link>
                         </td>
-                        <td className="p-4">
+                        <td className="px-4 py-3">
                           <Badge variant={getStatusBadgeVariant(p.status)}>
                             {p.status.replace("_", " ")}
                           </Badge>
                         </td>
-                        <td className="p-4 text-right tabular-nums">
+                        <td className="px-4 py-3 text-right tabular-nums">
                           {formatCurrency(p.currentValue)}
                         </td>
-                        <td className="p-4 text-right tabular-nums">
+                        <td className="px-4 py-3 text-right tabular-nums">
                           {p.monthlyRent > 0
                             ? formatCurrency(p.monthlyRent)
                             : "\u2014"}
                         </td>
-                        <td className="p-4 text-right">
+                        <td className="px-4 py-3 text-right">
                           {p.rentalYield > 0 ? (
                             <Badge variant={getYieldBadgeVariant(p.rentalYield)}>
                               {formatPercent(p.rentalYield)}
@@ -635,12 +640,46 @@ export default function DashboardPage() {
                             "\u2014"
                           )}
                         </td>
-                        <td className="p-4 text-right tabular-nums">
+                        <td className="px-4 py-3 text-right tabular-nums">
                           {p.roi > 0 ? formatPercent(p.roi) : "\u2014"}
+                        </td>
+                        <td className="px-4 py-3 text-right tabular-nums">
+                          {p.ownershipPercent < 100 ? (
+                            <Badge variant="warning">{p.ownershipPercent}%</Badge>
+                          ) : (
+                            "100%"
+                          )}
                         </td>
                       </tr>
                     ))}
                   </tbody>
+                  {propertyList.length > 0 && (
+                    <tfoot>
+                      <tr className="border-t-2 border-border bg-muted/40 font-semibold">
+                        <td className="px-4 py-3">Total ({propertyList.length})</td>
+                        <td className="px-4 py-3"></td>
+                        <td className="px-4 py-3 text-right tabular-nums">
+                          {formatCurrency(propertyList.reduce((s, p) => s + p.currentValue, 0))}
+                        </td>
+                        <td className="px-4 py-3 text-right tabular-nums">
+                          {formatCurrency(propertyList.reduce((s, p) => s + p.monthlyRent, 0))}
+                        </td>
+                        <td className="px-4 py-3 text-right tabular-nums">
+                          {(() => {
+                            const yields = propertyList.filter((p) => p.rentalYield > 0);
+                            return yields.length > 0 ? formatPercent(yields.reduce((s, p) => s + p.rentalYield, 0) / yields.length) : "\u2014";
+                          })()}
+                        </td>
+                        <td className="px-4 py-3 text-right tabular-nums">
+                          {(() => {
+                            const rois = propertyList.filter((p) => p.roi > 0);
+                            return rois.length > 0 ? formatPercent(rois.reduce((s, p) => s + p.roi, 0) / rois.length) : "\u2014";
+                          })()}
+                        </td>
+                        <td className="px-4 py-3"></td>
+                      </tr>
+                    </tfoot>
+                  )}
                 </table>
               </div>
 

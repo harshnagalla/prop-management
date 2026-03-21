@@ -19,5 +19,6 @@ export const config = {
     "/bank-import/:path*",
     "/reports/:path*",
     "/insights/:path*",
+    "/chat/:path*",
   ],
 };

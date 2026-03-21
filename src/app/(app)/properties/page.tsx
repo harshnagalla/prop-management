@@ -879,6 +879,7 @@ export default function PropertiesPage() {
             const yld = calcRentalYield(p.monthlyRent, p.currentValue);
             const Icon = getPropertyIcon(p.type);
             const colorClass = getPropertyColor(p.type);
+            const inv = getInvestmentScore(p);
             return (
               <Link key={p.id} href={`/properties/${p.id}`} className="group block">
                 <Card className="transition-shadow hover:shadow-[var(--shadow-card-hover)]">
@@ -887,41 +888,44 @@ export default function PropertiesPage() {
                       <Icon size={24} strokeWidth={1.5} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="font-semibold group-hover:text-primary transition-colors truncate">{p.name}</h3>
                         <Badge variant={getStatusBadgeVariant(p.status || "vacant")} className="shrink-0">
                           {p.status?.replace("_", " ")}
                         </Badge>
-                        {(() => {
-                          const inv = getInvestmentScore(p);
-                          return (
-                            <Badge variant={inv.variant as "success" | "default" | "warning" | "destructive"} className="shrink-0 text-[10px]">
-                              {inv.rating}
-                            </Badge>
-                          );
-                        })()}
+                        <Badge variant={inv.variant as "success" | "default" | "warning" | "destructive"} className="shrink-0 text-[10px]">
+                          {inv.rating}
+                        </Badge>
+                        {p.ownershipPercent && parseFloat(p.ownershipPercent) < 100 && (
+                          <Badge variant="warning" className="shrink-0 text-[10px]">
+                            {parseFloat(p.ownershipPercent)}% owned
+                          </Badge>
+                        )}
                       </div>
                       <p className="text-sm text-muted-foreground truncate mt-0.5">
                         {p.address}{p.city ? `, ${p.city}` : ""}
                       </p>
+                      {p.areaDetails && (
+                        <p className="text-xs text-muted-foreground truncate mt-0.5">{p.areaDetails}</p>
+                      )}
                     </div>
                     <div className="hidden sm:flex items-center gap-6 text-sm shrink-0">
                       {p.currentValue && (
                         <div className="text-right">
                           <p className="text-xs text-muted-foreground">Value</p>
-                          <p className="font-semibold">{formatCurrency(p.currentValue)}</p>
+                          <p className="font-semibold tabular-nums">{formatCurrency(p.currentValue)}</p>
                         </div>
                       )}
                       {p.monthlyRent && (
                         <div className="text-right">
                           <p className="text-xs text-muted-foreground">Rent/mo</p>
-                          <p className="font-semibold">{formatCurrency(p.monthlyRent)}</p>
+                          <p className="font-semibold tabular-nums">{formatCurrency(p.monthlyRent)}</p>
                         </div>
                       )}
                       {yld > 0 && (
                         <div className="text-right">
                           <p className="text-xs text-muted-foreground">Yield</p>
-                          <p className={cn("font-semibold", yld > 5 ? "text-success" : yld > 3 ? "text-foreground" : "text-warning")}>
+                          <p className={cn("font-semibold tabular-nums", yld > 5 ? "text-success" : yld > 3 ? "text-foreground" : "text-warning")}>
                             {formatPercent(yld)}
                           </p>
                         </div>

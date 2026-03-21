@@ -152,6 +152,7 @@ export async function GET() {
         parseFloat(p.purchasePrice || "0") > 0
           ? ((parseFloat(p.monthlyRent || "0") * 12) / parseFloat(p.purchasePrice || "0")) * 100
           : 0,
+      ownershipPercent: parseFloat(p.ownershipPercent || "100"),
     })),
   });
 }

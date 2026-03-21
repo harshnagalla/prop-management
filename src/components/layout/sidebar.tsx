@@ -14,6 +14,7 @@ import {
   Menu,
   X,
   TrendingUp,
+  MessageSquare,
 } from "lucide-react";
 import { authClient } from "@/lib/auth/client";
 import { useState } from "react";
@@ -26,6 +27,7 @@ const nav = [
   { href: "/income", label: "Income", icon: IndianRupee },
   { href: "/documents", label: "Documents", icon: FileText },
   { href: "/insights", label: "Insights", icon: TrendingUp },
+  { href: "/chat", label: "Ask AI", icon: MessageSquare },
   { href: "/import", label: "Import", icon: Upload },
 ];
 
